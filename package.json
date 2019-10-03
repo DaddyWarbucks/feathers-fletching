@@ -1,0 +1,15 @@
+{
+  "name": "feathers-fletching",
+  "version": "0.0.1",
+  "description": "Hooks, services, and plugins for feathers.js",
+  "main": "hooks/",
+  "repository": "https://github.com/DaddyWarbucks/feathers-fletching.git",
+  "author": "DaddyWarbucks <techtbeau@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@feathersjs/errors": "^4.3.4",
+    "feathers-hooks-common": "^4.20.7",
+    "lodash.omit": "^4.5.0"
+  }
+}
