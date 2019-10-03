@@ -1,4 +1,4 @@
-const skippable = require('./skippable');
+const { skippable } = require('../lib');
 
 const isObject = val => val !== null && val.constructor === Object;
 

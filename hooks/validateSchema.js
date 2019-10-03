@@ -1,5 +1,5 @@
 const { GeneralError } = require('@feathersjs/errors');
-const { skippable } = require('./skippable');
+const { skippable } = require('../lib');
 
 module.exports = skippable('validateSchema', async context => {
   const schema = context.params.schema ||

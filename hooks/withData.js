@@ -1,5 +1,4 @@
-const skippable = require('./skippable');
-const virtualsSerializer = require('../lib');
+const { skippable, virtualsSerializer } = require('../lib');
 
 // Add data, such as defaults to context.data in a before hook.
 // Note `data` could technically be an array of multiple items

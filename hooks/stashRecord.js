@@ -1,5 +1,5 @@
 const { checkContext } = require('feathers-hooks-common');
-const { skippable } = require('./skippable');
+const { skippable } = require('../lib');
 
 module.exports = (
   prop = 'stashed',

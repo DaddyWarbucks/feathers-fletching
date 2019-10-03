@@ -1,6 +1,6 @@
 const { checkContext } = require('feathers-hooks-common');
 const { BadRequest } = require('@feathersjs/errors');
-const skippable = require('./skippable');
+const { skippable } = require('../lib');
 const stashRecord = require('./stashRecord');
 
 module.exports = function preventChange(_props, _options) {

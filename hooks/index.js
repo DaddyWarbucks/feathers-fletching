@@ -1,4 +1,3 @@
-module.exports.skippable = require('./skippable');
 module.exports.withData = require('./withData');
 module.exports.withQuery = require('./withQuery');
 module.exports.withResult = require('./withResult');

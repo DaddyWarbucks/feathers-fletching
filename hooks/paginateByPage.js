@@ -1,4 +1,4 @@
-const skippable = require('./skippable');
+const { skippable } = require('../lib');
 
 module.exports = skippable('paginateByPage', context => {
   if (!context.params.query) {

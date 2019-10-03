@@ -5,7 +5,7 @@
 // protecting certain field
 
 const omit = require('lodash.omit');
-const skippable = require('./skippable');
+const { skippable } = require('../lib');
 
 module.exports = (...fields) => {
   return skippable('protect', context => {
