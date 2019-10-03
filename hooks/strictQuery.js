@@ -94,7 +94,11 @@ const strictQueryParse = (
   }
 ) => {
   return skippable('strictQueryParse', context => {
-    const options = Object.assign({}, defaults, context.params.queryTypes);
+    const options = Object.assign(
+      {},
+      defaults,
+      context.params.strictQueryParse
+    );
     if (
       !context.params.query ||
       !options.providers.includes(context.params.provider)
@@ -120,7 +124,11 @@ const strictQueryStringify = (
   }
 ) => {
   return skippable('strictQueryStringify', context => {
-    const options = Object.assign({}, defaults, context.params.queryTypes);
+    const options = Object.assign(
+      {},
+      defaults,
+      context.params.strictQueryStringify
+    );
     const provider = clientProvider(context.app);
     if (
       !context.params.query ||
