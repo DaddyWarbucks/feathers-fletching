@@ -3,7 +3,7 @@ const { skippable, virtualsSerializer } = require('../lib');
 // Add data, such as defaults to context.data in a before hook.
 // Note `data` could technically be an array of multiple items
 // to create/update/patch. Also note that although the keys are
-// iterated over synronously (in order of definition on the virtuals
+// iterated over syncronously (in order of definition on the virtuals
 // object) that if data is an array, all items in the data array
 // are run in parrallel.
 // The value of each property in the virtuals object can be a function,

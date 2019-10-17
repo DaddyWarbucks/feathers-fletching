@@ -3,6 +3,8 @@ const { BadRequest } = require('@feathersjs/errors');
 const { skippable } = require('../lib');
 const stashRecord = require('./stashRecord');
 
+// TODO: preventChange should handle an array at context.data
+
 module.exports = function preventChange(_props, _options) {
   return skippable('preventChange', async context => {
     checkContext(context, 'before', ['update', 'patch'], 'preventChange');

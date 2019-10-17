@@ -1,5 +1,4 @@
 // Copied from https://github.com/feathersjs/feathers/blob/master/packages/authentication-local/src/hooks/protect.ts
-// It was a basic conversion back to JS from TS
 // Now protects on internal and external calls and also allows
 // the skipHooks to pass ['protect.password'] to only skip
 // protecting certain field
