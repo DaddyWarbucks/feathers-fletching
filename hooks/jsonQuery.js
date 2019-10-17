@@ -73,7 +73,7 @@ module.exports.jsonQueryClient = app => {
   });
 };
 
-// A convenience to add the client server side hook
+// A convenience to add the server side hook
 // as the first hook in app.hooks. Should be called
 // before any other app.hooks()
 module.exports.jsonQueryServer = app => {
