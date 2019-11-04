@@ -16,9 +16,7 @@
   }
 */
 module.exports = async (item, virtuals, context, prepResult) => {
-  const updated = {
-    ...item
-  };
+  const updated = Object.assign({}, item);
   for (const key of Object.keys(virtuals)) {
     if (typeof virtuals[key] === 'function') {
       updated[key] = await Promise.resolve(
