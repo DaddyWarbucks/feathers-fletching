@@ -5,5 +5,5 @@ module.exports.validateSchema = require('./validateSchema');
 module.exports.stashRecord = require('./stashRecord');
 module.exports.preventChange = require('./preventChange');
 module.exports.protect = require('./protect');
-module.exports = Object.assign(module.exports, require('./strictQuery'))
-module.exports = Object.assign(module.exports, require('./jsonQuery'))
+module.exports = Object.assign(module.exports, require('./strictQuery'));
+module.exports = Object.assign(module.exports, require('./jsonQuery'));
