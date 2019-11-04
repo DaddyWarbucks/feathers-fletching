@@ -17,7 +17,7 @@ const jsonQueryStringify = skippable(
       const { overwrite, propName } = Object.assign(
         {},
         options,
-        context.params.jsonQueryStringify
+        context.params.jsonQueryStringify || {}
       );
       if (overwrite) {
         context.params.query = { [propName]: JSON.stringify(query) };

@@ -97,7 +97,7 @@ const strictQueryParse = (
     const { types, providers } = Object.assign(
       {},
       options,
-      context.params.strictQueryParse
+      context.params.strictQueryParse || {}
     );
     if (!context.params.query || !providers.includes(context.params.provider)) {
       return context;
@@ -121,7 +121,7 @@ const strictQueryStringify = (
     const { types, providers } = Object.assign(
       {},
       options,
-      context.params.strictQueryStringify
+      context.params.strictQueryStringify || {}
     );
     const provider = clientProvider(context.app);
     if (!context.params.query || !providers.includes(provider)) {
