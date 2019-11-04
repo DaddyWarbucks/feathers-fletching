@@ -1,4 +1,4 @@
-const { skippable } = require('../lib');
+const { skippable, checkContext } = require('../lib');
 
 const isObject = val => val !== null && val.constructor === Object;
 
@@ -88,26 +88,27 @@ const clientProvider = context => {
 // app.hooks.before.all to ensure the query is parsed before
 // all other hooks.
 const strictQueryParse = (
-  defaults = {
+  options = {
     types: ['boolean', 'number', 'null'],
     providers: ['rest'],
   }
 ) => {
   return skippable('strictQueryParse', context => {
-    const options = Object.assign(
+    checkContext(context, 'before', null, 'strictQueryParse');
+    const { types, providers } = Object.assign(
       {},
-      defaults,
+      options,
       context.params.strictQueryParse
     );
     if (
       !context.params.query ||
-      !options.providers.includes(context.params.provider)
+      !providers.includes(context.params.provider)
     ) {
       return context;
     }
     context.params.query = parseObject(
       context.params.query,
-      options.types,
+      types,
       parse
     );
     return context;
@@ -118,27 +119,28 @@ module.exports.strictQueryParse = strictQueryParse;
 // The client side hook. This hook should be the last hook called
 // in any given hook chain. See the plugin below
 const strictQueryStringify = (
-  defaults = {
+  options = {
     types: ['null'],
     providers: ['rest'],
   }
 ) => {
   return skippable('strictQueryStringify', context => {
-    const options = Object.assign(
+    checkContext(context, 'before', null, 'strictQueryParse');
+    const { types, providers } = Object.assign(
       {},
-      defaults,
+      options,
       context.params.strictQueryStringify
     );
     const provider = clientProvider(context.app);
     if (
       !context.params.query ||
-      !options.providers.includes(provider)
+      !providers.includes(provider)
     ) {
       return context;
     }
     context.params.query = parseObject(
       context.params.query,
-      options.types,
+      types,
       stringify
     );
     return context;
@@ -148,7 +150,7 @@ module.exports.strictQueryStringify = strictQueryStringify;
 
 // A convenience to add the client side hook to all service
 // methods as the last hook w/o relying on the developer to
-// handle placing it last on all methods/services manually
+// handle placing it last on all methods/services manually.
 // This plugin should be called after all services have been
 // setup. Note that calling service.hooks() again after this
 // will cause the strictQueryStringify to no longer be last

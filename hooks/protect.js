@@ -4,10 +4,12 @@
 // protecting certain field
 
 const omit = require('lodash.omit');
-const { skippable } = require('../lib');
+const { skippable, checkContext } = require('../lib');
 
 module.exports = (...fields) => {
   return skippable('protect', context => {
+    checkContext(context, 'after', null, 'protect');
+
     // The hook caller did not pass skipHooks: ['protect'] which
     // would have skipped this whole call, but they may have passed
     // somehting like skipHooks: ['protect.password'] signaling

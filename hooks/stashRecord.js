@@ -1,9 +1,10 @@
-const { checkContext } = require('feathers-hooks-common');
-const { skippable } = require('../lib');
+const { skippable, checkContext } = require('../lib');
 
 module.exports = (
-  prop = 'stashed',
-  getParamsFunc = () => {}
+  options = {
+    propName: 'stashed',
+    getParamsFunc: context => {},
+  }
 ) => {
   return skippable('stashRecord', async context => {
     checkContext(
@@ -11,6 +12,11 @@ module.exports = (
       'before',
       ['update', 'patch', 'remove'],
       'stashRecord'
+    );
+    const { propName, getParamsFunc } = Object.assign(
+      {},
+      options,
+      context.params.stashRecord
     );
     // Allow the caller to create the params for the underlying .get()
     // call. We cannot just pass context.params because those were

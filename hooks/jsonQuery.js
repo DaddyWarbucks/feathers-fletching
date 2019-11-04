@@ -1,20 +1,21 @@
-const { skippable } = require('../lib');
+const { skippable, checkContext } = require('../lib');
 
 const jsonQueryStringify = skippable('jsonQueryStringify', (
-  defaults = {
+  options = {
     overwrite: true,
     propName: 'json',
   }
 ) => {
   return context => {
-    const { query, jsonQueryStringify } = context.params;
+    checkContext(context, 'before', null, 'jsonQueryStringify');
+    const { query } = context.params;
     if (!query) {
       return context;
     }
     const { overwrite, propName } = Object.assign(
       {},
-      defaults,
-      jsonQueryStringify
+      options,
+      context.params.jsonQueryStringify
     );
     if (overwrite) {
       context.params.query = { [propName]: JSON.stringify(query) };
@@ -26,21 +27,23 @@ const jsonQueryStringify = skippable('jsonQueryStringify', (
 });
 module.exports.jsonQueryStringify = jsonQueryStringify;
 
+
 const jsonQueryParse = skippable('jsonQueryParse', (
-  defaults = {
+  options = {
     overwrite: true,
     propName: 'json',
   }
 ) => {
   return context => {
-    const { query, jsonQueryParse } = context.params;
+    checkContext(context, 'before', null, 'jsonQueryParse');
+    const { query } = context.params;
     if (!query) {
       return context;
     }
     const { overwrite, propName } = Object.assign(
       {},
-      defaults,
-      jsonQueryParse
+      options,
+      context.params.jsonQueryParse
     );
     if (overwrite) {
       context.params.query = JSON.parse(query[propName]);
@@ -54,7 +57,7 @@ module.exports.jsonQueryParse = jsonQueryParse;
 
 // A convenience to add the client side hook to all service
 // methods as the last hook w/o relying on the developer to
-// handle placing it last on all methods/services manually
+// handle placing it last on all methods/services manually.
 // This plugin should be called after all services have been
 // setup. Note that calling service.hooks() again after this
 // will cause the jsonQueryStringify to no longer be last
