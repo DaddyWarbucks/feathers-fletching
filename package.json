@@ -2,7 +2,7 @@
   "name": "feathers-fletching",
   "version": "0.0.1",
   "description": "Hooks, services, and plugins for feathers.js",
-  "main": "hooks/",
+  "main": "src/",
   "repository": "https://github.com/DaddyWarbucks/feathers-fletching.git",
   "author": "DaddyWarbucks <techtbeau@gmail.com>",
   "license": "MIT",
