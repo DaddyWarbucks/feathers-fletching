@@ -2,8 +2,9 @@ const { GeneralError } = require('@feathersjs/errors');
 const { skippable } = require('../lib');
 
 module.exports = skippable('validateSchema', async context => {
-  const schema = context.params && context.params.schema ||
-    context.service.options && context.service.options.schema;
+  const schema =
+    (context.params && context.params.schema) ||
+    (context.service.options && context.service.options.schema);
   const { data } = context;
   if (!schema) {
     throw new GeneralError(

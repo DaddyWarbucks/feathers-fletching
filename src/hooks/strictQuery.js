@@ -25,7 +25,7 @@ const stringifyNumber = val => val.toString();
 
 const isStringNull = val => val === 'null';
 
-const parseNull = () =>  null;
+const parseNull = () => null;
 
 const isNull = val => val === null;
 
@@ -75,7 +75,7 @@ const clientProvider = context => {
   if (context.app.io !== undefined) {
     return 'socketio';
   } else if (context.app.primus !== undefined) {
-    'primus';
+    return 'primus';
   } else if (context.app.rest !== undefined) {
     return 'rest';
   } else {
@@ -83,14 +83,13 @@ const clientProvider = context => {
   }
 };
 
-
 // The server side hook. This hook should be attached to
 // app.hooks.before.all to ensure the query is parsed before
 // all other hooks.
 const strictQueryParse = (
   options = {
     types: ['boolean', 'number', 'null'],
-    providers: ['rest'],
+    providers: ['rest']
   }
 ) => {
   return skippable('strictQueryParse', context => {
@@ -100,17 +99,10 @@ const strictQueryParse = (
       options,
       context.params.strictQueryParse
     );
-    if (
-      !context.params.query ||
-      !providers.includes(context.params.provider)
-    ) {
+    if (!context.params.query || !providers.includes(context.params.provider)) {
       return context;
     }
-    context.params.query = parseObject(
-      context.params.query,
-      types,
-      parse
-    );
+    context.params.query = parseObject(context.params.query, types, parse);
     return context;
   });
 };
@@ -121,7 +113,7 @@ module.exports.strictQueryParse = strictQueryParse;
 const strictQueryStringify = (
   options = {
     types: ['null'],
-    providers: ['rest'],
+    providers: ['rest']
   }
 ) => {
   return skippable('strictQueryStringify', context => {
@@ -132,17 +124,10 @@ const strictQueryStringify = (
       context.params.strictQueryStringify
     );
     const provider = clientProvider(context.app);
-    if (
-      !context.params.query ||
-      !providers.includes(provider)
-    ) {
+    if (!context.params.query || !providers.includes(provider)) {
       return context;
     }
-    context.params.query = parseObject(
-      context.params.query,
-      types,
-      stringify
-    );
+    context.params.query = parseObject(context.params.query, types, stringify);
     return context;
   });
 };
@@ -163,7 +148,7 @@ module.exports.strictQueryClient = app => {
         create: [strictQueryStringify()],
         update: [strictQueryStringify()],
         patch: [strictQueryStringify()],
-        remove: [strictQueryStringify()],
+        remove: [strictQueryStringify()]
       }
     });
   });

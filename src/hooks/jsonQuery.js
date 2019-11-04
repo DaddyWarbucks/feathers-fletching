@@ -1,58 +1,63 @@
 const { skippable, checkContext } = require('../lib');
 
-const jsonQueryStringify = skippable('jsonQueryStringify', (
-  options = {
-    overwrite: true,
-    propName: 'json',
-  }
-) => {
-  return context => {
-    checkContext(context, 'before', null, 'jsonQueryStringify');
-    const { query } = context.params;
-    if (!query) {
+const jsonQueryStringify = skippable(
+  'jsonQueryStringify',
+  (
+    options = {
+      overwrite: true,
+      propName: 'json'
+    }
+  ) => {
+    return context => {
+      checkContext(context, 'before', null, 'jsonQueryStringify');
+      const { query } = context.params;
+      if (!query) {
+        return context;
+      }
+      const { overwrite, propName } = Object.assign(
+        {},
+        options,
+        context.params.jsonQueryStringify
+      );
+      if (overwrite) {
+        context.params.query = { [propName]: JSON.stringify(query) };
+      } else {
+        context.params.query[propName] = JSON.stringify(query);
+      }
       return context;
-    }
-    const { overwrite, propName } = Object.assign(
-      {},
-      options,
-      context.params.jsonQueryStringify
-    );
-    if (overwrite) {
-      context.params.query = { [propName]: JSON.stringify(query) };
-    } else {
-      context.params.query[propName] = JSON.stringify(query)
-    }
-    return context;
+    };
   }
-});
+);
 module.exports.jsonQueryStringify = jsonQueryStringify;
 
-
-const jsonQueryParse = skippable('jsonQueryParse', (
-  options = {
-    overwrite: true,
-    propName: 'json',
-  }
-) => {
-  return context => {
-    checkContext(context, 'before', null, 'jsonQueryParse');
-    const { query } = context.params;
-    if (!query) {
+const jsonQueryParse = skippable(
+  'jsonQueryParse',
+  (
+    options = {
+      overwrite: true,
+      propName: 'json'
+    }
+  ) => {
+    return context => {
+      checkContext(context, 'before', null, 'jsonQueryParse');
+      const { query } = context.params;
+      if (!query) {
+        return context;
+      }
+      const { overwrite, propName } = Object.assign(
+        {},
+        options,
+        context.params.jsonQueryParse
+      );
+      if (overwrite) {
+        context.params.query = JSON.parse(query[propName]);
+      } else {
+        context.params.query[propName] = JSON.parse(query[propName]);
+      }
       return context;
-    }
-    const { overwrite, propName } = Object.assign(
-      {},
-      options,
-      context.params.jsonQueryParse
-    );
-    if (overwrite) {
-      context.params.query = JSON.parse(query[propName]);
-    } else {
-      context.params.query[propName] = JSON.parse(query[propName])
-    }
-    return context;
+    };
   }
-});
+);
 module.exports.jsonQueryParse = jsonQueryParse;
 
 // A convenience to add the client side hook to all service
@@ -70,7 +75,7 @@ module.exports.jsonQueryClient = app => {
         create: [jsonQueryStringify()],
         update: [jsonQueryStringify()],
         patch: [jsonQueryStringify()],
-        remove: [jsonQueryStringify()],
+        remove: [jsonQueryStringify()]
       }
     });
   });

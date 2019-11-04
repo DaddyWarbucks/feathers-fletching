@@ -34,6 +34,12 @@
           "printWidth": 80
         }
       ]
+    },
+    "parserOptions": {
+      "ecmaVersion": 2017
+    },
+    "env": {
+      "es6": true
     }
   }
 }

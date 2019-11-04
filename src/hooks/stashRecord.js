@@ -3,7 +3,7 @@ const { skippable, checkContext } = require('../lib');
 module.exports = (
   options = {
     propName: 'stashed',
-    getParamsFunc: context => {},
+    getParamsFunc: context => {}
   }
 ) => {
   return skippable('stashRecord', async context => {
