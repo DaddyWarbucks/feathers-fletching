@@ -17,9 +17,11 @@ module.exports = function(
   if (!methods) {
     return;
   }
+
+  // allow custom methods
   if (stndMethods.indexOf(context.method) === -1) {
     return;
-  } // allow custom methods
+  }
 
   const myMethods = Array.isArray(methods) ? methods : [methods]; // safe enough for allowed values
 
