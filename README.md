@@ -225,7 +225,7 @@ const protectHook = protect('credit_card', 'ssn');
 
 // Skip the whole protect hook. Similar to how you can skip any
 // feathers-fletching hook
-const user = await app.service('authors')
+const author = await app.service('authors')
   .get(123, { skipHooks: ['protect'] });
 
 /*
@@ -236,9 +236,10 @@ const user = await app.service('authors')
   }
 */
 
-// Skip protecting just the credit_card property, but do still protect
-// the ssn property
-const user = await app.service('authors')
+// Skip protecting just the credit_card property, but do
+// still protect the ssn property. This is done by using
+// dot notation to specify the fields to skip.
+const author = await app.service('authors')
   .get(123, { skipHooks: ['protect.credit_card'] });
 
 /*
