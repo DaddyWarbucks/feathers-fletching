@@ -88,13 +88,13 @@ const withResults = withResult({
 const withResults = withResult({
 
   average_album_rating: (data, context, albums) => {
-    const ratings = albums.reduce(( rating, album ) => {
+    const ratings = albums.reduce((rating, album) => {
       return rating + album.rating;
     });
     return ratings / albums.length;
   },
 
-  total_albums: (data, context, prepResult) => albums.length
+  total_albums: (data, context, albums) => albums.length
 
 },
 
@@ -118,6 +118,8 @@ Note that the virtuals functions are run syncronously in order of their definiti
 ## withData
 
 Add properties to the `context.data` of a method call. This hook can handle a single data object or an array of data objects when create/update/patch multiple items. See the [withResult](#withResult) docs for more detailed info about how virtuals and prepFunc work.
+
+This hook is useful for forcing properties onto data that the client should not have control of. For example, you may always force the `user_id` onto a record from the `context.params.user` to ensure that the `user_id` is always from the authorized user instead of trusting the client to send the proper `user_id`. Even if the client sends `{ user_id: 456 }` which is some other user's id, this hook will overwrite that `user_id` to ensure the data cannot be spoofed.
 
 ```js
 import { withData } from 'feathers-fletching';
@@ -144,48 +146,55 @@ const withDatas = withData({
 
 Note that the virtuals functions are run syncronously in order of their definition. Also note that if `context.data` is an array, then the `data` arg in each virtuals function `(data, context, prepResult) => {}` is the individual item in that array, not the whole array. When `context.data` is an array, the withData virtuals are applied to each item in the array and this is run asyncrounously via `Promise.all()`.
 
-** Pro Tip: This hook is useful for forcing properties onto data that cannot change. For example, you may always force some `user_id` onto a record from the `context.params.user` to ensure that the `user_id` is _always_ from the authorized user instead of trusting the client to send the proper `user_id` **
-
 ## withQuery
 
 Add properties to the `context.query` of a method call. See the [withResult](#withResult) docs for more detailed info about how virtuals and prepFunc work.
+
+This hook is useful for forcing properties onto query that the client should not have control of. For example, you may always force the `user_id` onto a query from the `context.params.user` to ensure that only records created by this user are returned. Even if the client sends `{ user_id: 456 }` which is some other user's id, this hook will overwrite that `user_id` to ensure the query cannot be spoofed.
+
+This hook is also useful for offering the client a simple query interface that you can then use to create more complicated queries.
 
 ```js
 import { withQuery } from 'feathers-fletching';
 
 /*
-  context.params.query = {}
+  context.params.query = {
+    author_id: 456,
+    $period: 'week'
+  }
 */
 
 const withQueries = withQuery({
-  status: (query, context, prepResult) => {
-    if (context.user.permissions.includes('admin')) {
-      // If this user is an admin they can see all posts
-      return { $in: ['draft', 'posted', 'removed'] };
-    } else {
-      // else they can only see posted posts
-      return 'posted';
+
+  // Enforce some access rules
+  author_id: (data, context, prepResult) => context.params.user.id,
+
+  // Give the client an easier query interface by allowing simple
+  // query params that can be used to create complicated queries.
+  created_at: (data, context) => {
+    // $period is a made up query param that we are offering the client.
+    // The feathers-database-adapters will throw an error if they receive
+    // this parameter, so we will use it to create a real query.
+    const { $period } = context.params.query;
+    if ($period) {
+      // Delete the "fake" parameter
+      delete context.params.query.$period;
+      // Return some actual query
+      return { $gte: startOf($period), $lte: endOf($period) }
     }
   }
 });
 
 /*
   context.params.query = {
-    status: { $in: ['draft', 'posted', 'removed'] }
-  }
-
-  or
-
-  context.params.query = {
-    status: 'posted'
+    author_id: 456,
+    created_at: { $gte: ...some date, $lte: ...some date }
   }
 */
 ```
 
 - `virtuals` - (required) An object where each key will be the name of a property to be added to the `context.params.query` and each value is either a primitive, function, or promise.
 - `prepFunc` - (optional) A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.
-
-** Pro Tip: This hook is useful forcing properties onto query that the client should not have control of. For example, you may always force some `user_id` onto a query from the `context.params.user` to ensure that only records created by this user are returned. Even if the client sends `{ user_id: 456 }` which is some other user's id, this hook will overwrite that `user_id` to ensure the query cannot be spoofed. **
 
 ## protect
 
@@ -195,7 +204,7 @@ Omit properties from the `context.result` or `context.result.data` from being re
 import { protect } from 'feathers-fletching';
 
 /*
-  context.params.result = {
+  context.result = {
     name: 'Johny Cash',
     credit_card: '1234 4567 8910 1112',
     ssn: '111-11-1111'
@@ -205,7 +214,7 @@ import { protect } from 'feathers-fletching';
 const protectHook = protect('credit_card', 'ssn');
 
 /*
-  context.params.result = {
+  context.result = {
     name: 'Johny Cash',
   }
 */
@@ -216,10 +225,11 @@ const protectHook = protect('credit_card', 'ssn');
 
 // Skip the whole protect hook. Similar to how you can skip any
 // feathers-fletching hook
-const user = await app.service('users').get(123, { skipHooks: ['protect'] });
+const user = await app.service('authors')
+  .get(123, { skipHooks: ['protect'] });
 
 /*
-  context.params.result = {
+  context.result = {
     name: 'Johny Cash',
     credit_card: '1234 4567 8910 1112',
     ssn: '111-11-1111'
@@ -228,11 +238,11 @@ const user = await app.service('users').get(123, { skipHooks: ['protect'] });
 
 // Skip protecting just the credit_card property, but do still protect
 // the ssn property
-const user = await app.service('users')
+const user = await app.service('authors')
   .get(123, { skipHooks: ['protect.credit_card'] });
 
 /*
-  context.params.result = {
+  context.result = {
     name: 'Johny Cash',
     credit_card: '1234 4567 8910 1112'
   }
@@ -242,41 +252,35 @@ const user = await app.service('users')
 
 - `fields` - (required) Each argument passed to the protect hook is a field to be omitted from the result.
 
-** Pro Tip: This hook protects on both INTERNAL AND EXTERNAL calls. Unlike some other protect hooks that only protect on "external" calls (aka calls made over REST or socket), this hook protects on calls made internally as well. This is done as an extra layer of security to ensure sensitive information does not end up in logs, etc. It also ensures that when "populating" records onto other records, via `withResult` or any other method where you call another service internally, that the proper data is protected.
+** This hook protects on both INTERNAL AND EXTERNAL calls. Unlike the `protect` hook from `feathers-authentication` that only protect on "external" calls (aka calls made over REST or socket), this hook protects on calls made internally as well. This is done as an extra layer of security to ensure sensitive information does not end up in logs, etc. It also ensures that when "populating" records onto other records, via `withResult` or any other method where you call another service internally, that the proper data is protected.
 For example,
 ```js
 
-// `users` service is using feathers-fletching to protect the PW
+// `authors` service is using feathers-fletching to protect
+// the credit_card and ssn fields
 import { protect } from 'feathers-fletching';
-const protectHook = protect('password');
+const protectHook = protect('credit_card', 'ssn');
 
 // The 'posts' service wants to populate the user from the
-// `users` service. Because the `users` service is using
-// feathers-fletching protect hook, the PW will not be returned.
-// feathers-fletching protects against internal calls. :)
+// `authors` service. Because the `authors` service is using
+// feathers-fletching protect hook, the fields will not be returned.
+// feathers-fletching protects against internal calls like this.
 const withResults = withResult({
-  user: (result, context) => {
-    return context.app.service('users').get(result.user_id);
-  }
+  author: (result, context, prepResult) => {
+    return context.app.service('authors').get(result.author_id);
+  },
 });
 
-// But, if using some other library's protect hook...
-// `users` service is using the protect hook from
-// @feathersjs/authentication-local
-const { protect } = require('@feathersjs/authentication-local').hooks;
-const protectHook = protect('password');
-
-
-// The 'posts' service wants to populate the user from the
-// `users` service. Because this is an internal call and the
-// @feathersjs/authentication-local protect hook DOES NOT PROTECT
-// INTERNAL CALLS the PW will now be populated on this post's
-// user and sent to the client :(
-const withResults = withResult({
-  user: (result, context) => {
-    return context.app.service('users').get(result.user_id);
+/*
+  context.result = {
+    title: 'My first post',
+    body: 'Some really long text!',
+    author_id: 123,
+    author: {
+      name: 'Johny Cash'
+    }
   }
-});
+*/
 ```
 
 This also means that this protect hook is not compatible with feathers-authentication (using the protect hook on the users service), because if you `protect('password')` then when the auth service calls the users service (an internal call), the PW is not returned. You should either use the protect hook from feathers-authentication or extend the authentication service to handle this. **
