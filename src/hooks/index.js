@@ -1,6 +1,9 @@
 module.exports.withData = require('./withData');
+module.exports.withoutData = require('./withoutData');
 module.exports.withQuery = require('./withQuery');
+module.exports.withoutQuery = require('./withoutQuery');
 module.exports.withResult = require('./withResult');
+module.exports.withoutResult = require('./withoutResult');
 module.exports.validateSchema = require('./validateSchema');
 module.exports.stashRecord = require('./stashRecord');
 module.exports.preventChange = require('./preventChange');

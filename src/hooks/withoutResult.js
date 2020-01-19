@@ -1,10 +1,10 @@
 const { skippable } = require('../lib');
-const virtualsSerializer = require('../lib/virtualsSerializer');
+const filterSerializer = require('../lib/filterSerializer');
 
 module.exports = (virtuals, prepFunc = () => {}) => {
-  return skippable('withResult', async context => {
+  return skippable('withoutResult', async context => {
     if (context.result.data) {
-      context.result.data = await virtualsSerializer(
+      context.result.data = await filterSerializer(
         context.result.data,
         virtuals,
         context,
@@ -12,7 +12,7 @@ module.exports = (virtuals, prepFunc = () => {}) => {
       );
       return context;
     } else {
-      context.result = await virtualsSerializer(
+      context.result = await filterSerializer(
         context.result,
         virtuals,
         context,

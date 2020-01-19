@@ -15,7 +15,8 @@
     }
   }
 */
-module.exports = async (item, virtuals, context, prepResult) => {
+const serializer = async (item, virtuals, context, prepFunc) => {
+  const prepResult = await Promise.resolve(prepFunc(context));
   const updated = Object.assign({}, item);
   for (const key of Object.keys(virtuals)) {
     if (typeof virtuals[key] === 'function') {
@@ -30,4 +31,13 @@ module.exports = async (item, virtuals, context, prepResult) => {
     }
   }
   return updated;
+};
+
+module.exports = async (data, virtuals, context, prepFunc) => {
+  if (Array.isArray(data)) {
+    return Promise.all(
+      data.map(item => serializer(item, virtuals, context, prepFunc))
+    );
+  }
+  return serializer(data, virtuals, context, prepFunc);
 };
