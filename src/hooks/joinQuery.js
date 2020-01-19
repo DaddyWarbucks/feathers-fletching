@@ -1,5 +1,7 @@
+const { skippable } = require('../lib');
+
 module.exports.joinQuery = options => {
-  return async context => {
+  return skippable('joinQuery', async context => {
     if (!context.params.query) {
       return context;
     }
@@ -50,5 +52,5 @@ module.exports.joinQuery = options => {
     context.params.query = query;
 
     return context;
-  };
+  });
 };
