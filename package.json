@@ -10,6 +10,7 @@
   "scripts": {
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
+    "docs:deploy": "sh deploy-docs.sh",
     "lint": "eslint src/.",
     "fixcode": "eslint src/. --fix"
   },
