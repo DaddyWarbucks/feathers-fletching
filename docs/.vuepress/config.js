@@ -1,6 +1,7 @@
 module.exports = {
   title: 'feathers-fletching',
-  description: '',
+  description: 'A collection of hooks and utilities to make your FeathersJS apps fly straight and true.',
+  base: "/feathers-fletching/",
   themeConfig: {
     repo: 'daddywarbucks/feathers-fletching',
     docsDir: 'docs',

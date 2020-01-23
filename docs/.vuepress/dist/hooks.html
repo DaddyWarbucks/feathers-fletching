@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Hooks | feathers-fletching</title>
+    <meta name="description" content="A collection of hooks and utilities to make your FeathersJS apps fly straight and true.">
+    
+    
+    <link rel="preload" href="/feathers-fletching/assets/css/0.styles.6e3b9c32.css" as="style"><link rel="preload" href="/feathers-fletching/assets/js/app.1000e73f.js" as="script"><link rel="preload" href="/feathers-fletching/assets/js/2.e376d63b.js" as="script"><link rel="preload" href="/feathers-fletching/assets/js/5.d4dd01d6.js" as="script"><link rel="prefetch" href="/feathers-fletching/assets/js/3.99439cbe.js"><link rel="prefetch" href="/feathers-fletching/assets/js/4.554dccb8.js"><link rel="prefetch" href="/feathers-fletching/assets/js/6.85a891f1.js"><link rel="prefetch" href="/feathers-fletching/assets/js/7.4f2a1dd2.js"><link rel="prefetch" href="/feathers-fletching/assets/js/8.4b6a30a5.js"><link rel="prefetch" href="/feathers-fletching/assets/js/9.3d8658b9.js">
+    <link rel="stylesheet" href="/feathers-fletching/assets/css/0.styles.6e3b9c32.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/feathers-fletching/" class="home-link router-link-active"><!----> <span class="site-name">feathers-fletching</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"> <a href="https://github.com/daddywarbucks/feathers-fletching" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"> <a href="https://github.com/daddywarbucks/feathers-fletching" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav>  <ul class="sidebar-links"><li><a href="/feathers-fletching/overview.html" class="sidebar-link">Overview</a></li><li><a href="/feathers-fletching/hooks.html" class="active sidebar-link">Hooks</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#notes" class="sidebar-link">Notes</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withresult" class="sidebar-link">withResult</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withoutresult" class="sidebar-link">withoutResult</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withdata" class="sidebar-link">withData</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withoutdata" class="sidebar-link">withoutData</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withquery" class="sidebar-link">withQuery</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withoutquery" class="sidebar-link">withoutQuery</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#joinquery" class="sidebar-link">joinQuery</a></li></ul></li><li><a href="/feathers-fletching/utilities.html" class="sidebar-link">Utilities</a></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="hooks"><a href="#hooks" class="header-anchor">#</a> Hooks</h1> <h2 id="notes"><a href="#notes" class="header-anchor">#</a> Notes</h2> <p>All feathers-fletching hooks are skippable by default. This means that each hook can be skipped by calling a service with the param <code>skipHooks</code> as an array of the names of the feathers-flecthing hooks that you want to skip. See also the <code>skippable</code> utils function docs on how to make your own hooks, or other library hooks, skippable as well.</p> <div class="language-js extra-class"><pre class="language-js"><code>app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'posts'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span> skipHooks<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'withResult'</span><span class="token punctuation">]</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><h2 id="withresult"><a href="#withresult" class="header-anchor">#</a> withResult</h2> <p>Add or overwrite properties onto the <code>context.result</code> or <code>context.result.data</code>. Useful for joining/populating records and creating virtual properties.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">no</td> <td style="text-align:center;">yes</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withResult.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th style="text-align:center;">Description</th></tr></thead> <tbody><tr><td style="text-align:center;"></td> <td style="text-align:center;"></td> <td style="text-align:center;"></td> <td style="text-align:center;"></td> <td style="text-align:center;"></td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withResult <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.result = {
+    title: 'My first post',
+    body: 'Some really long text!',
+    author_id: 123
+  }
+*/</span>
+
+<span class="token keyword">const</span> withResults <span class="token operator">=</span> <span class="token function">withResult</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+
+  status<span class="token operator">:</span> <span class="token string">'draft'</span><span class="token punctuation">,</span> <span class="token comment">// return some primitive: number, bool, obj, string, etc</span>
+
+  <span class="token function-variable function">summary</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Return the result of a function that was given the args</span>
+    <span class="token comment">// result, context, prepResult</span>
+    <span class="token keyword">return</span> result<span class="token punctuation">.</span>body<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token function-variable function">author</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Return a promise. Useful for populating/joining records</span>
+    <span class="token keyword">return</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'authors'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>result<span class="token punctuation">.</span>author_id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token function-variable function">author_profile</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Keys are iterated over syncronously in order of their definition.</span>
+    <span class="token comment">// This means that `status`, `summary`, and `author` will all be present</span>
+    <span class="token comment">// by the time this `author_profile` virtual is run. We can use the</span>
+    <span class="token comment">// `author` virtual here because it has already been populated</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>author<span class="token punctuation">.</span>is_public<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'profiles'</span><span class="token punctuation">)</span>
+        <span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span> author_id<span class="token operator">:</span> result<span class="token punctuation">.</span>author_id <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token function-variable function">whoops</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// If undefined is returned, this key will not be on the result at all.</span>
+    <span class="token comment">// It will not be { whoops: undefined }, instead the `whoops` is deleted</span>
+    <span class="token comment">// from the object totally.</span>
+    <span class="token keyword">return</span> <span class="token keyword">undefined</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.result = {
+    title: 'My first post',
+    body: 'Some really long text!',
+    author_id: 123,
+    status: 'draft',
+    summary: 'Some'
+    author: { ... },
+    author_profile: null
+  }
+*/</span>
+
+<span class="token comment">// withResult takes a second argument `prepFunc`. This function/promise is run</span>
+<span class="token comment">// before iteration over the virtuals keys and is passed to each</span>
+<span class="token comment">// virtuals function. It is useful for doing operations that will be</span>
+<span class="token comment">// used by multiple virtuals.</span>
+
+<span class="token comment">/*
+  context.result = {
+    status: 'processing'
+  }
+*/</span>
+<span class="token keyword">const</span> withResults <span class="token operator">=</span> <span class="token function">withResult</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+
+  <span class="token function-variable function">status_code</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> statuses</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> currentStatus <span class="token operator">=</span> statuses<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token parameter">status</span> <span class="token operator">=&gt;</span> status<span class="token punctuation">.</span>name <span class="token operator">===</span> data<span class="token punctuation">.</span>status<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> currentStatus<span class="token punctuation">.</span>code<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token function-variable function">next_status_code</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> statuses</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> currentIndex <span class="token operator">=</span> statuses<span class="token punctuation">.</span><span class="token function">findIndex</span><span class="token punctuation">(</span>
+      <span class="token parameter">status</span> <span class="token operator">=&gt;</span> status<span class="token punctuation">.</span>name <span class="token operator">===</span> data<span class="token punctuation">.</span>status
+    <span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> currentIndex <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token keyword">async</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// This function is run before iterating over the virtuals object and its</span>
+    <span class="token comment">// result is passed to each virtuals function.</span>
+    <span class="token keyword">const</span> statuses <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'statuses'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// [{ name: 'pocessing', code: 123 }, { name: 'done', code: 456 }]</span>
+    <span class="token keyword">return</span> statuses<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.result = {
+    status: 'processing',
+    status_code: 123,
+    next_status_code: 456
+  }
+*/</span>
+</code></pre></div><ul><li><p><code>virtuals</code> - (required) An object where each key will be the name of a property to be added to the <code>context.result</code> and each value is either a primitive, function, or promise.</p></li> <li><p><code>prepFunc</code> - (optional) A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</p></li></ul> <p>Note that the virtuals functions are run syncronously in order of their definition. Also note that if <code>context.result</code> (or <code>context.result.data</code>) is an array, then the <code>result</code> arg in each virtuals function <code>(result, context, prepResult) =&gt; {}</code> is the individual item in that array, not the whole array. When <code>context.result</code> (or <code>context.result.data</code>) is an array, the withResult virtuals are applied to each item in the array and this is run asyncrounously via <code>Promise.all()</code>.</p> <h2 id="withoutresult"><a href="#withoutresult" class="header-anchor">#</a> withoutResult</h2> <p>Remove properties from the <code>context.result</code> or <code>context.result.data</code> of a method call. This hook can handle a single result object, an array of result objects, or an array at <code>result.data</code>.</p> <p>If you think of <code>withResult</code> (or any of the <code>with*</code> hooks) similar to <code>Array.protype.map</code>, you can think of the withoutResult (or any of the <code>without*</code> hooks) as similar to <code>Array.protype.filter</code>. For each virtual in the virtual object, if the value returns a truthy value it will be kept and if it returns a falsey value it will be filtered.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withoutResult <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.result = {
+    name: 'Johnny Cash',
+    ssn: 123456789,
+    email: 'jcash@example.com'
+  }
+*/</span>
+
+<span class="token keyword">const</span> withoutResults <span class="token operator">=</span> <span class="token function">withoutResult</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+
+  <span class="token comment">// simply pass false if you don't need to do any logic</span>
+  <span class="token comment">// and this property will be filtered</span>
+  ssn<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+
+  <span class="token comment">// Similar to all of the with* and without* hooks, you</span>
+  <span class="token comment">// can use a function/promise with `result`, `context`, `prepResult` args</span>
+  <span class="token function-variable function">email</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>role <span class="token operator">===</span> <span class="token string">'admin'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  // if authenticated user is admin
+  context.result = {
+    name: 'Johnny Cash',
+    email: 'jcash@example.com'
+  }
+
+  // if authenticated user is NOT admin
+  context.result = {
+    name: 'Johnny Cash'
+  }
+*/</span>
+</code></pre></div><ul><li><p><code>virtuals</code> - (required) An object where each key will be the name of a property to be potentially filtered from <code>context.data</code>. Return a truthy value to keep the value and return a falsey value to remove it.</p></li> <li><p><code>prepFunc</code> - (optional) A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</p></li></ul> <h2 id="withdata"><a href="#withdata" class="header-anchor">#</a> withData</h2> <p>Add or overwrite properties to the <code>context.data</code> of a method call. This hook can handle a single data object or an array of data objects when create/update/patch multiple items. See the <a href="#withResult">withResult</a> docs for more detailed info about how virtuals and prepFunc work.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withData <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.data = {
+    user_id: 456,
+    email: '    JCASH@EXAMPLE.COM'
+  }
+*/</span>
+
+<span class="token keyword">const</span> withDatas <span class="token operator">=</span> <span class="token function">withData</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+
+  <span class="token comment">// This hook is useful for forcing properties onto data that</span>
+  <span class="token comment">// the client should not have control of. For example, you</span>
+  <span class="token comment">// may always force the `user_id` onto a record from the</span>
+  <span class="token comment">// `context.params.user` to ensure that the `user_id` is</span>
+  <span class="token comment">// always from the authorized user instead of trusting the</span>
+  <span class="token comment">// client to send the proper `user_id`. Even if the client</span>
+  <span class="token comment">// sends `{ user_id: 456 }` which is some other user's id,</span>
+  <span class="token comment">// this hook will overwrite that `user_id` to ensure the</span>
+  <span class="token comment">// data cannot be spoofed.</span>
+  <span class="token function-variable function">user_id</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+
+  <span class="token comment">// You can also use this hook to sanitize data by overwriting</span>
+  <span class="token comment">// data that already exists.</span>
+  <span class="token function-variable function">email</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>data<span class="token punctuation">.</span>email<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">return</span> data<span class="token punctuation">.</span>email<span class="token punctuation">.</span><span class="token function">trim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toLowerCase</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.data = {
+    user_id: 123,
+    email: 'jcash@example.com'
+  }
+*/</span>
+</code></pre></div><ul><li><p><code>virtuals</code> - (required) An object where each key will be the name of a property to be added to the <code>context.data</code> and each value is either a primitive, function, or promise.</p></li> <li><p><code>prepFunc</code> - (optional) A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</p></li></ul> <h2 id="withoutdata"><a href="#withoutdata" class="header-anchor">#</a> withoutData</h2> <p>Remove properties from the <code>context.data</code> of a method call. This hook can handle a single data object or an array of data objects when create/update/patch multiple items. See the <a href="#withoutResult">withoutResult</a> docs for more detailed info about how virtuals and prepFunc work in the <code>without*</code> hooks.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withoutData <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.data = {
+    name: 'Johnny Cash',
+    role: 'admin'
+  }
+*/</span>
+
+<span class="token keyword">const</span> withoutDatas <span class="token operator">=</span> <span class="token function">withoutData</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token function-variable function">role</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// If the authenticated user is an admin,</span>
+    <span class="token comment">// they can change other users' roles</span>
+    <span class="token keyword">return</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>role <span class="token operator">===</span> <span class="token string">'admin'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  // if authenticated user is admin
+  context.data = {
+    name: 'Johnny Cash',
+    role: 'admin'
+  }
+
+  // if authenticated user is NOT admin
+  context.data = {
+    name: 'Johnny Cash'
+  }
+*/</span>
+
+</code></pre></div><ul><li><p><code>virtuals</code> - (required) An object where each key will be the name of a property to be potentially filtered from <code>context.data</code>. Return a truthy value to keep the value and return a falsey value to remove it.</p></li> <li><p><code>prepFunc</code> - (optional) A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</p></li></ul> <h2 id="withquery"><a href="#withquery" class="header-anchor">#</a> withQuery</h2> <p>Add or overwrite properties to the <code>context.params.query</code> of a method call. See the <a href="#withResult">withResult</a> docs for more detailed info about how virtuals and prepFunc work.</p> <p>This hook is useful for create &quot;ACL&quot; rules by enforicing some queries are only added via the server.</p> <p>This hook is also useful for offering the client a simple query interface that you can then use to create more complicated queries.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withQuery <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> startOf<span class="token punctuation">,</span> endOf <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'some-date-lib'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.params.query = {
+    user_id: 456,
+    $period: 'week'
+  }
+*/</span>
+
+<span class="token keyword">const</span> withQueries <span class="token operator">=</span> <span class="token function">withQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+
+  <span class="token comment">// This hook is useful for forcing properties onto query that</span>
+  <span class="token comment">// the client should not have control of. For example, you</span>
+  <span class="token comment">// may always force the `user_id` onto a query from the</span>
+  <span class="token comment">// `context.params.user` to ensure that only records created</span>
+  <span class="token comment">// by this user are returned. Even if the client sends</span>
+  <span class="token comment">// `{ user_id: 456 }` which is some other user's id, this</span>
+  <span class="token comment">// hook will overwrite that `user_id` to ensure the query</span>
+  <span class="token comment">// cannot be spoofed.</span>
+  <span class="token function-variable function">user_id</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+
+  <span class="token comment">// Give the client an easier query interface by allowing simple</span>
+  <span class="token comment">// query params that can be used to create complicated queries.</span>
+  <span class="token function-variable function">created_at</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// $period is a made up query param that we are offering the client.</span>
+    <span class="token comment">// The feathers-database-adapters will throw an error if they receive</span>
+    <span class="token comment">// this parameter, so we will use it to create a real query.</span>
+    <span class="token keyword">const</span> <span class="token punctuation">{</span> $period <span class="token punctuation">}</span> <span class="token operator">=</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>query<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>$period<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// Delete the &quot;fake&quot; parameter</span>
+      <span class="token keyword">delete</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>query<span class="token punctuation">.</span>$period<span class="token punctuation">;</span>
+      <span class="token comment">// Return some actual query</span>
+      <span class="token keyword">return</span> <span class="token punctuation">{</span> $gte<span class="token operator">:</span> <span class="token function">startOf</span><span class="token punctuation">(</span>$period<span class="token punctuation">)</span><span class="token punctuation">,</span> $lte<span class="token operator">:</span> <span class="token function">endOf</span><span class="token punctuation">(</span>$period<span class="token punctuation">)</span> <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.params.query = {
+    author_id: 123,
+    created_at: { $gte: ...some date, $lte: ...some date }
+  }
+*/</span>
+</code></pre></div><ul><li><p><code>virtuals</code> - (required) An object where each key will be the name of a property to be added to the <code>context.params.query</code> and each value is either a primitive, function, or promise.</p></li> <li><p><code>prepFunc</code> - (optional) A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</p></li></ul> <h2 id="withoutquery"><a href="#withoutquery" class="header-anchor">#</a> withoutQuery</h2> <p>Remove properties from the <code>context.params.query</code> of a method call.  See the <a href="#withoutResult">withoutResult</a> docs for more detailed info about how virtuals and prepFunc work in the <code>without*</code> hooks.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withoutQuery <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.params.query = {
+    name: 'Johnny Cash',
+    ssn: 123456789
+  }
+*/</span>
+
+<span class="token keyword">const</span> withoutQueries <span class="token operator">=</span> <span class="token function">withoutQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token function-variable function">ssn</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// If the authenticated user is an admin,</span>
+    <span class="token comment">// they can query by ssn</span>
+    <span class="token keyword">return</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>role <span class="token operator">===</span> <span class="token string">'admin'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  // if authenticated user is admin
+  context.params.query = {
+    name: 'Johnny Cash',
+    role: 123456789
+  }
+
+  // if authenticated user is NOT admin
+  context.params.query = {
+    name: 'Johnny Cash'
+  }
+*/</span>
+
+</code></pre></div><ul><li><p><code>virtuals</code> - (required) An object where each key will be the name of a property to be potentially filtered from <code>context.params.query</code>. Return a truthy value to keep the value and return a falsey value to remove it.</p></li> <li><p><code>prepFunc</code> - (optional) A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</p></li></ul> <h2 id="joinquery"><a href="#joinquery" class="header-anchor">#</a> joinQuery</h2> <p>Query across services for &quot;joined&quot; records on any database type. This hook relies on the service interface, rather than the database, to query across services allowing you to query similar to a relational database even on services that are NoSQL or even those that do not have a database at all.</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> joinQuery <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+
+  &quot;authors&quot; collection via service `app.service('api/authors')`
+  [
+    { id: 123, name: 'Johnny Cash' },
+    { id: 456, name: 'Patsy Cline' }
+  ]
+
+  &quot;posts&quot; collection via `app.service('api/posts')`
+  [
+    { title: 'The Man in Black', author_id: 123 },
+    { title: 'I Wont Back Down', author_id: 123 },
+    { title: 'Life in Nashville', author_id: 456 }
+  ]
+*/</span>
+
+<span class="token comment">// Hook added to the 'api/posts' service</span>
+<span class="token keyword">const</span> joinQueries <span class="token operator">=</span> <span class="token function">joinQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  author<span class="token operator">:</span> <span class="token punctuation">{</span>
+    service<span class="token operator">:</span> <span class="token string">'api/authors'</span><span class="token punctuation">,</span>
+    targetKey<span class="token operator">:</span> <span class="token string">'author_id'</span><span class="token punctuation">,</span>
+    foreignKey<span class="token operator">:</span> <span class="token string">'id'</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+
+<span class="token comment">// Notice how were are querying on the joined `author` prop</span>
+<span class="token comment">// by passing it `{ name: 'Johnny Cash' }` which will only return</span>
+<span class="token comment">// posts where the author's name is &quot;Johnny Cash&quot;</span>
+<span class="token keyword">const</span> posts <span class="token operator">=</span> <span class="token keyword">await</span> app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/posts'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  query<span class="token operator">:</span> <span class="token punctuation">{</span>
+    author<span class="token operator">:</span> <span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token string">'Johnny Cash'</span> <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.params.query = {
+    author_id: { $in: [123] }
+  }
+*/</span>
+
+<span class="token comment">/*
+  posts = [
+    { title: 'The Man in Black', author_id: 123 },
+    { title: 'I Wont Back Down', author_id: 123 }
+  ]
+*/</span>
+
+</code></pre></div><ul><li><code>options</code> - (required) An object with all the following required props
+<ul><li><code>service</code> - The string name of the service to query against</li> <li><code>targetKey</code> - The name of the key that exists on the collection this
+service is querying</li> <li><code>foreignKey</code> - the name of the key on the foreign record. Generally this
+will be <code>id</code> or <code>_id</code></li></ul></li></ul></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/daddywarbucks/feathers-fletching/edit/master/docs/hooks.md" target="_blank" rel="noopener noreferrer">Edit this page</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/feathers-fletching/overview.html" class="prev">Overview</a></span> <span class="next"><a href="/feathers-fletching/utilities.html">Utilities</a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/feathers-fletching/assets/js/app.1000e73f.js" defer></script><script src="/feathers-fletching/assets/js/2.e376d63b.js" defer></script><script src="/feathers-fletching/assets/js/5.d4dd01d6.js" defer></script>
+  </body>
+</html>
