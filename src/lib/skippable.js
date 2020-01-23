@@ -3,6 +3,9 @@ module.exports = (hookName, hookFunc) => {
   return context => {
     if (context.params.skipHooks) {
       const { skipHooks } = context.params;
+      if (!Array.isArray(skipHooks)) {
+        throw new Error('The `skipHooks` param must be an Array of Strings');
+      }
       if (
         skipHooks.includes(hookName) ||
         skipHooks.includes('all') ||
