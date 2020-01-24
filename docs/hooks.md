@@ -4,20 +4,20 @@
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| | | | | |
+| | | | | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/...) |
 
 **Arguments**
 
 | Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | :-: |
-| | | | | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/...) |
+| :-: | :-: | :-:  | :-: | - |
+| | | | |  |
 
 -->
 
 ## Notes
 All feathers-fletching hooks are skippable by default. This means that each hook can be skipped by calling a service with the param `skipHooks` as an array of the names of the feathers-flecthing hooks that you want to skip. See also the `skippable` utils function docs on how to make your own hooks, or other library hooks, skippable as well.
 ```js
-app.service('posts').find({ skipHooks: ['withResult'] });
+app.service('albums').find({ skipHooks: ['withResult'] });
 ```
 
 ## withResult
@@ -33,43 +33,45 @@ Add or overwrite properties onto the `context.result` or `context.result.data`. 
 **Arguments**
 
 | Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | :-: |
-| | | | | |
+| :-: | :-: | :-:  | :-: | - |
+| virtuals | Object |  | true | An object where each key will be the name of a property to be added to the `context.result` and each value is either a primitive, function, or promise. |
+| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 ```js
 import { withResult } from 'feathers-fletching';
 
 /*
   context.result = {
-    title: 'My first post',
-    body: 'Some really long text!',
-    author_id: 123
+    title: 'The Man in Black',
+    description: 'One of the all time greats!',
+    artist_id: 123
   }
 */
 
 const withResults = withResult({
 
-  status: 'draft', // return some primitive: number, bool, obj, string, etc
+  status: 'platinum', // return some primitive: number, bool, obj, string, etc
 
   summary: (result, context, prepResult) => {
     // Return the result of a function that was given the args
     // result, context, prepResult
-    return result.body.substring(0, 4);
+    return result.description.substring(0, 3) + '...';
   },
 
-  author: (result, context, prepResult) => {
+  artist: (result, context, prepResult) => {
     // Return a promise. Useful for populating/joining records
-    return context.app.service('authors').get(result.author_id);
+    return context.app.service('artists').get(result.artist_id);
   },
 
-  author_profile: (result, context, prepResult) => {
+  artist_profile: (result, context, prepResult) => {
     // Keys are iterated over syncronously in order of their definition.
     // This means that `status`, `summary`, and `author` will all be present
-    // by the time this `author_profile` virtual is run. We can use the
+    // by the time this `artist_profile` virtual is run. We can use the
     // `author` virtual here because it has already been populated
-    if (author.is_public) {
-      return context.app.service('profiles')
-        .find({ author_id: result.author_id });
+    if (artist.is_public) {
+      return context.app.service('profiles').find({
+        query: { artist_id: result.artist_id }
+      });
     } else {
       return null;
     }
@@ -86,13 +88,13 @@ const withResults = withResult({
 
 /*
   context.result = {
-    title: 'My first post',
-    body: 'Some really long text!',
-    author_id: 123,
-    status: 'draft',
-    summary: 'Some'
-    author: { ... },
-    author_profile: null
+    title: 'The Man in Black',
+    body: 'One of the all time greats!',
+    artist_id: 123,
+    status: 'platinum',
+    summary: 'One...'
+    author: { { name: 'Johnny Cash' } },
+    artist_profile: null
   }
 */
 
@@ -108,14 +110,14 @@ const withResults = withResult({
 */
 const withResults = withResult({
 
-  status_code: (data, context, statuses) => {
-    const currentStatus = statuses.find(status => status.name === data.status);
+  status_code: (result, context, statuses) => {
+    const currentStatus = statuses.find(status => status.name === result.status);
     return currentStatus.code;
   },
 
-  next_status_code: (data, context, statuses) => {
+  next_status_code: (result, context, statuses) => {
     const currentIndex = statuses.findIndex(
-      status => status.name === data.status
+      status => status.name === result.status
     );
     return currentIndex + 1;
   }
@@ -141,17 +143,32 @@ const withResults = withResult({
 */
 ```
 
-- `virtuals` - (required) An object where each key will be the name of a property to be added to the `context.result` and each value is either a primitive, function, or promise.
+- Virtuals functions are run syncronously in order of their key definition in the `virtuals` object.
 
-- `prepFunc` - (optional) A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.
+- If the result set is an array, then the `result` arg in each virtuals function `(result, context, prepResult) => {}` is the individual item in that array, not the whole array.
 
-Note that the virtuals functions are run syncronously in order of their definition. Also note that if `context.result` (or `context.result.data`) is an array, then the `result` arg in each virtuals function `(result, context, prepResult) => {}` is the individual item in that array, not the whole array. When `context.result` (or `context.result.data`) is an array, the withResult virtuals are applied to each item in the array and this is run asyncrounously via `Promise.all()`.
+- When the result set is an array, the withResult virtuals are applied to each item in the array and this is run asyncrounously via `Promise.all()`.
 
 ## withoutResult
 
-Remove properties from the `context.result` or `context.result.data` of a method call. This hook can handle a single result object, an array of result objects, or an array at `result.data`.
+Remove properties from the `context.result` or `context.result.data` of a method call. This can be used similar to a "protect" hook.
 
-If you think of `withResult` (or any of the `with*` hooks) similar to `Array.protype.map`, you can think of the withoutResult (or any of the `without*` hooks) as similar to `Array.protype.filter`. For each virtual in the virtual object, if the value returns a truthy value it will be kept and if it returns a falsey value it will be filtered.
+If you think of `withResult` (or any of the `with*` hooks) similar to `Array.protype.map`, you can think of the `withoutResult` (or any of the `without*` hooks) as similar to `Array.protype.filter`.
+
+For each virtual in the virtual object, if the value returns a truthy value it will be kept and if it returns a falsey value it will be filtered.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutResult.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| virtuals | Object |  | true | An object where each key will be the name of a property to be potentially filtered from result. **Return a truthy value to keep the value and return a falsey value to remove it**. |
+| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 ```js
 import { withoutResult } from 'feathers-fletching';
@@ -192,13 +209,22 @@ const withoutResults = withoutResult({
 */
 ```
 
-- `virtuals` - (required) An object where each key will be the name of a property to be potentially filtered from `context.data`. Return a truthy value to keep the value and return a falsey value to remove it.
-
-- `prepFunc` - (optional) A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.
-
 ## withData
 
-Add or overwrite properties to the `context.data` of a method call. This hook can handle a single data object or an array of data objects when create/update/patch multiple items. See the [withResult](#withResult) docs for more detailed info about how virtuals and prepFunc work.
+Add or overwrite properties to the `context.data` of a method call. Useful for adding default data, creating joined data, and adding server side rules to data.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withData.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| virtuals | Object |  | true | An object where each key will be the name of a property to be added to the `context.data` and each value is either a primitive, function, or promise. |
+| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 ```js
 import { withData } from 'feathers-fletching';
@@ -206,7 +232,9 @@ import { withData } from 'feathers-fletching';
 /*
   context.data = {
     user_id: 456,
-    email: '    JCASH@EXAMPLE.COM'
+    email: '    JCASH@EXAMPLE.COM',
+    category_ids: [123],
+    categories: [{ title: 'Country' }, { title: 'Western' }]
   }
 */
 
@@ -226,27 +254,60 @@ const withDatas = withData({
   // You can also use this hook to sanitize data by overwriting
   // data that already exists.
   email: (data, context, prepResult) => {
-    if (data.email) {
-      return data.email.trim().toLowerCase();
+    return data.email.trim().toLowerCase();
+  },
+
+  // You can also use this hook to create or update "joined"
+  // records. Allow the client to pass joined records as
+  // an array, and you can handle updating them.
+  category_ids: async (data, context, prepResult) => {
+    if (data.catgories) {
+
+      const promises = data.categories.map(newCat => {
+        return context.app.service('categories').create(newCat);
+      });
+
+      const newCategories = await Promise.all(promises);
+      const newCategoryIds = newCategories.map(newCat => newCat.id);
+
+      delete data.categories;
+
+      return [...data.category_ids, ...newCategoryIds]
     }
+
+    return data.category_ids;
   }
 });
 
 /*
   context.data = {
     user_id: 123,
-    email: 'jcash@example.com'
+    email: 'jcash@example.com',
+    category_ids: [123, 456, 789]
   }
 */
 ```
 
-- `virtuals` - (required) An object where each key will be the name of a property to be added to the `context.data` and each value is either a primitive, function, or promise.
-
-- `prepFunc` - (optional) A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.
-
 ## withoutData
 
-Remove properties from the `context.data` of a method call. This hook can handle a single data object or an array of data objects when create/update/patch multiple items. See the [withoutResult](#withoutResult) docs for more detailed info about how virtuals and prepFunc work in the `without*` hooks.
+Remove properties from the `context.data` of a method call. This hook can be used similar to a "preventChange" hook.
+
+If you think of `withData` (or any of the `with*` hooks) similar to `Array.protype.map`, you can think of the `withoutData` (or any of the `without*` hooks) as similar to `Array.protype.filter`.
+
+For each virtual in the virtual object, if the value returns a truthy value it will be kept and if it returns a falsey value it will be filtered.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutData.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| virtuals | Object |  | true | An object where each key will be the name of a property to be potentially filtered from data. **Return a truthy value to keep the value and return a falsey value to remove it**. |
+| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 ```js
 import { withoutData } from 'feathers-fletching';
@@ -254,14 +315,20 @@ import { withoutData } from 'feathers-fletching';
 /*
   context.data = {
     name: 'Johnny Cash',
-    role: 'admin'
+    ssn: 123456789,
+    email: 'themaninblack@example.com'
   }
 */
 
 const withoutDatas = withoutData({
-  role: (data, context, prepResult) => {
-    // If the authenticated user is an admin,
-    // they can change other users' roles
+
+  // Simply pass false if you don't need to do any logic
+  // and this property will be filtered
+  ssn: false,
+
+  // Similar to all of the with* and without* hooks, you
+  // can use a function/promise with `result`, `context`, `prepResult` args
+  email: (data, context, prepResult) => {
     return context.params.user.role === 'admin';
   }
 });
@@ -270,7 +337,7 @@ const withoutDatas = withoutData({
   // if authenticated user is admin
   context.data = {
     name: 'Johnny Cash',
-    role: 'admin'
+    email: 'themaninblack@example.com'
   }
 
   // if authenticated user is NOT admin
@@ -281,17 +348,24 @@ const withoutDatas = withoutData({
 
 ```
 
-- `virtuals` - (required) An object where each key will be the name of a property to be potentially filtered from `context.data`. Return a truthy value to keep the value and return a falsey value to remove it.
-
-- `prepFunc` - (optional) A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.
-
 ## withQuery
 
-Add or overwrite properties to the `context.params.query` of a method call. See the [withResult](#withResult) docs for more detailed info about how virtuals and prepFunc work.
-
-This hook is useful for create "ACL" rules by enforicing some queries are only added via the server.
+Add or overwrite properties to the `context.params.query` of a method call. This hook is useful for creating "ACL" rules by enforicing some queries are only added via the server.
 
 This hook is also useful for offering the client a simple query interface that you can then use to create more complicated queries.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withQuery.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| virtuals | Object |  | true | An object where each key will be the name of a property to be added to the `context.params.query` and each value is either a primitive, function, or promise. |
+| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 ```js
 import { withQuery } from 'feathers-fletching';
@@ -321,7 +395,8 @@ const withQueries = withQuery({
   created_at: (data, context) => {
     // $period is a made up query param that we are offering the client.
     // The feathers-database-adapters will throw an error if they receive
-    // this parameter, so we will use it to create a real query.
+    // this parameter, so we will use it to create a real query and then
+    // delete the "fake" query.
     const { $period } = context.params.query;
     if ($period) {
       // Delete the "fake" parameter
@@ -340,13 +415,22 @@ const withQueries = withQuery({
 */
 ```
 
-- `virtuals` - (required) An object where each key will be the name of a property to be added to the `context.params.query` and each value is either a primitive, function, or promise.
-
-- `prepFunc` - (optional) A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.
-
 ## withoutQuery
 
 Remove properties from the `context.params.query` of a method call.  See the [withoutResult](#withoutResult) docs for more detailed info about how virtuals and prepFunc work in the `without*` hooks.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutQuery.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| virtuals | Object |  | true | An object where each key will be the name of a property to be potentially filtered from `context.params.query`. **Return a truthy value to keep the value and return a falsey value to remove it**. |
+| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 ```js
 import { withoutQuery } from 'feathers-fletching';
@@ -381,71 +465,77 @@ const withoutQueries = withoutQuery({
 
 ```
 
-- `virtuals` - (required) An object where each key will be the name of a property to be potentially filtered from `context.params.query`. Return a truthy value to keep the value and return a falsey value to remove it.
-
-- `prepFunc` - (optional) A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.
-
 ## joinQuery
 
 Query across services for "joined" records on any database type. This hook relies on the service interface, rather than the database, to query across services allowing you to query similar to a relational database even on services that are NoSQL or even those that do not have a database at all.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| options | Object |  | true | An object where each key will be the name of a  query prop the client can use and each value defines the service and ids  |
+| options.service | String |  | true | The string name of the service to query against |
+| options.targetKey | String |  | true | The name of the key that exists on the collection this service is querying |
+| options.foreignKey | String |  | true | The name of the key on the foreign record. Generally this will be `id` or `_id` |
+| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
+
 
 ```js
 import { joinQuery } from 'feathers-fletching';
 
 /*
 
-  "authors" collection via service `app.service('api/authors')`
+  "artists" collection via service `app.service('api/artists')`
   [
     { id: 123, name: 'Johnny Cash' },
     { id: 456, name: 'Patsy Cline' }
   ]
 
-  "posts" collection via `app.service('api/posts')`
+  "albums" collection via `app.service('api/albums')`
   [
-    { title: 'The Man in Black', author_id: 123 },
-    { title: 'I Wont Back Down', author_id: 123 },
-    { title: 'Life in Nashville', author_id: 456 }
+    { title: 'The Man in Black', artist_id: 123 },
+    { title: 'I Wont Back Down', artist_id: 123 },
+    { title: 'Life in Nashville', artist_id: 456 }
   ]
 */
 
-// Hook added to the 'api/posts' service
+// Hook added to the 'api/albums' service
 const joinQueries = joinQuery({
-  author: {
-    service: 'api/authors',
-    targetKey: 'author_id',
+  artist: {
+    service: 'api/artists',
+    targetKey: 'artist_id',
     foreignKey: 'id'
   }
 });
 
 
-// Notice how were are querying on the joined `author` prop
+// Notice how were are querying on the joined `artist` prop
 // by passing it `{ name: 'Johnny Cash' }` which will only return
-// posts where the author's name is "Johnny Cash"
-const posts = await app.service('api/posts').find({
+// albums where the artist's name is "Johnny Cash"
+const posts = await app.service('api/albums').find({
   query: {
-    author: { name: 'Johnny Cash' }
+    artist: { name: 'Johnny Cash' }
   }
 });
 
 /*
   context.params.query = {
-    author_id: { $in: [123] }
+    artist_id: { $in: [123] }
   }
 */
 
 /*
-  posts = [
-    { title: 'The Man in Black', author_id: 123 },
-    { title: 'I Wont Back Down', author_id: 123 }
+  albums = [
+    { title: 'The Man in Black', artist_id: 123 },
+    { title: 'I Wont Back Down', artist_id: 123 }
   ]
 */
 
 ```
-
-- `options` - (required) An object with all the following required props
-  - `service` - The string name of the service to query against
-  - `targetKey` - The name of the key that exists on the collection this
-                service is querying
-  - `foreignKey` - the name of the key on the foreign record. Generally this
-                will be `id` or `_id`
 
