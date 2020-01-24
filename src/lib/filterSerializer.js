@@ -11,7 +11,7 @@ module.exports = async (data, virtuals, context, prepFunc) => {
     // works similar to an array.filter() where if the result is a truthy
     // value it will be kept and will be omitted if falsey
     const serialized = await virtualsSerializer(
-      data,
+      filterMaps,
       virtuals,
       context,
       prepFunc
