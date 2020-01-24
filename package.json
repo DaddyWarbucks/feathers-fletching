@@ -15,8 +15,7 @@
     "fixcode": "eslint src/. --fix"
   },
   "dependencies": {
-    "@feathersjs/errors": "^4.3.4",
-    "lodash.omit": "^4.5.0"
+    "@feathersjs/errors": "^4.3.4"
   },
   "devDependencies": {
     "eslint": "^6.6.0",

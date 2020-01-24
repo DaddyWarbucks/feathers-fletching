@@ -3,7 +3,7 @@
 // the skipHooks to pass ['protect.password'] to only skip
 // protecting certain field
 
-const omit = require('lodash.omit');
+const { omit } = require('../lib/utils');
 const { skippable, checkContext } = require('../lib');
 
 module.exports = (...fields) => {
@@ -25,7 +25,7 @@ module.exports = (...fields) => {
     const protect = current => {
       const data =
         typeof current.toJSON === 'function' ? current.toJSON() : current;
-      return omit(data, protectedFields);
+      return omit(data, ...protectedFields);
     };
 
     if (Array.isArray(result)) {
