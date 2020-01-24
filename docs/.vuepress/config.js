@@ -3,6 +3,8 @@ module.exports = {
   description: 'A collection of hooks and utilities to make your FeathersJS apps fly straight and true.',
   base: "/feathers-fletching/",
   themeConfig: {
+    logo: '/logo.svg',
+    // smoothScroll: true,
     repo: 'daddywarbucks/feathers-fletching',
     docsDir: 'docs',
     editLinks: true,
