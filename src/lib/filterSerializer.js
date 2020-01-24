@@ -1,41 +1,37 @@
 const virtualsSerializer = require('./virtualsSerializer');
 const { omit, pick } = require('./utils');
 
-module.exports = async (data, virtuals, context, prepFunc) => {
-  if (Array.isArray(data)) {
-    // Create an array of "copies" of the items that
-    // only include the keys to be filtered
-    const filterMaps = data.map(item => pick(item, ...Object.keys(virtuals)));
+// This serializer is a bit different from the virtualsSerializer
+// because it does append the result to the object even if the
+// function returned `undefined`. This is because it is used
+// as a "filter" where each function result returns a truth/falsy
+// value indicating if it should be filtered, and `undefined` is falsy
+// and should be respected as a valid returned value
+const serializer = async (item, virtuals, context, prepResult) => {
+  const updated = Object.assign({}, item);
+  for (const key of Object.keys(virtuals)) {
+    let shouldKeep;
+    if (typeof virtuals[key] === 'function') {
+      shouldKeep = await Promise.resolve(
+        virtuals[key](updated, context, prepResult)
+      );
+    } else {
+      shouldKeep = virtuals[key];
+    }
 
-    // Run the virtualsSerializer on each item. The result of the serializer
-    // works similar to an array.filter() where if the result is a truthy
-    // value it will be kept and will be omitted if falsey
-    const serialized = await virtualsSerializer(
-      filterMaps,
-      virtuals,
-      context,
-      prepFunc
-    );
-
-    // Filter out keys where the serialized result is not truthy
-    const filtered = serialized.map((item, index) => {
-      const omitKeys = Object.keys(item).filter(key => !item[key]);
-      return omit(data[index], ...omitKeys);
-    });
-
-    return filtered;
-  } else {
-    const filterMap = pick(data, ...Object.keys(virtuals));
-
-    const serialized = await virtualsSerializer(
-      filterMap,
-      virtuals,
-      context,
-      prepFunc
-    );
-
-    const omitKeys = Object.keys(serialized).filter(key => !serialized[key]);
-
-    return omit(data, ...omitKeys);
+    if (!shouldKeep) {
+      delete updated[key];
+    }
   }
+  return updated;
+};
+
+module.exports = async (data, virtuals, context, prepFunc) => {
+  const prepResult = await Promise.resolve(prepFunc(context));
+  if (Array.isArray(data)) {
+    return Promise.all(
+      data.map(item => serializer(item, virtuals, context, prepResult))
+    );
+  }
+  return serializer(data, virtuals, context, prepResult);
 };

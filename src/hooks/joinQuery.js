@@ -1,8 +1,8 @@
 const { skippable } = require('../lib');
 
-module.exports.joinQuery = options => {
+module.exports = options => {
   return skippable('joinQuery', async context => {
-    if (!context.params.query) {
+    if (!context.params || !context.params.query) {
       return context;
     }
 
@@ -32,7 +32,13 @@ module.exports.joinQuery = options => {
         });
 
         const idList = matches
-          .map(match => match[option.targetKey])
+          .map(match => {
+            if (match[option.targetKey].toString) {
+              return match[option.targetKey].toString();
+            } else {
+              return match[option.targetKey];
+            }
+          })
           .filter(match => match);
 
         return {

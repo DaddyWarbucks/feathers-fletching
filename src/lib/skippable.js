@@ -3,7 +3,7 @@ const { GeneralError } = require('@feathersjs/errors');
 // Wrap a hook declaration to make it skippable
 module.exports = (hookName, hookFunc) => {
   return context => {
-    if (context.params.skipHooks) {
+    if (context.params && context.params.skipHooks) {
       const { skipHooks } = context.params;
       if (!Array.isArray(skipHooks)) {
         throw new GeneralError(

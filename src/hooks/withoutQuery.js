@@ -6,11 +6,14 @@ module.exports = (virtuals, prepFunc = () => {}) => {
     if (!context.params.query || !Object.keys(context.params.query).length) {
       return context;
     }
+
     context.params.query = await filterSerializer(
       context.params.query,
       virtuals,
       context,
       prepFunc
     );
+
+    return context;
   });
 };
