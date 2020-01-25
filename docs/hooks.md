@@ -65,9 +65,9 @@ const withResults = withResult({
 
   artist_profile: (result, context, prepResult) => {
     // Keys are iterated over syncronously in order of their definition.
-    // This means that `status`, `summary`, and `author` will all be present
+    // This means that `status`, `summary`, and `artist` will all be present
     // by the time this `artist_profile` virtual is run. We can use the
-    // `author` virtual here because it has already been populated
+    // `artist` virtual here because it has already been populated
     if (artist.is_public) {
       return context.app.service('profiles').find({
         query: { artist_id: result.artist_id }
@@ -93,7 +93,7 @@ const withResults = withResult({
     artist_id: 123,
     status: 'platinum',
     summary: 'One...'
-    author: { { name: 'Johnny Cash' } },
+    artist: { { name: 'Johnny Cash' } },
     artist_profile: null
   }
 */
@@ -409,7 +409,7 @@ const withQueries = withQuery({
 
 /*
   context.params.query = {
-    author_id: 123,
+    user_id: 123,
     created_at: { $gte: ...some date, $lte: ...some date }
   }
 */
