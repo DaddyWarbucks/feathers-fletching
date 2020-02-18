@@ -515,9 +515,11 @@ const joinQueries = joinQuery({
 });
 
 
-// Notice how were are querying on the joined `artist` prop
+// Notice how we are querying on the joined `artist` prop
 // by passing it `{ name: 'Johnny Cash' }` which will only return
-// albums where the artist's name is "Johnny Cash"
+// albums where the artist's name is "Johnny Cash". You can pass
+// any query here that you would normally pass to
+// app.service('artists', { query: {...} })
 const posts = await app.service('api/albums').find({
   query: {
     artist: { name: 'Johnny Cash' }
