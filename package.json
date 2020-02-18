@@ -6,6 +6,11 @@
   "repository": "https://github.com/DaddyWarbucks/feathers-fletching.git",
   "author": "DaddyWarbucks <techtbeau@gmail.com>",
   "license": "MIT",
+  "keywords": [
+    "feathers",
+    "feathersjs",
+    "hooks"
+  ],
   "private": false,
   "scripts": {
     "docs:dev": "vuepress dev docs",
