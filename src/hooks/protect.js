@@ -12,7 +12,7 @@ module.exports = (...fields) => {
 
     // The hook caller did not pass skipHooks: ['protect'] which
     // would have skipped this whole call, but they may have passed
-    // somehting like skipHooks: ['protect.password'] signaling
+    // something like skipHooks: ['protect.password'] signaling
     // that we should skip protecting just that field
     const { skipHooks = [] } = context.params;
     const protectedFields = fields.filter(
