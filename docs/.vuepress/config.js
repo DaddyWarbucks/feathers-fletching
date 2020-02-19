@@ -11,6 +11,7 @@ module.exports = {
     sidebar: [
       './overview.md',
       '/hooks.md',
+      '/plugins.md',
       '/utilities.md'
     ],
     serviceWorker: {

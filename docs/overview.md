@@ -9,6 +9,7 @@ This library is heavily inspired by `feathers-hooks-common`, `feathers-plus`, an
 This documentation has several parts:
 
 - [Hooks API](./hooks.md) - The API for the available hooks
+- [Plugins API](./plugins.md) - The API for the available plugins
 - [Utilities API](./utilities.md) - The API for the available utility methods
 
 To get started

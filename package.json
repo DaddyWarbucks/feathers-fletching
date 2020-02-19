@@ -23,7 +23,8 @@
     "test": "npm run lint && npm run mocha"
   },
   "dependencies": {
-    "@feathersjs/errors": "^4.3.4"
+    "@feathersjs/errors": "^4.3.4",
+    "qs": "^6.9.1"
   },
   "devDependencies": {
     "@feathersjs/feathers": "^4.5.0",
