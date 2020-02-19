@@ -1,3 +1,4 @@
+const { BadRequest } = require('@feathersjs/errors');
 const { skippable, checkContext } = require('../lib');
 
 module.exports = skippable('paginateByPage', context => {
