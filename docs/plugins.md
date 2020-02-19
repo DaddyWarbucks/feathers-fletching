@@ -4,20 +4,24 @@ Plugins are functions that are used to configure the app instance and are used v
 
 ## strictRestQuery
 
-Configure the Express query parser to parse string numbers and booleans  to proper types. When using sockets, the query is parsed via `JSON.parse` which means that the query maintains its types for things like numbers, booleans, etc. But when using REST, Express.js uses `qs` to parse query strings and this means that numbers and booleans must be converted to strings. This plugin manually sets the underlying `qs` instance to parse query strings more like `JSON.parse` so that queries are parsed exactly the same whether coming from internal, sockets, or rest.
+Configure the Express query parser to parse string numbers/booleans to proper types as well as handle `null`. When using sockets, the query is parsed via `JSON.parse` which means that the query maintains its types for things like numbers, booleans, null, etc. But when using REST, Express.js uses `qs` to parse query strings and this means that numbers/booleans must be converted to strings and null/empty string are treated the same. This plugin manually sets the underlying `qs` instance to parse query strings more like `JSON.parse` so that queries are parsed exactly the same whether coming from internal, sockets, or rest.
 
 By default, Express.js only allows you to minimally configure how queries are parsed via the
 
 ```js
 // Setting { extended: true } signals to express to use the `qs`
 // library under the hood, but it does not allow you to pass
-// options to the `qs.parse()` function.
+// options to the `qs.parse()` function. This means that all numbers
+// and booleans will be treated as strings and `null` and empty
+// string will both be treated as an empty string
 app.use(express.urlencoded({ extended: true }));
 
 // This will result in a query like
 query = {
-  boolean: 'true',
-  number: '123',
+  'boolean': 'true',
+  'number': '123',
+  'null': ''
+  'emptyString': ''
 }
 ```
 
@@ -29,8 +33,10 @@ app.configure(strictRestQuery());
 
 // This will result in a query like
 query = {
-  boolean: true,
-  number: 123,
+  'boolean': true,
+  'number': 123,
+  'null': null,
+  'emptyString': ''
 }
 ```
 
