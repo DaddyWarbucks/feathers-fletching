@@ -32,14 +32,8 @@ module.exports = options => {
         });
 
         const idList = matches
-          .map(match => {
-            if (match[option.targetKey].toString) {
-              return match[option.targetKey].toString();
-            } else {
-              return match[option.targetKey];
-            }
-          })
-          .filter(match => match);
+          .map(match => match[option.targetKey])
+          .filter(match => match)
 
         return {
           [option.foreignKey]: { $in: idList }
