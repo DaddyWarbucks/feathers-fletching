@@ -10,9 +10,9 @@ describe('joinQuery', () => {
   //   'api/albums',
   //   memory({
   //     store: [
-  //       { title: 'The Man in Black', artist_id: 123 },
-  //       { title: 'I Wont Back Down', artist_id: 123 },
-  //       { title: 'Life in Nashville', artist_id: 456 }
+  //       { id: 1, title: 'The Man in Black', artist_id: 1 },
+  //       { id: 2, title: 'I Wont Back Down', artist_id: 1 },
+  //       { id: 3, title: 'Life in Nashville', artist_id: 2 }
   //     ]
   //   })
   // );
@@ -20,45 +20,23 @@ describe('joinQuery', () => {
   app.use(
     'api/artists',
     memory({
-      store: [
-        { id: 123, name: 'Johnny Cash' },
-        { id: 456, name: 'Patsy Cline' }
-      ]
+      store: [{ id: 1, name: 'Johnny Cash' }, { id: 2, name: 'Patsy Cline' }]
     })
   );
 
   app.use(
-    'api/users',
+    'api/ratings',
     memory({
       store: [
-        { id: 1, name: 'Alice' },
+        { id: 1, album_id: null, rating: 5 },
+        { id: 2, album_id: 1, rating: 5 },
+        { id: 3, album_id: 2, name: 5 }
       ]
     })
   );
-
-  app.use(
-    'api/roles',
-    memory({
-      store: [
-        { id: 10, user_id: 1, team_id: null, name: 'customer' },
-        { id: 20, user_id: 1, team_id: 1, name: 'team-member' },
-        { id: 30, user_id: 1, team_id: 2, name: 'team-lead' }
-      ]
-    })
-  )
-
-  app.use(
-    'api/teams',
-    memory({
-      store: [
-        { id: 1, name: 'teamOne' },
-        { id: 2, name: 'teamTwo' },
-        { id: 3, name: 'teamThree'}
-      ]
-    })
-  )
 
   it('Joins the query', async () => {
+    // Query: which albums have an artist with name 'Johnny Cash'
     const context = {
       app,
       params: {
@@ -76,36 +54,32 @@ describe('joinQuery', () => {
       }
     })(context);
 
-    await assert.deepEqual(newContext.params.query, {
-      artist_id: { $in: [123] }
+    await assert.deepStrictEqual(newContext.params.query, {
+      artist_id: { $in: ['1'] }
     });
   });
 
-
   it('Can handle a nullable association field', async () => {
-    // Query: which teams have a role belonging to user_id = 1?
+    // Query: which albums have a 5 star rating
     const context = {
       app,
       params: {
         query: {
-          roles: {
-            user_id: 1
-          }
+          rating: 5
         }
       }
-    }
+    };
 
     const newContext = await joinQuery({
-      roles: {
-        service: 'api/roles',
-        targetKey: 'team_id',
+      rating: {
+        service: 'api/ratings',
+        targetKey: 'album_id',
         foreignKey: 'id'
       }
     })(context);
 
-    await assert.deepEqual(newContext.params.query, {
-      id: { $in: [1, 2] }
-    })
-
-  })
+    await assert.deepStrictEqual(newContext.params.query, {
+      id: { $in: ['1', '2'] }
+    });
+  });
 });
