@@ -32,7 +32,14 @@ module.exports = options => {
         });
 
         const idList = matches
-          .map(match => match[option.targetKey])
+          .map(match => {
+            const id = match[option.targetKey]
+            if (id && id.toString) {
+              return id.toString()
+            } else {
+              return id
+            }
+          })
           .filter(match => match)
 
         return {
