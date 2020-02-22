@@ -483,7 +483,6 @@ Query across services for "joined" records on any database type. This hook relie
 | options.service | String |  | true | The string name of the service to query against |
 | options.targetKey | String |  | true | The name of the key that exists on the collection this service is querying |
 | options.foreignKey | String |  | true | The name of the key on the foreign record. Generally this will be `id` or `_id` |
-| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 
 ```js
