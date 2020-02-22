@@ -20,7 +20,10 @@
     "fixcode": "eslint src/. --fix",
     "mocha": "mocha tests --recursive --exit",
     "mocha:watch": "mocha tests --recursive --watch tests/*.test.js",
-    "test": "npm run lint && npm run mocha"
+    "test": "npm run lint && npm run mocha",
+    "release:patch": "npm version patch && npm publish",
+    "release:minor": "npm version minor && npm publish",
+    "release:major": "npm version major && npm publish"
   },
   "dependencies": {
     "@feathersjs/errors": "^4.3.4",
