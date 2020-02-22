@@ -23,24 +23,22 @@ module.exports = options => {
 
         const matches = await context.app.service(option.service).find({
           paginate: false,
-          query: Object.assign({}, query[key], {
-            $select: [option.targetKey]
-            // allow this hook to be used clientside, if the dev's server
-            // is setup to disablePagination with $limit: -1
-            // $limit: -1
-          })
+          query: Object.assign({}, { $select: [option.targetKey] }, query[key])
         });
 
         const idList = matches
           .map(match => {
-            const id = match[option.targetKey]
+            const id = match[option.targetKey];
             if (id && id.toString) {
-              return id.toString()
+              return id.toString();
             } else {
-              return id
+              return id;
             }
           })
-          .filter(match => match)
+          // Filter out null/undefined and unique
+          .filter((match, index, self) => {
+            return match && self.indexOf(match) === index;
+          });
 
         return {
           [option.foreignKey]: { $in: idList }
