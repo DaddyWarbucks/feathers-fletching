@@ -35,7 +35,6 @@ module.exports = options => {
               return id;
             }
           })
-          // Filter out null/undefined and unique
           .filter((match, index, self) => {
             return match && self.indexOf(match) === index;
           });
