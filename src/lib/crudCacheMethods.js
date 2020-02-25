@@ -1,3 +1,5 @@
+const LruCache = require('./lruCache');
+
 module.exports = map => {
   return {
     get: (key, context) => {
@@ -9,11 +11,20 @@ module.exports = map => {
     set: (key, result, context) => {
       const { query = {} } = context.params || {};
       if (!query.$select) {
-        return map.set(key, result, context);
+        if (map instanceof LruCache) {
+          // LRU set() takes a third argument maxAge and
+          // blows up if trying to pass it context
+          return map.set(key, result);
+        } else {
+          return map.set(key, result, context);
+        }
       }
     },
     delete: (key, context) => {
       return map.delete(key, context);
+    },
+    clear: context => {
+      return map.clear(context);
     }
   };
 };
