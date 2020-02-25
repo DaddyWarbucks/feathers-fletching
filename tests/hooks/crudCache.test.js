@@ -1,6 +1,5 @@
 const assert = require('assert');
 const crudCache = require('../../src/hooks/crudCache');
-const CrudCacheMap = require('../../src/lib/crudCacheMap');
 
 describe('crudCache', () => {
   const result1 = { id: 1, title: 'The Man in Black' };
@@ -13,7 +12,7 @@ describe('crudCache', () => {
       id: 1
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
     cacheMap.set('1', result1, context);
 
     const newContext = await crudCache(cacheMap)(context);
@@ -29,7 +28,7 @@ describe('crudCache', () => {
       params: { query: { title: 'The Man in Black' } }
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
     cacheMap.set('1', result1, context);
 
     const newContext = await crudCache(cacheMap)(context);
@@ -44,7 +43,7 @@ describe('crudCache', () => {
       result: { data: [result1, result2] }
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
 
     const newContext = await crudCache(cacheMap)(context);
 
@@ -59,7 +58,7 @@ describe('crudCache', () => {
       result: result1
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
 
     const newContext = await crudCache(cacheMap)(context);
 
@@ -73,7 +72,7 @@ describe('crudCache', () => {
       result: result1
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
 
     const newContext = await crudCache(cacheMap)(context);
 
@@ -87,7 +86,7 @@ describe('crudCache', () => {
       result: result1
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
 
     const newContext = await crudCache(cacheMap)(context);
 
@@ -101,7 +100,7 @@ describe('crudCache', () => {
       result: result1
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
 
     const newContext = await crudCache(cacheMap)(context);
 
@@ -115,7 +114,7 @@ describe('crudCache', () => {
       result: result1
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
 
     const newContext = await crudCache(cacheMap)(context);
 
@@ -130,7 +129,7 @@ describe('crudCache', () => {
       result: [result1]
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
 
     const newContext = await crudCache(cacheMap)(context);
 
@@ -144,7 +143,7 @@ describe('crudCache', () => {
       result: [result1]
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
 
     const getResultKey = result => result.id;
 
@@ -160,7 +159,7 @@ describe('crudCache', () => {
       result: [result1]
     };
 
-    const cacheMap = new CrudCacheMap();
+    const cacheMap = new Map();
 
     const makeCacheKey = key => 'myKey';
 
