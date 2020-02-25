@@ -1,4 +1,4 @@
-const LruCache = require('./lruCache');
+const LruCache = require('./lruCacheMap');
 
 module.exports = map => {
   return {
