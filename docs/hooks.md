@@ -544,7 +544,7 @@ const posts = await app.service('api/albums').find({
 
 ## contextCache
 
-Cache the results of `get()` and `find()` requests. Purge the cache on any mutating method.
+Cache the results of `get()` and `find()` requests. Clear the cache on any other method.
 
 **Context**
 
@@ -613,13 +613,22 @@ module.exports = {
   }
 }
 
-app.service('albums').find(); // No cache hit
-app.service('albums').find(); // Cache hit
+service.find(); // No cache hit
+service.find(); // Cache hit
 
-app.service('albums').create(); // Clears the cache
+service.find({ query: { name: 'Johnny' } }); // No cache hit
+service.find({ query: { name: 'Johnny' } }); // Cache hit
 
-app.service('albums').find(); // No cache hit
-app.service('albums').find(); // Cache hit
+service.get(1); // No cache hit
+service.get(1); // Cache hit
+
+service.get(1, { query: { name: 'Johnny' } }); // No cache hit
+service.get(1, { query: { name: 'Johnny' } }); // Cache hit
+
+service.create(); // Clears the entire cache
+service.update(1, { 'Patsy' }); // Clears the entire cache
+service.patch(1, { 'Patsy' }); // Clears the entire cache
+service.remove(1); // Clears the entire cache
 ```
 
 **Cache Strategy**
@@ -632,9 +641,9 @@ Before `create()`, `update()`, `patch()`, and `remove()` the cache is cleared to
 
 **Custom Cache Maps**
 
-The hook may be provided a custom `Map` instance to use as its memoization cache. Any object that implements `get()`, `set()`, and `clear()` methods can be provided and async methods are supported. This means that the cache can even be backed my redis, etc.
+The hook must be provided a custom `CacheMap` object to use as its memoization cache. Any object that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize the eviction policy on `clear()`.
 
-The cache will grow without limit when using a standard javascript `Map` and the resulting memory pressure may adversely affect your performance. `Map` should only be used when you know or can control its size. It is highly encouraged to use the `LruCacheMap` from feathers-fletching which implements an LRU cache.
+The cache will grow without limit when using a standard javascript `Map` for storage and the resulting memory pressure may adversely affect your performance. `Map` should only be used when you know or can control its size. It is highly encouraged to use the `LruCacheMap` from `feathers-fletching` which implements an LRU cache.
 
 ```js
 import { contextCache, LruCacheMap  } from 'feathers-fletching';
@@ -667,8 +676,8 @@ const cacheMap = {
   }
 };
 
-// Use a custom map to write a clear method with a custom
-// eviction policy
+// Use a custom map to write a clear()
+// method with a custom eviction policy
 const map = new LruCacheMap();
 
 const cacheMap = {
@@ -687,16 +696,18 @@ const cacheMap = {
     results.forEach(result => {
       Object.keys(map).forEach(key => {
         const keyObj = JSON.parse(key);
-        if (keyObj.id === result.id) {
-          map.delete(key);
+        if (keyObj.method === 'find') {
+          // This is a cached `find` request. Any create/patch/update/del
+          // could affect the results of this query so it should be deleted
+          return map.delete(key);
         } else {
-          const cachedItems = result.data || result;
-          const cachedResults = Array.isArray(items) ? items : [items];
-          const found = cachedResults.find(cachedRes => {
-            cachedRes.id === result.id;
-          });
-          if (found) {
-            map.delete(key);
+          // This is a cached `get` request
+          if (context.method !== 'create') {
+            // If not creating, there may be a cached get for this id
+            if (keyObj.id === result.id) {
+              // Delete all `gets` that have this id
+              return map.delete(key);
+            }
           }
         }
       });
@@ -704,12 +715,30 @@ const cacheMap = {
   }
 }
 
-app.service('albums').find(); // No cache hit
-app.service('albums').find(); // Cache hit
+service.find(); // No cache hit
+service.find(); // Cache hit
 
-// Clears the cache of any results that contain ID 1
-app.service('albums').patch(1, { name: 'Johnny Cash' });
+service.find({ query: { name: 'Johnny' } }); // No cache hit
+service.find({ query: { name: 'Johnny' } }); // Cache hit
 
-app.service('albums').find(); // No cache hit if results contained ID 1
-app.service('albums').find(); // Cache hit
+service.get(1); // No cache hit
+service.get(1); // Cache hit
+
+service.get(1, { query: { name: 'Johnny' } }); // No cache hit
+service.get(1, { query: { name: 'Johnny' } }); // Cache hit
+
+// Clears all `find` caches
+// Does not clear any `get` caches
+service.create();
+
+service.find(); // No cache hit
+service.get(1); // Cache hit
+
+// Clears all `find` caches
+// Only clears `get` caches with ID 2
+service.patch(2, { name: 'Patsy Cline' });
+
+service.find(); // No cache hit
+service.get(2); // No cache hit
+service.get(1); // Cache hit
 ```
