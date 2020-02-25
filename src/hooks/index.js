@@ -6,3 +6,4 @@ module.exports.withResult = require('./withResult');
 module.exports.withoutResult = require('./withoutResult');
 module.exports.joinQuery = require('./joinQuery');
 module.exports.contextCache = require('./contextCache');
+module.exports.crudCache = require('./crudCache');
