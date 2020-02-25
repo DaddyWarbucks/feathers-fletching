@@ -167,44 +167,55 @@ describe('crudCache', () => {
     await assert.deepEqual(cacheMap.get('myKey'), result1);
   });
 
-  it('Can use a custom isFiltering option', async () => {
+  it('Can use a custom shouldSet option', async () => {
     const context = {
       type: 'after',
       method: 'find',
-      params: { isMutating: true },
       result: [result1]
     };
 
     const cacheMap = new Map();
 
-    const isFiltering = context => context.params.isMutating;
+    const shouldSet = (result, context) => false;
 
-    const newContext = await crudCache(cacheMap, { isFiltering })(context);
+    const newContext = await crudCache(cacheMap, { shouldSet })(context);
 
     await assert.deepEqual(cacheMap.get('1'), undefined);
   });
 
-  it('Can use a custom isQuerying option', async () => {
+  it('Can use a custom shouldGet option', async () => {
     const context = {
       type: 'before',
       method: 'get',
-      id: 1,
-      // params: { query: { expires: { $lt: new Date() } } }
-      params: { query: { title: 'The Man in Black' } }
+      id: 1
     };
 
     const cacheMap = new Map();
     cacheMap.set('1', result1);
 
-    const isQuerying = context => {
-      // Do not return from cache if the user is querying by expires
-      // otherwise we can return from cache
-      return context.params.query.expires !== undefined;
+    const shouldGet = context => false;
+
+    const newContext = await crudCache(cacheMap, { shouldGet })(context);
+
+    await assert.deepEqual(context.result, undefined);
+  });
+
+  it('Can use a custom shouldDelete option', async () => {
+    const context = {
+      type: 'after',
+      method: 'remove',
+      id: 1,
+      result: result1
     };
 
-    const newContext = await crudCache(cacheMap, { isQuerying })(context);
+    const cacheMap = new Map();
+    cacheMap.set('1', result1);
 
-    await assert.deepEqual(cacheMap.get('1'), context.result);
+    const shouldDelete = context => false;
+
+    const newContext = await crudCache(cacheMap, { shouldDelete })(context);
+
+    await assert.deepEqual(cacheMap.get('1'), result1);
   });
 
   it('Can handle an async cacheMap', async () => {
