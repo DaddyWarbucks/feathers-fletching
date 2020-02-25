@@ -17,8 +17,9 @@ module.exports = function(cacheMap, options = {}) {
   const getResultKey = options.getResultKey || defaultGetResultKey;
 
   return skippable('crudCache', async context => {
+    const { query = {} } = context.params || {};
     if (context.type === 'before') {
-      if (context.method === 'get') {
+      if (context.method === 'get' && !Object.keys(query).length) {
         const key = await makeCacheKey(context.id, context);
         const value = await cacheMap.get(key, context);
         if (value) {
@@ -40,14 +41,16 @@ module.exports = function(cacheMap, options = {}) {
         );
         return context;
       } else {
-        await Promise.all(
-          results.map(async result => {
-            const resultKey = await getResultKey(result, context);
-            const key = await makeCacheKey(resultKey, context);
-            const cloned = await clone(result, context);
-            return cacheMap.set(key, cloned, context);
-          })
-        );
+        if (!query.$select) {
+          await Promise.all(
+            results.map(async result => {
+              const resultKey = await getResultKey(result, context);
+              const key = await makeCacheKey(resultKey, context);
+              const cloned = await clone(result, context);
+              return cacheMap.set(key, cloned, context);
+            })
+          );
+        }
         return context;
       }
     }
