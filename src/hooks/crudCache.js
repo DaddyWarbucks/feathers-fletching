@@ -33,7 +33,7 @@ module.exports = function(cacheMap, options = {}) {
       const querying = await isQuerying(context);
       if (context.method === 'get' && !querying) {
         const key = await makeCacheKey(context.id, context);
-        const value = await cacheMap.get(key);
+        const value = await cacheMap.get(key, context);
         if (value) {
           context.result = value;
         }
@@ -48,7 +48,7 @@ module.exports = function(cacheMap, options = {}) {
             const resultKey = await getResultKey(result, context);
             const key = await makeCacheKey(resultKey, context);
             const cloned = await clone(result, context);
-            return cacheMap.delete(key, cloned);
+            return cacheMap.delete(key, cloned, context);
           })
         );
         return context;
@@ -60,7 +60,7 @@ module.exports = function(cacheMap, options = {}) {
               const resultKey = await getResultKey(result, context);
               const key = await makeCacheKey(resultKey, context);
               const cloned = await clone(result, context);
-              return cacheMap.set(key, cloned);
+              return cacheMap.set(key, cloned, context);
             })
           );
         }
