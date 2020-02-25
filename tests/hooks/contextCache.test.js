@@ -1,6 +1,31 @@
 const assert = require('assert');
 const contextCache = require('../../src/hooks/contextCache');
 
+const makeKey = context => {
+  return JSON.stringify({
+    method: context.method,
+    id: context.id,
+    query: context.params.query
+  });
+};
+
+function CacheMap() {
+  const map = new Map();
+  return {
+    map,
+    set: context => {
+      const result = context.result;
+      return map.set(makeKey(context), result);
+    },
+    get: context => {
+      return map.get(makeKey(context));
+    },
+    clear: context => {
+      return map.clear(context);
+    }
+  };
+}
+
 describe('contextCache', () => {
   const result1 = { id: 1, title: 'The Man in Black' };
 
@@ -8,83 +33,45 @@ describe('contextCache', () => {
     const context = {
       type: 'before',
       method: 'find',
-      params: { query: { name: 'Johnny Cash' } }
+      params: {}
     };
 
-    const cacheMap = new Map();
+    const cacheMap = new CacheMap();
 
-    const key = JSON.stringify({
-      method: context.method,
-      query: context.params.query
-    });
-
-    cacheMap.set(key, result1);
+    cacheMap.set(context, result1);
 
     const newContext = await contextCache(cacheMap)(context);
 
-    await assert.deepEqual(cacheMap.get(key), newContext.result);
+    await assert.deepEqual(cacheMap.get(context), newContext.result);
   });
 
   it('Caches result in after hook', async () => {
     const context = {
       type: 'after',
       method: 'find',
-      params: { query: { name: 'Johnny Cash' } },
+      params: {},
       result: result1
     };
 
-    const cacheMap = new Map();
-
-    const key = JSON.stringify({
-      method: context.method,
-      query: context.params.query
-    });
+    const cacheMap = new CacheMap();
 
     const newContext = await contextCache(cacheMap)(context);
 
-    await assert.deepEqual(cacheMap.get(key), newContext.result);
+    await assert.deepEqual(cacheMap.get(context), result1);
   });
 
-  it('Can use a custom makeCacheKey option', async () => {
+  it('Destroys the cache after mutation', async () => {
     const context = {
-      type: 'before',
-      method: 'find',
-      params: { query: { name: 'Johnny Cash' } }
+      type: 'after',
+      method: 'create',
+      params: {}
     };
 
-    const cacheMap = new Map();
+    const cacheMap = new CacheMap();
+    cacheMap.set(context);
 
-    const makeCacheKey = context => {
-      return JSON.stringify({ method: context.method });
-    };
+    const newContext = await contextCache(cacheMap)(context);
 
-    const key = makeCacheKey(context);
-
-    const newContext = await contextCache(cacheMap, { makeCacheKey })(context);
-
-    await assert.deepEqual(cacheMap.get(key), newContext.result);
-  });
-
-  it('Can use a custom clone option', async () => {
-    const context = {
-      type: 'before',
-      method: 'find',
-      params: { query: { name: 'Johnny Cash' } }
-    };
-
-    const cacheMap = new Map();
-
-    const key = JSON.stringify({
-      method: context.method,
-      query: context.params.query
-    });
-
-    cacheMap.set(key, 42);
-
-    const clone = context => 42;
-
-    const newContext = await contextCache(cacheMap, { clone })(context);
-
-    await assert.deepEqual(cacheMap.get(key), 42);
+    await assert.deepEqual(Object.keys(cacheMap.map).length, 0);
   });
 });

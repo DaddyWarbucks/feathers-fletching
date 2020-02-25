@@ -542,132 +542,174 @@ const posts = await app.service('api/albums').find({
 
 > When using this hook on the client, use the [disablePagination](https://hooks-common.feathersjs.com/hooks.html#disablepagination) hook on the server to ensure proper results. Then be sure to include `$limit: -1` with your join query like `artist: { name: 'Johnny Cash', $limit: -1 }`. Otherwise, the query passed to the join service will not return all joined records and your result set will be incomplete.
 
-## crudCache
+## contextCache
 
-Cache records to increase performance and speed up response times.
+Cache the results of `get()` and `find()` requests. Purge the cache on any mutating method.
 
 **Context**
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/crudCache.js) |
+| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/contextCache.js) |
 
 **Arguments**
 
 | Argument | Type | Default | Required | Description |
 | :-: | :-: | :-:  | :-: | - |
-| cacheMap | Object |  | true | A Map like object with methods `get`, `set`, and `delete`. Methods can be async.
-| options.clone | Function | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/crudCache.js) | false | Clone the result before setting in cache |
-| options.makeCacheKey | Function | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/crudCache.js) | false | Parse the key to be used as the cache key |
-| options.getResultKey | Function | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/crudCache.js) | false | Pluck of the "id" property from the result |
+| cacheMap | Object |  | true | A Map like object with methods `get`, `set`, and `clear`. Each method is passed `context` as the only argument. Methods can be async.
 
 
 ```js
-import { crudCache, CrudCacheMap } from 'feathers-fletching';
+import { contextCache, LruCacheMap } from 'feathers-fletching';
 
-// Keep the 100 most recently used. CrudCacheMap uses `lru-cache`
-// under the hood and passes its options to the LRU
-const cacheMap = new CrudCacheMap({ max: 100 });
+// Keep the 100 most recently used.
+const map = new LruCacheMap({ max: 100 });
 
-const cache = crudCach(cacheMap);
+const makeKey = context => {
+  return JSON.stringify({
+    method: context.method,
+    id: context.id,
+    query: context.params.query
+  });
+};
 
-module.exports = {
-  before: {
-    all: [cache]
+const cacheMap = {
+  get: (context) => {
+    const key = makeKey(context);
+    map.get(key);
   },
-  after: {
-    all: [cache]
+  set: (context) => {
+    const key = makeKey(context);
+    const result = JSON.parse(JSON.stringify(context.result));
+    return map.set(key, result);
+  },
+  clear: (context) => {
+    return map.clear();
   }
 }
 
-// The crudCache hook should be as "close" to the database as possibe.
-// If you are using other after hooks, you should always set the
-// crudCache first. The `get()` method is the only method that
-// attempts to retrieve from the cache, it should be the last before hook
+const cache = contextCache(cacheMap);
+
+// The contextCache hook should be as "close" to the database as possibe.
+// This means it should be the last before hook, and the first after hook.
 module.exports = {
   before: {
     all: [],
-    get: [beoreHook1, beforeHook2, cache]
+    find: [beforeHook1, cache],
+    get: [beforeHook1, cache],
+    create: [beforeHook1, cache],
+    update: [beforeHook1, cache],
+    patch: [beforeHook1, cache],
+    remove: [beforeHook1, cache]
   },
   after: {
     all: [],
-    find: [cache, afterHook1, afterHook2],
-    get: [cache, afterHook1, afterHook2],
-    create: [cache, afterHook1, afterHook2],
-    update: [cache, afterHook1, afterHook2],
-    patch: [cache, afterHook1, afterHook2],
-    remove: [cache, afterHook1, afterHook2]
+    find: [cache, afterHook1],
+    get: [cache, afterHook1],
+    create: [cache, afterHook1],
+    update: [cache, afterHook1],
+    patch: [cache, afterHook1],
+    remove: [cache, afterHook1]
   }
 }
 
+app.service('albums').find(); // No cache hit
+app.service('albums').find(); // Cache hit
 
+app.service('albums').create(); // Clears the cache
+
+app.service('albums').find(); // No cache hit
+app.service('albums').find(); // Cache hit
 ```
 
-Before `get()`, if the result exists in the cache and the user did not pass a query, the cached result is returned.
+**Cache Strategy**
 
-After `get()`, `find()`, `create()`, `update()`, and `patch()` the results are placed in the cache if the user did not pass `$select` query.
+Before `get()` and `find()`, if the result exists in the cache it is returned.
 
-After `remove()` the results are cleared from the cache.
+After `get()` and `find()`, the results are stored in the cache.
+
+Before `create()`, `update()`, `patch()`, and `remove()` the cache is cleared totally.
 
 **Custom Cache Maps**
 
-The hook may be provided a custom `Map` instance to use as its memoization cache. Any object that implements `get()`, `set()`, and `delete()` methods can be provided and async methods are supported. This means that the cache can even be backed my redis, etc.
+The hook may be provided a custom `Map` instance to use as its memoization cache. Any object that implements `get()`, `set()`, and `clear()` methods can be provided and async methods are supported. This means that the cache can even be backed my redis, etc.
 
-The cache will grow without limit when using a standard javascript `Map` and the resulting memory pressure may adversely affect your performance. `Map` should only be used when you know or can control its size. It is highly encouraged to use the `CrudCacheMap` from feathers-fletching which implements an LRU cache.
-
-The `CrudCacheMap` also "smartly" adds and gets from the cache based on the user's query. For example, if the user passed `{ query: { $select: ['createdAt'] }` the cache should not be updated with the partial result that is returned. `CrudCacheMap` handles this automatically. There is also a `crudCacheMethods` function that will wrap any `Map` like instance in this default logic.
+The cache will grow without limit when using a standard javascript `Map` and the resulting memory pressure may adversely affect your performance. `Map` should only be used when you know or can control its size. It is highly encouraged to use the `LruCacheMap` from feathers-fletching which implements an LRU cache.
 
 ```js
-import { crudCache, crudCacheMethods } from 'feathers-fletching';
+import { contextCache, LruCacheMap  } from 'feathers-fletching';
 
-// Use a standard map wrapped in crudCacheMethods.
-const map = new Map();
-const cacheMap = crudCacheMethods(Map);
-const cache = crudCach(cacheMap);
-
-// Implement your own logic for when items should be cached. This
-// example below shows the default logic that crudCacheMethods
-// would return. But you could implement some other logic to
-// determine when to get, set, and delete entries
-const map = new Map()
-
-const cacheMap = {
-  get: (key, context) => {
-    const { query = {} } = context.params || {};
-    if (!Object.keys(query).length) {
-      return map.get(key);
-    }
-  },
-  set: (key, result, context) => {
-    const { query = {} } = context.params || {};
-    if (!query.$select) {
-      return map.set(key, result);
-    }
-  },
-  delete: (key, context) => {
-    return map.delete();
-  }
-}
-
-const cache = crudCach(cacheMap);
+const makeKey = context => {
+  return JSON.stringify({
+    method: context.method,
+    id: context.id,
+    query: context.params.query
+  });
+};
 
 // Use a custom map that uses async methods, such as some
 // redis client or other persisted store
-const map = {
-  set: (key, result, context) => {
-    const redisClient = context.app.get('redisClient');
-    return redisClient.set(key, result);
-  },
-  get: (key, context) => {
+const cacheMap = {
+  get: (context) => {
+    const key = makeKey(context);
     const redisClient = context.app.get('redisClient');
     return redisClient.get(key);
   },
-  delete: (key, context) => {
+  set: (context) => {
+    const key = makeKey(context);
+    const result = JSON.parse(JSON.stringify(context.result));
     const redisClient = context.app.get('redisClient');
-    return redisClient.delete(key);
+    return redisClient.set(key, result);
+  },
+  clear: (context) => {
+    const redisClient = context.app.get('redisClient');
+    return redisClient.clear();
   }
 };
 
-const cacheMap = crudCacheMethods(Map);
-const cache = crudCach(cacheMap);
+// Use a custom map to write a clear method with a custom
+// eviction policy
+const map = new LruCacheMap();
+
+const cacheMap = {
+  get: (key, context) => {
+    const key = makeKey(context);
+    map.get(key);
+  },
+  set: (key, result, context) => {
+    const key = makeKey(context);
+    const result = JSON.parse(JSON.stringify(context.result));
+    return map.set(key, result);
+  },
+  clear: (context) => {
+    const items = getItems(context);
+    const results = Array.isArray(items) ? items : [items];
+    results.forEach(result => {
+      Object.keys(map).forEach(key => {
+        const keyObj = JSON.parse(key);
+        if (keyObj.id === result.id) {
+          map.delete(key);
+        } else {
+          const cachedItems = result.data || result;
+          const cachedResults = Array.isArray(items) ? items : [items];
+          const found = cachedResults.find(cachedRes => {
+            cachedRes.id === result.id;
+          });
+          if (found) {
+            map.delete(key);
+          }
+        }
+      });
+    });
+  }
+}
+
+app.service('albums').find(); // No cache hit
+app.service('albums').find(); // Cache hit
+
+// Clears the cache of any results that contain ID 1
+app.service('albums').patch(1, { name: 'Johnny Cash' });
+
+app.service('albums').find(); // No cache hit if results contained ID 1
+app.service('albums').find(); // Cache hit
 ```
