@@ -708,6 +708,8 @@ const cache = contextCache({
           if (context.method !== 'create') {
             // If not creating, there may be a cached get for this id
             if (keyObj.id === result.id) {
+              // keyObj.id.toString() === result.id.toString()
+              // keyObj.id.toString() === result._id.toString()
               // Delete all `gets` that have this id
               return map.del(key);
             }
