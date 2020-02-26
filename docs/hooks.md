@@ -646,7 +646,7 @@ After `create()`, `update()`, `patch()`, and `remove()` the cache is cleared.
 
 The hook must be provided a custom `cacheMap` object to use as its memoization cache. Any object/class that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize key generation, cloning, and eviction policy.
 
-The cache will grow without limit when using a standard javascript `Map` for storage and the resulting memory pressure may adversely affect your performance. `Map` should only be used when you know or can control its size. It is highly encouraged to use something like `lru-cache' which implements an LRU cache.
+The cache will grow without limit when using a standard javascript `Map` for storage and the resulting memory pressure may adversely affect your performance. `Map` should only be used when you know or can control its size. It is highly encouraged to use something like [`lru-cache'](https://www.npmjs.com/package/lru-cache) which implements an LRU cache.
 
 ```js
 import { contextCache } from 'feathers-fletching';
