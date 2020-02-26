@@ -1,6 +1,6 @@
 const { skippable } = require('../lib');
 
-module.exports = (cacheMap, options = {}) => {
+module.exports = cacheMap => {
   return skippable('contextCache', async context => {
     if (context.type === 'before') {
       if (context.method === 'get' || context.method === 'find') {
