@@ -563,10 +563,11 @@ Cache the results of `get()` and `find()` requests. Clear the cache on any other
 
 
 ```js
-import { contextCache, LruCacheMap } from 'feathers-fletching';
+import { contextCache } from 'feathers-fletching';
+import LRU from 'lru-cache';
 
 // Keep the 100 most recently used.
-const map = new LruCacheMap({ max: 100 });
+const map = new LRU({ max: 100 });
 
 const makeKey = context => {
   return JSON.stringify({
@@ -590,7 +591,7 @@ const cache = contextCache({
   },
   clear: (context) => {
     // Called after `create()`, `update()`, `patch()`, and `remove()`
-    return map.clear();
+    return map.reset();
   }
 });
 
@@ -645,10 +646,11 @@ After `create()`, `update()`, `patch()`, and `remove()` the cache is cleared.
 
 The hook must be provided a custom `cacheMap` object to use as its memoization cache. Any object/class that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize key generation, cloning, and eviction policy.
 
-The cache will grow without limit when using a standard javascript `Map` for storage and the resulting memory pressure may adversely affect your performance. `Map` should only be used when you know or can control its size. It is highly encouraged to use the `LruCacheMap` from `feathers-fletching` which implements an LRU cache.
+The cache will grow without limit when using a standard javascript `Map` for storage and the resulting memory pressure may adversely affect your performance. `Map` should only be used when you know or can control its size. It is highly encouraged to use something like `lru-cache' which implements an LRU cache.
 
 ```js
-import { contextCache, LruCacheMap  } from 'feathers-fletching';
+import { contextCache } from 'feathers-fletching';
+import LRU from 'lru-cache';
 
 const makeKey = context => {
   return JSON.stringify({
@@ -658,7 +660,7 @@ const makeKey = context => {
   });
 };
 
-// Use a custom map that uses async methods, such as some
+// Use a custom cacheMap that uses async methods, such as some
 // redis client or other persisted store
 const cache = contextCache({
   get: (context) => {
@@ -680,7 +682,7 @@ const cache = contextCache({
 
 // Use a custom map to write a clear()
 // method with a custom eviction policy
-const map = new LruCacheMap({ max: 100 });
+const map = new LRU({ max: 100 });
 const cache = contextCache({
   get: (context) => {
     const key = makeKey(context);
@@ -692,22 +694,22 @@ const cache = contextCache({
     return map.set(key, result);
   },
   clear: (context) => {
-    const items = getItems(context);
-    const results = Array.isArray(items) ? items : [items];
+    const result = context.result;
+    const results = Array.isArray(result) ? result : [result];
     results.forEach(result => {
       Object.keys(map).forEach(key => {
         const keyObj = JSON.parse(key);
         if (keyObj.method === 'find') {
           // This is a cached `find` request. Any create/patch/update/del
           // could affect the results of this query so it should be deleted
-          return map.delete(key);
+          return map.del(key);
         } else {
           // This is a cached `get` request
           if (context.method !== 'create') {
             // If not creating, there may be a cached get for this id
             if (keyObj.id === result.id) {
               // Delete all `gets` that have this id
-              return map.delete(key);
+              return map.del(key);
             }
           }
         }
