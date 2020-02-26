@@ -594,18 +594,16 @@ const cache = contextCache(cacheMap);
 // This means it should be the last before hook, and the first after hook.
 module.exports = {
   before: {
-    all: [],
+    // Try to return from the cache before find and get
     find: [beforeHook1, cache],
-    get: [beforeHook1, cache],
-    create: [beforeHook1, cache],
-    update: [beforeHook1, cache],
-    patch: [beforeHook1, cache],
-    remove: [beforeHook1, cache]
+    get: [beforeHook1, cache]
   },
   after: {
-    all: [],
+    // Cache results after find and get
     find: [cache, afterHook1],
-    get: [cache, afterHook1],
+    get: [cache, afterHook1]
+
+    // Clear the cache on any mutating method
     create: [cache, afterHook1],
     update: [cache, afterHook1],
     patch: [cache, afterHook1],
@@ -637,11 +635,11 @@ Before `get()` and `find()`, if the result exists in the cache it is returned.
 
 After `get()` and `find()`, the results are stored in the cache.
 
-Before `create()`, `update()`, `patch()`, and `remove()` the cache is cleared totally.
+After `create()`, `update()`, `patch()`, and `remove()` the cache is cleared.
 
 **Custom Cache Maps**
 
-The hook must be provided a custom `CacheMap` object to use as its memoization cache. Any object that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize the eviction policy on `clear()`.
+The hook must be provided a custom `cacheMap` object to use as its memoization cache. Any object/class that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize key generation, cloning, and eviction policy.
 
 The cache will grow without limit when using a standard javascript `Map` for storage and the resulting memory pressure may adversely affect your performance. `Map` should only be used when you know or can control its size. It is highly encouraged to use the `LruCacheMap` from `feathers-fletching` which implements an LRU cache.
 
