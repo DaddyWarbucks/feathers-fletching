@@ -697,7 +697,7 @@ const cache = contextCache({
     const result = context.result;
     const results = Array.isArray(result) ? result : [result];
     results.forEach(result => {
-      Object.keys(map).forEach(key => {
+      Array.from(map.keys()).forEach(key => {
         const keyObj = JSON.parse(key);
         if (keyObj.method === 'find') {
           // This is a cached `find` request. Any create/patch/update/del
