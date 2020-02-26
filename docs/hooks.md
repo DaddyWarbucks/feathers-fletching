@@ -556,7 +556,7 @@ Cache the results of `get()` and `find()` requests. Clear the cache on any other
 
 | Argument | Type | Default | Required | Description |
 | :-: | :-: | :-:  | :-: | - |
-| cacheMap | Object |  | true | A Map like object with methods `get`, `set`, and `clear`. Each method is passed `context` as the only argument. Methods can be async.
+| cacheMap | Object |  | true | A Map like object with methods `get`, `set`, and `clear`. Each method is passed `context` and `prepResult` as arguments. Methods can be async.
 
 
 ```js
@@ -573,22 +573,23 @@ const makeKey = context => {
   });
 };
 
-const cacheMap = {
+const cache = contextCache({
   get: (context) => {
+    // Called before `get()` and `find()`
     const key = makeKey(context);
     map.get(key);
   },
   set: (context) => {
+    // Called after `get()` and `find()`
     const key = makeKey(context);
     const result = JSON.parse(JSON.stringify(context.result));
     return map.set(key, result);
   },
   clear: (context) => {
+    // Called after `create()`, `update()`, `patch()`, and `remove()`
     return map.clear();
   }
-}
-
-const cache = contextCache(cacheMap);
+});
 
 // The contextCache hook should be as "close" to the database as possibe.
 // This means it should be the last before hook, and the first after hook.
@@ -656,7 +657,7 @@ const makeKey = context => {
 
 // Use a custom map that uses async methods, such as some
 // redis client or other persisted store
-const cacheMap = {
+const cache = contextCache({
   get: (context) => {
     const key = makeKey(context);
     const redisClient = context.app.get('redisClient');
@@ -672,18 +673,17 @@ const cacheMap = {
     const redisClient = context.app.get('redisClient');
     return redisClient.clear();
   }
-};
+});
 
 // Use a custom map to write a clear()
 // method with a custom eviction policy
-const map = new LruCacheMap();
-
-const cacheMap = {
-  get: (key, context) => {
+const map = new LruCacheMap({ max: 100 });
+const cache = contextCache({
+  get: (context) => {
     const key = makeKey(context);
     map.get(key);
   },
-  set: (key, result, context) => {
+  set: (context) => {
     const key = makeKey(context);
     const result = JSON.parse(JSON.stringify(context.result));
     return map.set(key, result);
@@ -711,7 +711,7 @@ const cacheMap = {
       });
     });
   }
-}
+});
 
 service.find(); // No cache hit
 service.find(); // Cache hit
