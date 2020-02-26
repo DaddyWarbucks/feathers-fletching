@@ -556,7 +556,10 @@ Cache the results of `get()` and `find()` requests. Clear the cache on any other
 
 | Argument | Type | Default | Required | Description |
 | :-: | :-: | :-:  | :-: | - |
-| cacheMap | Object |  | true | A Map like object with methods `get`, `set`, and `clear`. Each method is passed `context` and `prepResult` as arguments. Methods can be async.
+| cacheMap | Object |  | true | A Map like object where each method is passed `context` as the only argument. Methods can be async. |
+| cacheMap.get | Function/Promise |  | true | Called before `get` and `find` |
+| cacheMap.set | Function/Promise |  | true | Called after `get` and `find` |
+| cacheMap.clear | Function/Promise |  | true | Called after `create`, `update`, `patch` and `remove` |
 
 
 ```js
