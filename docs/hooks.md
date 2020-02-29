@@ -581,7 +581,7 @@ const cache = contextCache({
   get: (context) => {
     // Called before `get()` and `find()`
     const key = makeKey(context);
-    map.get(key);
+    return map.get(key);
   },
   set: (context) => {
     // Called after `get()` and `find()`
@@ -686,7 +686,7 @@ const map = new LRU({ max: 100 });
 const cache = contextCache({
   get: (context) => {
     const key = makeKey(context);
-    map.get(key);
+    return map.get(key);
   },
   set: (context) => {
     const key = makeKey(context);
