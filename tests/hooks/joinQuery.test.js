@@ -53,6 +53,8 @@ describe('joinQuery', () => {
     // Query: which albums have an artist with name 'Johnny Cash'
     const context = {
       app,
+      type: 'before',
+      method: 'find',
       params: {
         query: {
           artist: { name: 'Johnny Cash' }
@@ -69,7 +71,7 @@ describe('joinQuery', () => {
     })(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
-      artist_id: { $in: ['1'] }
+      artist_id: { $in: [1] }
     });
   });
 
@@ -77,6 +79,8 @@ describe('joinQuery', () => {
     // Query: which albums have an artist with name 'Elvis'
     const context = {
       app,
+      type: 'before',
+      method: 'find',
       params: {
         query: {
           artist: { name: 'Elvis' }
@@ -95,10 +99,12 @@ describe('joinQuery', () => {
     await assert.deepStrictEqual(newContext.params.query, {});
   });
 
-  it('Can use a custom makeIds option', async () => {
+  it('Can use a custom parseId option', async () => {
     // Query: which albums have an artist with name 'Johnny Cash'
     const context = {
       app,
+      type: 'before',
+      method: 'find',
       params: {
         query: {
           artist: { name: 'Johnny Cash' }
@@ -111,14 +117,12 @@ describe('joinQuery', () => {
         service: 'api/artists',
         targetKey: 'id',
         foreignKey: 'artist_id',
-        makeIds: async (matches, query, context) => {
-          return ['100'];
-        }
+        parseKey: id => id.toString()
       }
     })(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
-      artist_id: { $in: ['100'] }
+      artist_id: { $in: ['1'] }
     });
   });
 
@@ -126,6 +130,8 @@ describe('joinQuery', () => {
     // Query: which albums have an artist with name 'Johnny Cash'
     const context = {
       app,
+      type: 'before',
+      method: 'find',
       params: {
         query: {
           artist: { name: 'Johnny Cash' }
@@ -150,10 +156,56 @@ describe('joinQuery', () => {
     await assert.deepStrictEqual(makeParamsCalled, true);
   });
 
+  it('Can $sort on joined queries', async () => {
+    // Query: $sort by name
+    const beforeContext = {
+      app,
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          artist: { $sort: { name: 1 } }
+        }
+      }
+    };
+
+    const newBeforeContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(beforeContext);
+
+    const afterContext = {
+      type: 'after',
+      method: 'find',
+      result: [
+        { id: 3, title: 'Life in Nashville', artist_id: 2 },
+        { id: 2, title: 'I Wont Back Down', artist_id: 1 }
+      ]
+    };
+
+    const newAfterContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(Object.assign(newBeforeContext, afterContext));
+
+    await assert.deepStrictEqual(newAfterContext.result, [
+      { id: 2, title: 'I Wont Back Down', artist_id: 1 },
+      { id: 3, title: 'Life in Nashville', artist_id: 2 }
+    ]);
+  });
+
   it('Can handle a nullable association field', async () => {
     // Query: which albums have a 5 star rating
     const context = {
       app,
+      type: 'before',
+      method: 'find',
       params: {
         query: {
           rating: 5
@@ -170,7 +222,7 @@ describe('joinQuery', () => {
     })(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
-      id: { $in: ['1', '2'] }
+      id: { $in: [1, 2] }
     });
   });
 });

@@ -1,23 +1,21 @@
+const { GeneralError } = require('@feathersjs/errors');
 const { skippable } = require('../lib');
+const getResults = require('../lib/getResults');
+const replaceResults = require('../lib/replaceResults');
 
-const makeIds = (matches, option) => {
-  return matches
-    .map(match => {
-      const id = match[option.targetKey];
-      // Convert to strings, convenient for mongo/mongoose ObjectID
-      if (id && id.toString) {
-        return id.toString();
-      } else {
-        return id;
-      }
-    })
-    .filter((id, index, self) => {
-      // Only return unique ids
-      return id && self.indexOf(id) === index;
-    });
-};
-
-module.exports = options => {
+module.exports = opts => {
+  const options = Object.assign({}, opts);
+  Object.keys(options).forEach(key => {
+    options[key] = Object.assign(
+      {
+        parseKey: key => key,
+        makeParams: () => {
+          return {};
+        }
+      },
+      options[key]
+    );
+  });
   return skippable('joinQuery', async context => {
     if (
       !context.params ||
@@ -27,60 +25,110 @@ module.exports = options => {
       return context;
     }
 
-    const query = Object.assign({}, context.params.query);
+    if (context.type === 'before') {
+      const query = Object.assign({}, context.params.query);
 
-    const queryKeys = Object.keys(query);
-    const optionKeys = Object.keys(options);
+      const queryKeys = Object.keys(query);
+      const optionKeys = Object.keys(options);
 
-    const joinKeys = queryKeys.filter(key => optionKeys.includes(key));
+      const joinKeys = queryKeys.filter(key => optionKeys.includes(key));
 
-    const joinQueries = await Promise.all(
-      joinKeys
-        .map(async key => {
-          const option = options[key];
+      const joinQueries = await Promise.all(
+        joinKeys
+          .map(async key => {
+            const option = options[key];
 
-          const makeParams = option.makeParams
-            ? await option.makeParams(query[key], context)
-            : {};
+            const makeParams = await option.makeParams(query[key], context);
 
-          const defaultParams = {
-            paginate: false,
-            query: Object.assign({ $select: [option.targetKey] }, query[key])
-          };
-
-          const params = Object.assign(defaultParams, makeParams);
-
-          const matches = await context.app
-            .service(option.service)
-            .find(params);
-
-          const idList = option.makeIds
-            ? await option.makeIds(matches, query[key], context)
-            : makeIds(matches, option);
-
-          if (idList.length > 0) {
-            return {
-              [option.foreignKey]: { $in: idList }
+            const defaultParams = {
+              paginate: false,
+              query: Object.assign({ $select: [option.targetKey] }, query[key])
             };
-          } else {
-            return undefined;
+
+            const matches = await context.app
+              .service(option.service)
+              .find(Object.assign(defaultParams, makeParams));
+
+            const foreignKeyList = matches
+              .map(match => {
+                return option.parseKey(match[option.targetKey]);
+              })
+              .filter((id, index, self) => {
+                return id && self.indexOf(id) === index;
+              });
+
+            if (foreignKeyList.length > 0) {
+              context.params.joinQuery = Object.assign(
+                {},
+                context.params.joinQuery,
+                {
+                  [key]: {
+                    query: query[key],
+                    foreignKeyList
+                  }
+                }
+              );
+              return {
+                [option.foreignKey]: { $in: foreignKeyList }
+              };
+            } else {
+              return undefined;
+            }
+          })
+          .filter(joinQuery => {
+            return joinQuery !== undefined;
+          })
+      );
+
+      optionKeys.forEach(key => {
+        delete query[key];
+      });
+
+      joinQueries.forEach(joinQuery => {
+        Object.assign(query, joinQuery);
+      });
+
+      context.params.query = query;
+
+      return context;
+    } else {
+      const { joinQuery } = context.params;
+      if (!joinQuery) {
+        throw new GeneralError(
+          'Cannot use `joinQuery` as an after hook if it was not also used on the before hook'
+        );
+      }
+
+      const results = getResults(context);
+
+      if (Array.isArray(results)) {
+        const joinKeys = Object.keys(joinQuery);
+        const sorted = [...results];
+
+        joinKeys.forEach(key => {
+          const { query, foreignKeyList } = joinQuery[key];
+          const option = options[key];
+          if (query.$sort) {
+            const foreignKeyMap = new Map(
+              foreignKeyList.map((foreignKey, index) => {
+                const mapKey = option.parseKey(foreignKey);
+                return [mapKey, index];
+              })
+            );
+            sorted.sort((a, b) => {
+              const aKey = option.parseKey(a[option.foreignKey]);
+              const bKey = option.parseKey(b[option.foreignKey]);
+              return foreignKeyMap.get(aKey) - foreignKeyMap.get(bKey);
+            });
           }
-        })
-        .filter(joinQuery => {
-          return joinQuery !== undefined;
-        })
-    );
+        });
 
-    optionKeys.forEach(key => {
-      delete query[key];
-    });
+        replaceResults(context, sorted);
+      }
 
-    joinQueries.forEach(joinQuery => {
-      Object.assign(query, joinQuery);
-    });
+      delete context.params.joinQuery;
 
-    context.params.query = query;
-
-    return context;
+      return context;
+    }
   });
 };
