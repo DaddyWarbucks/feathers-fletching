@@ -518,7 +518,7 @@ const joinQueries = joinQuery({
 // by passing it `{ name: 'Johnny Cash' }` which will only return
 // albums where the artist's name is "Johnny Cash". You can pass
 // any query here that you would normally pass to
-// app.service('artists').find({ params: { query: {...} } })
+// app.service('artists').find({ query: {...} })
 const posts = await app.service('api/albums').find({
   query: {
     artist: { name: 'Johnny Cash' }
