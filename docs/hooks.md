@@ -483,6 +483,8 @@ Query across services for "joined" records on any database type. This hook relie
 | option.service | String |  | true | The string name of the service to query against |
 | option.targetKey | String |  | true | The name of the key that exists on the collection this service is querying |
 | option.foreignKey | String |  | true | The name of the key on the foreign record. Generally this will be `id` or `_id` |
+| option.makeParams | Function/Promise | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js)  | false | A function/promise that returns params to be merged to the default params sent to the `option.service` find method. |
+| option.makeIds | Function/Promise | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js)  | false | A function/promise that returns an array of IDs from the result of the `option.service` find method |
 
 
 ```js
@@ -519,7 +521,7 @@ const joinQueries = joinQuery({
 // albums where the artist's name is "Johnny Cash". You can pass
 // any query here that you would normally pass to
 // app.service('artists').find({ query: {...} })
-const posts = await app.service('api/albums').find({
+const albums = await app.service('api/albums').find({
   query: {
     artist: { name: 'Johnny Cash' }
   }
@@ -532,11 +534,54 @@ const posts = await app.service('api/albums').find({
 */
 
 /*
-  albums = [
+  context.result = [
     { title: 'The Man in Black', artist_id: 123 },
     { title: 'I Wont Back Down', artist_id: 123 }
   ]
 */
+
+// Use the `makeParams` option to pass additional params to the
+// underlying find() to the option.service
+const joinQueries = joinQuery({
+  artist: {
+    service: 'api/artists',
+    targetKey: 'artist_id',
+    foreignKey: 'id'
+    makeParams: (query, context) => {
+      return {
+        user: context.params.user
+      }
+    }
+  }
+});
+
+// Use the `makeIds` option to create a custom function
+// that plucks off each ID from the matches
+const joinQueries = joinQuery({
+  artist: {
+    service: 'api/artists',
+    targetKey: 'artist_id',
+    foreignKey: 'id'
+    makeIds: (matches, query, context) => {
+      // Note this is the default makeIds function. But
+      // you can update this to suit your needs
+      return matches
+        .map(match => {
+          const id = match[option.targetKey];
+          // Convert to strings, convenient for mongo/mongoose ObjectID
+          if (id && id.toString) {
+            return id.toString();
+          } else {
+            return id;
+          }
+        })
+        .filter((id, index, self) => {
+          // Only return unique ids
+          return id && self.indexOf(id) === index;
+        });
+    }
+  }
+});
 
 ```
 

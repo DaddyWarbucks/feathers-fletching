@@ -24,6 +24,20 @@ describe('joinQuery', () => {
     })
   );
 
+  var makeParamsCalled = false;
+
+  app.service('api/artists').hooks({
+    before: {
+      all: [
+        context => {
+          if (context.params.makeParamsCalled === true) {
+            makeParamsCalled = true;
+          }
+        }
+      ]
+    }
+  });
+
   app.use(
     'api/ratings',
     memory({
@@ -57,6 +71,83 @@ describe('joinQuery', () => {
     await assert.deepStrictEqual(newContext.params.query, {
       artist_id: { $in: ['1'] }
     });
+  });
+
+  it('Does not join query if no matches', async () => {
+    // Query: which albums have an artist with name 'Elvis'
+    const context = {
+      app,
+      params: {
+        query: {
+          artist: { name: 'Elvis' }
+        }
+      }
+    };
+
+    const newContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(context);
+
+    await assert.deepStrictEqual(newContext.params.query, {});
+  });
+
+  it('Can use a custom makeIds option', async () => {
+    // Query: which albums have an artist with name 'Johnny Cash'
+    const context = {
+      app,
+      params: {
+        query: {
+          artist: { name: 'Johnny Cash' }
+        }
+      }
+    };
+
+    const newContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id',
+        makeIds: async (matches, query, context) => {
+          return ['100'];
+        }
+      }
+    })(context);
+
+    await assert.deepStrictEqual(newContext.params.query, {
+      artist_id: { $in: ['100'] }
+    });
+  });
+
+  it('Can use a custom makeParams option', async () => {
+    // Query: which albums have an artist with name 'Johnny Cash'
+    const context = {
+      app,
+      params: {
+        query: {
+          artist: { name: 'Johnny Cash' }
+        }
+      }
+    };
+
+    const newContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id',
+        makeParams: async (query, context) => {
+          return {
+            makeParamsCalled: true
+          };
+        }
+      }
+    })(context);
+
+    // See the app.service('api/artists').hooks()
+    await assert.deepStrictEqual(makeParamsCalled, true);
   });
 
   it('Can handle a nullable association field', async () => {
