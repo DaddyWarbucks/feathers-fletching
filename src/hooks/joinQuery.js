@@ -49,7 +49,7 @@ module.exports = opts => {
               .service(option.service)
               .find(Object.assign(defaultParams, makeParams));
 
-            const foreignKeyList = matches
+            const foreignKeys = matches
               .map(match => {
                 return option.parseKey(match[option.targetKey]);
               })
@@ -57,19 +57,19 @@ module.exports = opts => {
                 return id && self.indexOf(id) === index;
               });
 
-            if (foreignKeyList.length > 0) {
+            if (foreignKeys.length > 0) {
               context.params.joinQuery = Object.assign(
                 {},
                 context.params.joinQuery,
                 {
                   [key]: {
                     query: query[key],
-                    foreignKeyList
+                    foreignKeys
                   }
                 }
               );
               return {
-                [option.foreignKey]: { $in: foreignKeyList }
+                [option.foreignKey]: { $in: foreignKeys }
               };
             } else {
               return undefined;
@@ -106,11 +106,11 @@ module.exports = opts => {
         const sorted = [...results];
 
         joinKeys.forEach(key => {
-          const { query, foreignKeyList } = joinQuery[key];
+          const { query, foreignKeys } = joinQuery[key];
           const option = options[key];
           if (query.$sort) {
             const foreignKeyMap = new Map(
-              foreignKeyList.map((foreignKey, index) => {
+              foreignKeys.map((foreignKey, index) => {
                 const mapKey = option.parseKey(foreignKey);
                 return [mapKey, index];
               })
