@@ -99,7 +99,7 @@ describe('joinQuery', () => {
     await assert.deepStrictEqual(newContext.params.query, {});
   });
 
-  it('Can use a custom parseId option', async () => {
+  it('Can use a custom makeKey option', async () => {
     // Query: which albums have an artist with name 'Johnny Cash'
     const context = {
       app,
@@ -117,7 +117,7 @@ describe('joinQuery', () => {
         service: 'api/artists',
         targetKey: 'id',
         foreignKey: 'artist_id',
-        parseKey: id => id.toString()
+        makeKey: id => id.toString()
       }
     })(context);
 
@@ -144,10 +144,8 @@ describe('joinQuery', () => {
         service: 'api/artists',
         targetKey: 'id',
         foreignKey: 'artist_id',
-        makeParams: async (query, context) => {
-          return {
-            makeParamsCalled: true
-          };
+        makeParams: async (defaultParams, context) => {
+          return Object.assign(defaultParams, { makeParamsCalled: true });
         }
       }
     })(context);
@@ -157,7 +155,7 @@ describe('joinQuery', () => {
   });
 
   it('Can $sort on joined queries', async () => {
-    // Query: $sort by name
+    // Query: $sort albums by artist name
     const beforeContext = {
       app,
       type: 'before',

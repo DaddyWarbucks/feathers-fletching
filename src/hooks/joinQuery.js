@@ -9,9 +9,9 @@ module.exports = opts => {
   Object.keys(options).forEach(key => {
     options[key] = Object.assign(
       {
-        parseKey: key => key,
-        makeParams: () => {
-          return {};
+        makeKey: key => key,
+        makeParams: (defaultParams, context) => {
+          return defaultParams;
         }
       },
       options[key]
@@ -38,10 +38,9 @@ module.exports = opts => {
 const beforeHook = async (context, options) => {
   const query = Object.assign({}, context.params.query);
 
-  const queryKeys = Object.keys(query);
-  const optionKeys = Object.keys(options);
-
-  const joinKeys = queryKeys.filter(key => optionKeys.includes(key));
+  const joinKeys = Object.keys(query).filter(key => {
+    return Object.keys(options).includes(key);
+  });
 
   if (!joinKeys.length) {
     return context;
@@ -51,17 +50,18 @@ const beforeHook = async (context, options) => {
     joinKeys
       .map(async key => {
         const option = options[key];
-
-        const makeParams = await option.makeParams(query[key], context);
+        const optionQuery = query[key];
 
         const defaultParams = {
           paginate: false,
-          query: Object.assign({ $select: [option.targetKey] }, query[key])
+          query: Object.assign({ $select: [option.targetKey] }, optionQuery)
         };
+
+        const makeParams = await option.makeParams(defaultParams, context);
 
         const matches = await context.app
           .service(option.service)
-          .find(Object.assign(defaultParams, makeParams));
+          .find(makeParams);
 
         const foreignKeys = makeForeignKeys(matches, option);
 
@@ -71,7 +71,7 @@ const beforeHook = async (context, options) => {
             context.params.joinQuery,
             {
               [key]: {
-                query: query[key],
+                query: optionQuery,
                 foreignKeys
               }
             }
@@ -88,7 +88,7 @@ const beforeHook = async (context, options) => {
       })
   );
 
-  optionKeys.forEach(key => {
+  joinKeys.forEach(key => {
     delete query[key];
   });
 
@@ -137,7 +137,7 @@ const afterHook = (context, options) => {
 const makeForeignKeys = (matches, option) => {
   return matches
     .map(match => {
-      return option.parseKey(match[option.targetKey]);
+      return option.makeKey(match[option.targetKey]);
     })
     .filter((key, index, self) => {
       // Filter by keys that exist and are unique
@@ -147,7 +147,7 @@ const makeForeignKeys = (matches, option) => {
   // const map = new Map();
   // const foreignKeys = [];
   // matches.forEach(match => {
-  //   const key = option.parseKey(match[option.targetKey]);
+  //   const key = option.makeKey(match[option.targetKey]);
   //   // Filter by keys that exist and are unique
   //   if (key && !map.get(key)) {
   //     map.set(key, true);
@@ -160,8 +160,8 @@ const makeForeignKeys = (matches, option) => {
 const sortResults = (foreignKeys, results, option) => {
   return results.sort((a, b) => {
     // Sort the results in order of the sorted keys in foreignKeys
-    const aKey = option.parseKey(a[option.foreignKey]);
-    const bKey = option.parseKey(b[option.foreignKey]);
+    const aKey = option.makeKey(a[option.foreignKey]);
+    const bKey = option.makeKey(b[option.foreignKey]);
     return foreignKeys.indexOf(aKey) - foreignKeys.indexOf(bKey);
   });
 
@@ -195,7 +195,7 @@ const sortResults = (foreignKeys, results, option) => {
 
 // const opt = {
 //   foreignKey: 'id',
-//   parseKey: key => key
+//   makeKey: key => key
 // };
 
 // console.log('length: ', results.length);
