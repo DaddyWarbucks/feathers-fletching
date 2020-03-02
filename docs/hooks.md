@@ -838,3 +838,82 @@ service.find(); // No cache hit
 service.get(2); // No cache hit
 service.get(1); // Cache hit
 ```
+
+## rateLimit
+
+Rate limit services using [node-rate-limiter-flexible](https://github.com/animir/node-rate-limiter-flexible).
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/rateLimit.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| rateLimiter | Object |  | true | A `RateLimiter` instance from `node-rate-limiter-flexible` or any class that implements `consume(key, points)`  as a promise |
+| option.makeKey | Function/Promise | `(context) => context.path` | false | A function/promise that returns a key to rate limit against |
+| option.makePoints | Function/Promise | `(context) => 1`  | false | A function/promise that returns the number of points to consume for this request |
+
+
+```js
+import { rateLimit } from 'feathers-fletching';
+import { RateLimiterMemory } from 'rate-limiter-flexible';
+
+const rateLimiter = new RateLimiterMemory({
+  // 10 requests per second
+  points: 10,
+  duration: 1
+});
+
+const rateLimitHook = rateLimit(rateLimiter);
+
+app.service('api/albums').hooks({
+  before: {
+    all: [rateLimitHook]
+  }
+});
+```
+
+```js
+// Use the `makeKey` option to limit requests by different parameters.
+
+// By default, reqs are limited on the service as a whole
+const makeKey = context => context.path;
+
+// Limit reqs by user id
+const makeKey = context => context.params.user.id;
+
+// Limit reqs by any combination of context
+const makeKey = context => {
+  return JSON.stringify({
+    user_id: context.params.user.id,
+    org_id: context.params.org.id,
+  });
+};
+
+const rateLimitHook = rateLimit(rateLimiter, { makeKey });
+```
+
+```js
+// Use the `makePoints` option to dynamically set how many
+// points to consume on each request
+
+// By default, each request consumes one point
+const makePoints = context => 1;
+
+// Dynamically set points by any combination of context
+const makePoints = async context => {
+  const { id } = context.params.user;
+  const priveleges = await context.service('priveleges').get(id);
+  if (priveleges.admin) {
+    return 1;
+  } else {
+    return 2;
+  }
+};
+
+const rateLimitHook = rateLimit(rateLimiter, { makePoints });
+```
