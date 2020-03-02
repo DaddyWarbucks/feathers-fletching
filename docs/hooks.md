@@ -473,7 +473,7 @@ Query across services for "joined" records on any database type. This hook relie
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js) |
+| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js) |
 
 **Arguments**
 
@@ -483,8 +483,8 @@ Query across services for "joined" records on any database type. This hook relie
 | option.service | String |  | true | The string name of the service to query against |
 | option.targetKey | String |  | true | The name of the key that exists on the collection this service is querying |
 | option.foreignKey | String |  | true | The name of the key on the foreign record. Generally this will be `id` or `_id` |
-| option.makeParams | Function/Promise | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js)  | false | A function/promise that returns params to be merged to the default params sent to the `option.service` find method. |
-| option.makeIds | Function/Promise | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js)  | false | A function/promise that returns an array of IDs from the result of the `option.service` find method |
+| option.makeParams | Function/Promise | `(defaultParams, context) => defaultParams` | false | A function/promise that returns params to be sent to the `option.service` find method. |
+| option.makeKey | Function | `(key) => key`  | false | A function that parses the `option.targetKey` and `option.foreignKey` |
 
 
 ```js
@@ -495,32 +495,40 @@ import { joinQuery } from 'feathers-fletching';
   "artists" collection via service `app.service('api/artists')`
   [
     { id: 123, name: 'Johnny Cash' },
-    { id: 456, name: 'Patsy Cline' }
+    { id: 456, name: 'Johnny PayCheck' },
   ]
 
   "albums" collection via `app.service('api/albums')`
   [
     { title: 'The Man in Black', artist_id: 123 },
     { title: 'I Wont Back Down', artist_id: 123 },
-    { title: 'Life in Nashville', artist_id: 456 }
+    { title: 'Double Trouble', artist_id: 456 }
   ]
 */
 
-// Hook added to the 'api/albums' service
 const joinQueries = joinQuery({
   artist: {
     service: 'api/artists',
-    targetKey: 'artist_id',
-    foreignKey: 'id'
+    foreignKey: 'artist_id',
+    targetKey: 'id'
   }
 });
 
+app.service('api/albums').hooks({
+  before: {
+    all: [joinQueries]
+  },
+  after: {
+    // Use the hook as an after hook to sort by joined results.
+    all: [joinQueries]
+  }
+});
 
 // Notice how we are querying on the joined `artist` prop
 // by passing it `{ name: 'Johnny Cash' }` which will only return
 // albums where the artist's name is "Johnny Cash". You can pass
 // any query here that you would normally pass to
-// app.service('artists').find({ query: {...} })
+// app.service('api/artists').find({ query: {...} })
 const albums = await app.service('api/albums').find({
   query: {
     artist: { name: 'Johnny Cash' }
@@ -539,49 +547,87 @@ const albums = await app.service('api/albums').find({
     { title: 'I Wont Back Down', artist_id: 123 }
   ]
 */
+```
 
-// Use the `makeParams` option to pass additional params to the
-// underlying find() to the option.service
+```js
+// Use the `makeKey` option to parse ids. This is required
+// when working with mongo/mongoos ObjectID's. Generally if
+// your service uses `_id` you probably want to do this.
 const joinQueries = joinQuery({
   artist: {
     service: 'api/artists',
-    targetKey: 'artist_id',
-    foreignKey: 'id'
-    makeParams: (query, context) => {
+    foreignKey: 'artist_id',
+    targetKey: '_id'
+    makeKey: key => key.toString()
+  }
+});
+```
+
+```js
+// Use the `makeParams` option to pass additional params to the
+// underlying find() to the option.service. Be sure to merge the
+// defaultParams onto the result.
+const joinQueries = joinQuery({
+  artist: {
+    service: 'api/artists',
+    foreignKey: 'artist_id',
+    targetKey: 'id'
+    makeParams: (defaultParams, context) => {
+      /*
+        defaultParams = {
+          paginate: false,
+          query: { $select: ['id'], { name: 'Johnny Cash' }  }
+        }
+      */
       return {
+        ...defaultParams,
         user: context.params.user
       }
     }
   }
 });
+```
 
-// Use the `makeIds` option to create a custom function
-// that plucks off each ID from the matches
+```js
+// Use the hook as an after hook to sort results by the joined query.
+// You are not required to use this hook after unless you want to sort.
 const joinQueries = joinQuery({
   artist: {
     service: 'api/artists',
-    targetKey: 'artist_id',
-    foreignKey: 'id'
-    makeIds: (matches, query, context) => {
-      // Note this is the default makeIds function. But
-      // you can update this to suit your needs
-      return matches
-        .map(match => {
-          const id = match[option.targetKey];
-          // Convert to strings, convenient for mongo/mongoose ObjectID
-          if (id && id.toString) {
-            return id.toString();
-          } else {
-            return id;
-          }
-        })
-        .filter((id, index, self) => {
-          // Only return unique ids
-          return id && self.indexOf(id) === index;
-        });
-    }
+    foreignKey: 'artist_id',
+    targetKey: 'id'
   }
 });
+
+app.service('api/albums').hooks({
+  before: {
+    all: [joinQueries]
+  },
+  after: {
+    all: [joinQueries]
+  }
+});
+
+// Sort albums by artist name where the name is like 'John'
+const albums = await app.service('api/albums').find({
+  query: {
+    artist: { name: { $like: 'John' }, $sort: { name: -1 } }
+  }
+});
+
+/*
+  context.params.query = {
+    artist_id: { $in: [123, 456] }
+  }
+*/
+
+/*
+  context.result = [
+    { title: 'Double Trouble', artist_id: 456 },
+    { title: 'The Man in Black', artist_id: 123 },
+    { title: 'I Wont Back Down', artist_id: 123 }
+  ]
+*/
 
 ```
 
