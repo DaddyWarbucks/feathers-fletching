@@ -1,4 +1,5 @@
-const { skippable, checkContext } = require('../lib');
+const { skippable } = require('../lib');
+const checkContext = require('../lib/checkContext');
 
 const jsonQueryStringify = skippable(
   'jsonQueryStringify',

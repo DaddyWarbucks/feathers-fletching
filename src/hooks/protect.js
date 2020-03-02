@@ -4,7 +4,8 @@
 // protecting certain field
 
 const { omit } = require('../lib/utils');
-const { skippable, checkContext } = require('../lib');
+const { skippable } = require('../lib');
+const checkContext = require('../lib/checkContext');
 
 module.exports = (...fields) => {
   return skippable('protect', context => {

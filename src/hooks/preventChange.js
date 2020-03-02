@@ -1,5 +1,6 @@
 const { BadRequest } = require('@feathersjs/errors');
-const { skippable, checkContext } = require('../lib');
+const { skippable } = require('../lib');
+const checkContext = require('../lib/checkContext');
 const stashRecord = require('./stashRecord');
 
 // TODO: preventChange should handle an array at context.data
