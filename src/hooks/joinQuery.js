@@ -43,6 +43,10 @@ const beforeHook = async (context, options) => {
 
   const joinKeys = queryKeys.filter(key => optionKeys.includes(key));
 
+  if (!joinKeys.length) {
+    return context;
+  }
+
   const joinQueries = await Promise.all(
     joinKeys
       .map(async key => {
@@ -128,9 +132,8 @@ const afterHook = (context, options) => {
 
 // Because the matches/foreignKeys arrays are un-paginated and
 // potentially very long arrays, I wanted to optimize the functions
-// that map/filter/sort using foreignKeys.indexOf(). But, with some
-// basic benchmarking there was no difference for array lengths
-// less than 1000, so KISS for now.
+// that map/filter/sort. But, with some basic benchmarking there
+// was no difference for array lengths less than 1000, so KISS for now.
 const makeForeignKeys = (matches, option) => {
   return matches
     .map(match => {
@@ -162,8 +165,11 @@ const sortResults = (foreignKeys, results, option) => {
     return foreignKeys.indexOf(aKey) - foreignKeys.indexOf(bKey);
   });
 
-  // When foreignKeys.length > 1000 this is
-
+  // When foreignKeys.length > 1000 this is marginally faster from
+  // some very, very basic benchmarks. See commented benchmarks below
+  // Indexing an object/map should be faster than using indexOf() on a
+  // large array. Although there is some time used in creating this
+  // map, each subsequent map.get() should be faster than indexOf()
   // const map = new Map(
   //   foreignKeys.map((foreignKey, index) => {
   //     return [foreignKey, index];
