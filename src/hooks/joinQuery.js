@@ -3,8 +3,8 @@ const { skippable } = require('../lib');
 const getResults = require('../lib/getResults');
 const replaceResults = require('../lib/replaceResults');
 
-module.exports = opts => {
-  const options = Object.assign({}, opts);
+module.exports = _options => {
+  const options = Object.assign({}, _options);
 
   Object.keys(options).forEach(key => {
     options[key] = Object.assign(
