@@ -907,8 +907,8 @@ const makePoints = context => 1;
 // Dynamically set points by any combination of context
 const makePoints = async context => {
   const { id } = context.params.user;
-  const priveleges = await context.service('priveleges').get(id);
-  if (priveleges.admin) {
+  const privileges = await context.service('priveleges').get(id);
+  if (privileges.admin) {
     return 1;
   } else {
     return 2;
