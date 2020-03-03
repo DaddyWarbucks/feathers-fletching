@@ -656,14 +656,9 @@ Cache the results of `get()` and `find()` requests. Clear the cache on any other
 ```js
 import { contextCache, ContextCacheMap } from 'feathers-fletching';
 
-// The `ContextCacheMap` uses `lru-cache` under the hood and accepts
-// all `lru-cache` options.
+// The `ContextCacheMap` uses `lru-cache` under
+// the hood and accepts all `lru-cache` options.
 const contextCacheMap = new ContextCacheMap({ max: 100 });
-
-// It also accepts one additional parameter `id`. This should correspond
-// to the id on the records being cached. If you are using mongo or
-// mongoose, this is probably `_id`. Default is 'id'
-const contextCacheMap = new ContextCacheMap({ id: '_id', max: 100 });
 
 const cache = contextCache(contextCacheMap);
 
@@ -721,35 +716,36 @@ service.get(1); // Cache hit because it was not affected
 
 **Cache Strategy**
 
-Before `get()` and `find()`, if the result exists in the cache it is returned.
+- Before `get()` and `find()` - If the result exists in the cache it is returned.
 
-After `get()` and `find()`, the results are stored in the cache.
+- After `get()` and `find()` -  The results are stored in the cache.
 
-After `create()`, `update()`, `patch()`, and `remove()` the cache is cleared.
+- After `create()` - All cached `find()` results are cleared. `get()` results are not cleared.
+
+- After `update()` or `patch()` - All cached `find()` results are cleared. Only the cached `get()` results that correspond to the result ids are cleared.
+
+- After `remove()` - All cached `find()` results are cleared. Only the cached `get()` results that correspond to the result ids are cleared.
 
 **Custom Cache Maps**
 
-The hook must be provided a `cacheMap` object to use as its memoization cache. There is a `ContextCacheMap` exported that handles key serialization, cloning, and eviction policy for you. Any object/class that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize key generation, cloning, and eviction policy. You can also simply extend the `ContextCacheMap` by adding your own `map` to it which will keep the key serialization, eviction policy etc but will use a different storage mechanism.
+The hook must be provided a `cacheMap` instance to use as its memoization cache. There is a `ContextCacheMap` exported that handles key serialization, cloning, and eviction policy for you. Any object/class that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize key generation, cloning, and eviction policy.
+
+You can simply extend the `ContextCacheMap` by adding your own `map` to it which will keep the key serialization, eviction policy etc but will use a different storage mechanism. Or for more information about how to extend the `ContextCacheMap` class, checkout the [Source Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/libs/contextCacheMap.js)
 
 ```js
 // Use a custom cacheMap that uses async methods, such as some
 // redis client or other persisted store
 import { contextCache, ContextCacheMap } from 'feathers-fletching';
 
-// Extend the ContextCacheMap to be backed by redis.
-class RedisCacheMap extends ContextCacheMap {
-  constructor(options) {
-    super(options);
-    this.map = {
-      get: key => redisClient.get(key),
-      set: (key, result) => redisClient.set(key, result),
-      delete: key => redisClient.delete(key),
-      keys: () => redisClient.keys()
-    }
-  }
+const map = {
+  get: key => redisClient.get(key),
+  set: (key, result) => redisClient.set(key, result),
+  delete: key => redisClient.delete(key),
+  keys: () => redisClient.keys()
 }
 
-const contextCacheMap = new RedisCacheMap();
+const contextCacheMap = new ContextCacheMap({ map });
+
 const cache = contextCache(contextCacheMap);
 ```
 

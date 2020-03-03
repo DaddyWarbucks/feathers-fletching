@@ -6,17 +6,10 @@ LRU.prototype.clear = LRU.prototype.reset;
 
 module.exports = class ContextCacheMap {
   constructor(options = {}) {
-    const lruOptions = omit(options, 'id');
-    this.id = options.id || 'id';
-    this.map = new LRU(lruOptions);
-    this.makeKey = this.makeKey.bind(this);
-    this.clone = this.clone.bind(this);
-    this.get = this.get.bind(this);
-    this.set = this.set.bind(this);
-    this.clear = this.clear.bind(this);
+    this.map = options.map || new LRU(options);
   }
 
-  makeKey(context) {
+  makeCacheKey(context) {
     return JSON.stringify({
       method: context.method,
       id: context.id,
@@ -24,20 +17,29 @@ module.exports = class ContextCacheMap {
     });
   }
 
-  clone(context) {
+  makeId(id) {
+    return id.toString ? id.toString() : id;
+  }
+
+  makeResultId(record) {
+    const id = record._id || record.id;
+    return this.makeId(id);
+  }
+
+  cloneResult(context) {
     return JSON.parse(JSON.stringify(context.result));
   }
 
   // Called before get() and find()
   async get(context) {
-    const key = this.makeKey(context);
+    const key = this.makeCacheKey(context);
     return this.map.get(key);
   }
 
   // Called create(), update(), and patch()
   async set(context) {
-    const key = this.makeKey(context);
-    const result = this.clone(context);
+    const key = this.makeCacheKey(context);
+    const result = this.cloneResult(context);
     return this.map.set(key, result);
   }
 
@@ -56,8 +58,9 @@ module.exports = class ContextCacheMap {
           // This is a cached `get` request
           if (context.method !== 'create') {
             // If not creating, there may be a cached get for this id
-            // Use toString() to be compatibile with mongo/mongoose ObjectID
-            if (keyObj.id.toString() === result[this.id].toString()) {
+            const id = this.makeId(keyObj.id);
+            const recordId = this.makeResultId(result);
+            if (id === recordId) {
               // Delete all `gets` that have this id
               return this.map.delete(key);
             }
