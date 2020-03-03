@@ -815,13 +815,11 @@ const rateLimitHook = rateLimit(rateLimiter, { makeKey });
 const makePoints = context => 1;
 
 // Dynamically set points by any combination of context
-const makePoints = async context => {
-  const { id } = context.params.user;
-  const privileges = await context.service('priveleges').get(id);
-  if (privileges.admin) {
-    return 1;
+const makePoints = context => {
+  if (context.params.user.admin) {
+    return 0;
   } else {
-    return 2;
+    return 1;
   }
 };
 
