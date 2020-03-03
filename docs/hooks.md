@@ -654,37 +654,18 @@ Cache the results of `get()` and `find()` requests. Clear the cache on any other
 
 
 ```js
-import { contextCache } from 'feathers-fletching';
-import LRU from 'lru-cache';
+import { contextCache, ContextCacheMap } from 'feathers-fletching';
 
-// Keep the 100 most recently used.
-const map = new LRU({ max: 100 });
+// The `ContextCacheMap` uses `lru-cache` under the hood and accepts
+// all `lru-cache` options.
+const contextCacheMap = new ContextCacheMap({ max: 100 });
 
-const makeKey = context => {
-  return JSON.stringify({
-    method: context.method,
-    id: context.id,
-    query: context.params.query
-  });
-};
+// It also accepts one additional parameter `id`. This should correspond
+// to the id on the records being cached. If you are using mongo or
+// mongoose, this is probably `_id`. Default is 'id'
+const contextCacheMap = new ContextCacheMap({ id: '_id', max: 100 });
 
-const cache = contextCache({
-  get: (context) => {
-    // Called before `get()` and `find()`
-    const key = makeKey(context);
-    return map.get(key);
-  },
-  set: (context) => {
-    // Called after `get()` and `find()`
-    const key = makeKey(context);
-    const result = JSON.parse(JSON.stringify(context.result));
-    return map.set(key, result);
-  },
-  clear: (context) => {
-    // Called after `create()`, `update()`, `patch()`, and `remove()`
-    return map.reset();
-  }
-});
+const cache = contextCache(contextCacheMap);
 
 // The contextCache hook should be as "close" to the database as possibe.
 // This means it should be the last before hook, and the first after hook.
@@ -719,10 +700,23 @@ service.get(1); // Cache hit
 service.get(1, { query: { name: 'Johnny' } }); // No cache hit
 service.get(1, { query: { name: 'Johnny' } }); // Cache hit
 
-service.create(); // Clears the entire cache
-service.update(1, { 'Patsy' }); // Clears the entire cache
-service.patch(1, { 'Patsy' }); // Clears the entire cache
-service.remove(1); // Clears the entire cache
+// Clears all `find` caches because a new record is created.
+// This new record could be a result of any find.
+// Does not clear any `get` caches because the new record should
+// have a unique id which would not affect `gets` to a different id
+service.create();
+
+service.find(); // No cache hit
+service.get(1); // Cache hit
+
+// Clears all `find` caches because any mutation to a record could
+// cause that record to now be a result of some cached find.
+// Only clears `get` caches with ID 2 because that is the only `get` affected.
+service.patch(2, { name: 'Patsy Cline' });
+
+service.find(); // No cache hit
+service.get(2); // No cache hit
+service.get(1); // Cache hit because it was not affected
 ```
 
 **Cache Strategy**
@@ -735,108 +729,28 @@ After `create()`, `update()`, `patch()`, and `remove()` the cache is cleared.
 
 **Custom Cache Maps**
 
-The hook must be provided a custom `cacheMap` object to use as its memoization cache. Any object/class that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize key generation, cloning, and eviction policy.
-
-The cache will grow without limit when using a standard javascript `Map` for storage and the resulting memory pressure may adversely affect your performance. `Map` should only be used when you know or can control its size. It is highly encouraged to use something like [`lru-cache'](https://www.npmjs.com/package/lru-cache) which implements an LRU cache.
+The hook must be provided a `cacheMap` object to use as its memoization cache. There is a `ContextCacheMap` exported that handles key serialization, cloning, and eviction policy for you. Any object/class that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize key generation, cloning, and eviction policy. You can also simply extend the `ContextCacheMap` by adding your own `map` to it which will keep the key serialization, eviction policy etc but will use a different storage mechanism.
 
 ```js
-import { contextCache } from 'feathers-fletching';
-import LRU from 'lru-cache';
-
-const makeKey = context => {
-  return JSON.stringify({
-    method: context.method,
-    id: context.id,
-    query: context.params.query
-  });
-};
-
 // Use a custom cacheMap that uses async methods, such as some
 // redis client or other persisted store
-const cache = contextCache({
-  get: (context) => {
-    const key = makeKey(context);
-    const redisClient = context.app.get('redisClient');
-    return redisClient.get(key);
-  },
-  set: (context) => {
-    const key = makeKey(context);
-    const result = JSON.parse(JSON.stringify(context.result));
-    const redisClient = context.app.get('redisClient');
-    return redisClient.set(key, result);
-  },
-  clear: (context) => {
-    const redisClient = context.app.get('redisClient');
-    return redisClient.clear();
+import { contextCache, ContextCacheMap } from 'feathers-fletching';
+
+// Extend the ContextCacheMap to be backed by redis.
+class RedisCacheMap extends ContextCacheMap {
+  constructor(options) {
+    super(options);
+    this.map = {
+      get: key => redisClient.get(key),
+      set: (key, result) => redisClient.set(key, result),
+      delete: key => redisClient.delete(key),
+      keys: () => redisClient.keys()
+    }
   }
-});
+}
 
-// Use a custom map to write a clear()
-// method with a custom eviction policy
-const map = new LRU({ max: 100 });
-const cache = contextCache({
-  get: (context) => {
-    const key = makeKey(context);
-    return map.get(key);
-  },
-  set: (context) => {
-    const key = makeKey(context);
-    const result = JSON.parse(JSON.stringify(context.result));
-    return map.set(key, result);
-  },
-  clear: (context) => {
-    const result = context.result;
-    const results = Array.isArray(result) ? result : [result];
-    results.forEach(result => {
-      Array.from(map.keys()).forEach(key => {
-        const keyObj = JSON.parse(key);
-        if (keyObj.method === 'find') {
-          // This is a cached `find` request. Any create/patch/update/del
-          // could affect the results of this query so it should be deleted
-          return map.del(key);
-        } else {
-          // This is a cached `get` request
-          if (context.method !== 'create') {
-            // If not creating, there may be a cached get for this id
-            if (keyObj.id === result.id) {
-              // keyObj.id.toString() === result.id.toString()
-              // keyObj.id.toString() === result._id.toString()
-              // Delete all `gets` that have this id
-              return map.del(key);
-            }
-          }
-        }
-      });
-    });
-  }
-});
-
-service.find(); // No cache hit
-service.find(); // Cache hit
-
-service.find({ query: { name: 'Johnny' } }); // No cache hit
-service.find({ query: { name: 'Johnny' } }); // Cache hit
-
-service.get(1); // No cache hit
-service.get(1); // Cache hit
-
-service.get(1, { query: { name: 'Johnny' } }); // No cache hit
-service.get(1, { query: { name: 'Johnny' } }); // Cache hit
-
-// Clears all `find` caches
-// Does not clear any `get` caches
-service.create();
-
-service.find(); // No cache hit
-service.get(1); // Cache hit
-
-// Clears all `find` caches
-// Only clears `get` caches with ID 2
-service.patch(2, { name: 'Patsy Cline' });
-
-service.find(); // No cache hit
-service.get(2); // No cache hit
-service.get(1); // Cache hit
+const contextCacheMap = new RedisCacheMap();
+const cache = contextCache(contextCacheMap);
 ```
 
 ## rateLimit

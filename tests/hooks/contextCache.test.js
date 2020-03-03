@@ -1,77 +1,138 @@
 const assert = require('assert');
 const contextCache = require('../../src/hooks/contextCache');
-
-const makeKey = context => {
-  return JSON.stringify({
-    method: context.method,
-    id: context.id,
-    query: context.params.query
-  });
-};
-
-function CacheMap() {
-  const map = new Map();
-  return {
-    map,
-    set: context => {
-      const result = context.result;
-      return map.set(makeKey(context), result);
-    },
-    get: context => {
-      return map.get(makeKey(context));
-    },
-    clear: context => {
-      return map.clear(context);
-    }
-  };
-}
+const ContextCacheMap = require('../../src/lib/contextCacheMap');
 
 describe('contextCache', () => {
   const result1 = { id: 1, title: 'The Man in Black' };
+  const result2 = { id: 2, title: 'I wont Back Down' };
 
   it('Returns from the cache in before hook', async () => {
     const context = {
       type: 'before',
-      method: 'find',
-      params: {}
+      method: 'find'
     };
 
-    const cacheMap = new CacheMap();
+    const cacheMap = new ContextCacheMap();
 
-    cacheMap.set(context, result1);
+    await cacheMap.set({
+      method: 'find',
+      result: result1
+    });
 
     const newContext = await contextCache(cacheMap)(context);
 
-    await assert.deepEqual(cacheMap.get(context), newContext.result);
+    await assert.deepEqual(result1, newContext.result);
   });
 
   it('Caches result in after hook', async () => {
     const context = {
       type: 'after',
       method: 'find',
-      params: {},
       result: result1
     };
 
-    const cacheMap = new CacheMap();
+    const cacheMap = new ContextCacheMap();
 
     const newContext = await contextCache(cacheMap)(context);
 
-    await assert.deepEqual(cacheMap.get(context), result1);
+    await assert.deepEqual(await cacheMap.get(context), result1);
   });
 
-  it('Destroys the cache after mutation', async () => {
+  it('Destroys all cached find()s, but not get()s, on create', async () => {
     const context = {
       type: 'after',
       method: 'create',
-      params: {}
+      result: { id: 3, title: 'Life In Nashville' }
     };
 
-    const cacheMap = new CacheMap();
-    cacheMap.set(context);
+    const cacheMap = new ContextCacheMap();
+
+    // This should be cleared because create() clears all find()s
+    await cacheMap.set({
+      method: 'find',
+      result: result1
+    });
+
+    // This should not be cleared because a create() does
+    // not affect a get() to another ID
+    await cacheMap.set({
+      method: 'get',
+      id: 1,
+      result: result1
+    });
 
     const newContext = await contextCache(cacheMap)(context);
 
-    await assert.deepEqual(Object.keys(cacheMap.map).length, 0);
+    await assert.deepEqual(cacheMap.map.keys().length, 1);
+  });
+
+  it('Destroys all cached find()s, and all relevant gets(), on mutate', async () => {
+    const context = {
+      type: 'after',
+      method: 'update',
+      result: { id: 1, title: 'Life In Nashville' }
+    };
+
+    const cacheMap = new ContextCacheMap();
+
+    // This should be cleared bc it is a find()
+    // and all mutations clear all find()s
+    await cacheMap.set({
+      method: 'find',
+      result: result1
+    });
+
+    // This should be cleared bc its id matches the updated record id
+    await cacheMap.set({
+      method: 'get',
+      id: 1,
+      result: result1
+    });
+
+    // This should not be cleared bc its id DOESN'T match the updated record id
+    await cacheMap.set({
+      method: 'get',
+      id: 2,
+      result: result2
+    });
+
+    const newContext = await contextCache(cacheMap)(context);
+
+    await assert.deepEqual(cacheMap.map.keys().length, 1);
+  });
+
+  it('Destroys all cached find()s, and all relevant gets(), on remove', async () => {
+    const context = {
+      type: 'after',
+      method: 'remove',
+      result: { id: 1, title: 'Life In Nashville' }
+    };
+
+    const cacheMap = new ContextCacheMap();
+
+    // This should be cleared bc it is a find()
+    // and remove() clear all find()s
+    await cacheMap.set({
+      method: 'find',
+      result: result1
+    });
+
+    // This should be cleared bc its id matches the removed record id
+    await cacheMap.set({
+      method: 'get',
+      id: 1,
+      result: result1
+    });
+
+    // This should not be cleared bc its id DOESN'T match the removed record id
+    await cacheMap.set({
+      method: 'get',
+      id: 2,
+      result: result2
+    });
+
+    const newContext = await contextCache(cacheMap)(context);
+
+    await assert.deepEqual(cacheMap.map.keys().length, 1);
   });
 });
