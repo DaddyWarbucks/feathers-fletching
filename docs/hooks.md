@@ -730,7 +730,7 @@ service.get(1); // Cache hit because it was not affected
 
 The hook must be provided a `cacheMap` instance to use as its memoization cache. There is a `ContextCacheMap` exported that handles key serialization, cloning, and eviction policy for you. Any object/class that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize key generation, cloning, and eviction policy.
 
-You can simply extend the `ContextCacheMap` by adding your own `map` to it which will keep the key serialization, eviction policy etc but will use a different storage mechanism. Or for more information about how to extend the `ContextCacheMap` class, checkout the [Source Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/libs/contextCacheMap.js)
+You can simply extend the `ContextCacheMap` by adding your own `map` to it which will keep the key serialization, eviction policy etc but will use a different storage mechanism. Or for more information about how to extend the `ContextCacheMap` class, checkout the [Source Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src//contextCacheMap.js)
 
 ```js
 // Use a custom cacheMap that uses async methods, such as some
