@@ -35,4 +35,16 @@ describe('withQuery', () => {
       prop3: true
     });
   });
+
+  it('Can handle when params not present', async () => {
+    const context = {};
+
+    const newContext = await withQuery({
+      prop1: 'primitive'
+    })(context);
+
+    await assert.deepEqual(newContext.params.query, {
+      prop1: 'primitive'
+    });
+  });
 });

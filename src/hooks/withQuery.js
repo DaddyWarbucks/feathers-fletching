@@ -6,6 +6,7 @@ const virtualsSerializer = require('../lib/virtualsSerializer');
 // a promise, a function that returns a promise, or a simple value
 module.exports = (virtuals, prepFunc = () => {}) => {
   return skippable('withQuery', async context => {
+    context.params = context.params || {};
     context.params.query = await virtualsSerializer(
       context.params.query || {},
       virtuals,
