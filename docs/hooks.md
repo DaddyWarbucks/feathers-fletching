@@ -825,3 +825,188 @@ const makePoints = context => {
 
 const rateLimitHook = rateLimit(rateLimiter, { makePoints });
 ```
+
+## sanitizeError
+
+Replace sensitive items in the `context.error` according to a schema. It is common for database adapters to throw errors from their underlying libraries like Sequelize, Mongoose, Mongo, etc. Because these errors come straight from those ORM's (and often from one of the many different supported database types within the ORM), there is no way to guarantee that these errors do not contain things like database urls or credentials. This can also happen when working with third party APIs or even by leaking information in our own code to errors. This hook improves security by ensuring sensitive data is "masked" within errors.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeError.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| schema | Object/Function |  | true | A schema where each key is the sensitive string to replace and the value is either a string to replace it with or a function that returns a string to replace it with |
+
+
+```js
+import { sanitizeError } from 'feathers-fletching';
+
+// Replace the string with a default value. This hook will
+// recursively traverse every key in the error and will
+// replace any occurence of "my.database.com:3030" with "*****"
+const sanitized = sanitizeError({
+  'my.database.com:3030': '*****'
+});
+
+// Use a function to sanitize the key. This example
+// demonstrates making the *'s the same length as the string
+// it is masking. You could also use RegEx to do any kind
+// of searching and replacing in the string.
+const sanitized = sanitizeError({
+  'my.database.com:3030': (string, key) => {
+    let mask = '';
+    for (i = 0; i < string.length; i++) {
+      mask = mask + '*';
+    }
+    return string.replace(key, mask)
+  }
+});
+
+app.service('api/albums').hooks({
+  after: {
+    all: [sanitized]
+  }
+});
+
+// This throws some error from the database like
+// new Error("getaddrinfo ENOTFOUND my.database.com:3030");
+app.service('api/albums').find()
+
+/*
+  context.error = {
+    message: "getaddrinfo ENOTFOUND *****"
+  }
+*/
+```
+
+```js
+// Use a function to create the schema. This example uses the feathers
+// configuration to replace sensitive data with their variable names instead.
+// You should create this hook and apply ALL of your sensitive data like api
+// keys, database urls, auth secrets, etc. Then use it as an app after
+// hook. This will protect all of your services in one place.
+const sanitized = sanitizeError(context => {
+  const apiKey = context.app.get('API_KEY');
+  const databaseUrl = context.app.get('DATABASE_URL');
+  const stripe_key = context.app.get('STRIPE_KEY');
+  const secret = context.app.get('authentication').secret;
+  return {
+    [apiKey]: 'API_KEY',
+    [databaseUrl]: 'DATABASE_URL',
+    [stripe_key]: 'STRIPE_KEY'
+    [secret]: 'AUTH_SECRET',
+  }
+});
+
+/*
+  context.error = {
+    message: "getaddrinfo ENOTFOUND DATABASE_URL
+  }
+*/
+```
+
+## sanitizeResult
+
+Replace sensitive items in the `context.result` according to a schema. This hook improves security by ensuring sensitive data is "masked" before leaving the database. Unlike [withoutResult](#withoutResult) that removes properties totally (and you have to know those property names), this hook is a catch-all that ensures any property on any result does not contain sensitive data.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeResult.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| schema | Object/Function |  | true | A schema where each key is the sensitive string to replace and the value is either a string to replace it with or a function that returns a string to replace it with |
+
+
+```js
+import { sanitizeResult } from 'feathers-fletching';
+
+// Replace the string with a default value. This hook will
+// recursively traverse every object in the result and will
+// replace any occurence of "Ab123cD" with "*****"
+const sanitized = sanitizeResult({
+  'Ab123cD': '*****'
+});
+
+// Use a function to sanitize the key. This example
+// demonstrates making the *'s the same length as the string
+// it is masking. You could also use RegEx to do any kind
+// of searching and replacing in the string.
+const sanitized = sanitizeResult({
+  'Ab123cD': (string, key) => {
+    let mask = '';
+    for (i = 0; i < string.length; i++) {
+      mask = mask + '*';
+    }
+    return string.replace(key, mask)
+  }
+});
+
+app.service('api/albums').hooks({
+  after: {
+    all: [sanitized]
+  }
+});
+
+app.service('api/albums').find()
+
+/*
+  context.result = {
+    title: "Johnny's api key is *****"
+  }
+*/
+```
+
+```js
+// Use a function to create the schema. This example uses the feathers
+// configuration to replace sensitive data with their variable names instead.
+// You should create this hook and apply ALL of your sensitive data like api
+// keys, database urls, auth secrets, etc. Then use it as an app after
+// hook. This will protect all of your services in one place.
+const sanitized = sanitizeResult(context => {
+  const apiKey = context.app.get('API_KEY');
+  const databaseUrl = context.app.get('DATABASE_URL');
+  const stripe_key = context.app.get('STRIPE_KEY');
+  const secret = context.app.get('authentication').secret;
+  return {
+    [apiKey]: 'API_KEY',
+    [databaseUrl]: 'DATABASE_URL',
+    [stripe_key]: 'STRIPE_KEY'
+    [secret]: 'AUTH_SECRET',
+  }
+});
+```
+
+```js
+// I don't get it...how is this helpful? There isn't any "sensitive" data
+// in my database because I use good validation, etc.
+
+// Let's use an example where we accidently leak some sensitive data into
+// the result, not because it is data on the actual result, but because
+// we made a mistake in our code and leaked an environment variable.
+const attachStripeResult = async context => {
+  const stripe_id = context.result.stripe_id;
+  const stripe_key = context.app.get('stripeKey');
+  const stripe_client = context.app.get('stripeClient');
+  const result = await stripeClient.find(stripe_id, stripe_key);
+  context.result.stripe = {
+    stripe_key,
+    result
+  }
+  return context
+}
+
+// Did you catch the error? We meant to return the user's stripe result
+// along with the stripe_id...but we accidently returned our own secret
+// stripe key. Uh Oh! By using the sanitizeResult hook, we safeguard
+// ourselves against this type of mistake.
+```

@@ -3,7 +3,11 @@ const filterSerializer = require('../lib/filterSerializer');
 
 module.exports = (virtuals, prepFunc = () => {}) => {
   return skippable('withoutQuery', async context => {
-    if (!context.params.query || !Object.keys(context.params.query).length) {
+    if (
+      !context.params ||
+      !context.params.query ||
+      !Object.keys(context.params.query).length
+    ) {
       return context;
     }
 
