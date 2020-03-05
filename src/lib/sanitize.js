@@ -1,14 +1,14 @@
-const sanitize = (data, schema) => {
-  if (data === null || data === undefined) {
-    return data;
+const sanitize = (result, schema) => {
+  if (result === null || result === undefined) {
+    return result;
   }
 
-  if (typeof data === 'string') {
-    return sanitizeString(data, schema);
+  if (typeof result === 'string') {
+    return sanitizeString(result, schema);
   }
 
-  if (typeof data === 'number') {
-    const string = data.toString();
+  if (typeof result === 'number') {
+    const string = result.toString();
     const replaced = sanitizeString(string, schema);
     // We must convert to string in order to replace
     // Try to return a number if possible, else return string
@@ -20,25 +20,25 @@ const sanitize = (data, schema) => {
     }
   }
 
-  if (Array.isArray(data)) {
-    return data.map(item => sanitize(item, schema));
+  if (Array.isArray(result)) {
+    return result.map(item => sanitize(item, schema));
   }
 
-  if (data instanceof Error) {
-    return Object.getOwnPropertyNames(data).reduce((result, key) => {
-      result[key] = sanitize(data[key], schema);
-      return result;
-    }, data);
+  if (result instanceof Error) {
+    return Object.getOwnPropertyNames(result).reduce((sanitized, key) => {
+      sanitized[key] = sanitize(result[key], schema);
+      return sanitized;
+    }, result);
   }
 
-  if (typeof data === 'object') {
-    return Object.keys(data).reduce((result, key) => {
-      result[key] = sanitize(data[key], schema);
-      return result;
+  if (typeof result === 'object') {
+    return Object.keys(result).reduce((sanitized, key) => {
+      sanitized[key] = sanitize(result[key], schema);
+      return sanitized;
     }, {});
   }
 
-  return data;
+  return result;
 };
 
 const sanitizeString = (string, schema) => {

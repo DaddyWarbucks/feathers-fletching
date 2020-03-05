@@ -1,116 +1,90 @@
 const assert = require('assert');
 const sanitize = require('../../src/lib/sanitize');
-const sanitizeData = require('../../src/hooks/sanitizeData');
+const sanitizeResult = require('../../src/hooks/sanitizeResult');
+const sanitizeError = require('../../src/hooks/sanitizeError');
 
 describe('sanitize', () => {
+  const API_KEY = '12345';
+  const schemaResult = '*****';
+
+  const schema = {
+    [API_KEY]: schemaResult
+  };
+
   it('Sanitizes objects', async () => {
-    const data = {
-      sensitiveKey: 'myApiKey'
+    const result = {
+      sensitiveKey: API_KEY
     };
-
-    const schema = {
-      myApiKey: '${MY_API_KEY}'
-    };
-
-    const sanitized = sanitize(data, schema);
-
-    await assert.deepStrictEqual({ sensitiveKey: '${MY_API_KEY}' }, sanitized);
+    const sanitized = sanitize(result, schema);
+    await assert.deepStrictEqual({ sensitiveKey: schemaResult }, sanitized);
   });
 
   it('Sanitizes strings', async () => {
-    const data = 'myApiKey';
-
-    const schema = {
-      myApiKey: '${MY_API_KEY}'
-    };
-
-    const sanitized = sanitize(data, schema);
-
-    await assert.deepStrictEqual('${MY_API_KEY}', sanitized);
+    const result = API_KEY;
+    const sanitized = sanitize(result, schema);
+    await assert.deepStrictEqual(schemaResult, sanitized);
   });
 
   it('Sanitizes arrays', async () => {
-    const data = ['myApiKey'];
-
-    const schema = {
-      myApiKey: '${MY_API_KEY}'
-    };
-
-    const sanitized = sanitize(data, schema);
-
-    await assert.deepStrictEqual(['${MY_API_KEY}'], sanitized);
+    const result = [API_KEY];
+    const sanitized = sanitize(result, schema);
+    await assert.deepStrictEqual([schemaResult], sanitized);
   });
 
   it('Sanitizes errors', async () => {
-    const data = new Error('myApiKey');
-
-    const schema = {
-      myApiKey: '${MY_API_KEY}'
-    };
-
-    const sanitized = sanitize(data, schema);
-
-    await assert.deepStrictEqual('${MY_API_KEY}', sanitized.message);
+    const result = new Error(API_KEY);
+    const sanitized = sanitize(result, schema);
+    await assert.deepStrictEqual(schemaResult, sanitized.message);
   });
 
   it('Sanitizes numbers', async () => {
-    const data = 123;
-
+    const result = 123;
     const schema = {
-      123: '${MY_API_KEY}'
+      123: schemaResult
     };
-
-    const sanitized = sanitize(data, schema);
-
-    await assert.deepStrictEqual('${MY_API_KEY}', sanitized);
+    const sanitized = sanitize(result, schema);
+    await assert.deepStrictEqual(schemaResult, sanitized);
   });
 
   it('Returns numbers when it can', async () => {
-    const data = 123;
-
+    const result = 123;
     const schema = {
       123: 456
     };
-
-    const sanitized = sanitize(data, schema);
-
+    const sanitized = sanitize(result, schema);
     await assert.deepStrictEqual(sanitized, 456);
   });
 
   it('Sanitizes deeply nested objects', async () => {
-    const data = {
-      string: 'myApiKey',
-      arrayOfStrings: ['myApiKey'],
+    const result = {
+      string: API_KEY,
+      arrayOfStrings: [API_KEY],
       arrayOfObjects: [
         {
-          string: 'myApiKey',
-          array: ['myApiKey'],
-          objArray: [{ string: 'myApiKey' }]
+          string: API_KEY,
+          array: [API_KEY],
+          objArray: [{ string: API_KEY }]
         }
       ],
       object: {
-        string: 'myApiKey'
+        string: API_KEY
       }
     };
 
-    const schema = {
-      myApiKey: '${MY_API_KEY}'
-    };
-
-    const sanitized = sanitize(data, schema);
+    const sanitized = sanitize(result, schema);
 
     const expected = {
-      string: '${MY_API_KEY}',
-      arrayOfStrings: ['${MY_API_KEY}'],
+      string: schemaResult,
+      arrayOfStrings: [schemaResult],
       arrayOfObjects: [
         {
-          string: '${MY_API_KEY}',
-          array: ['${MY_API_KEY}'],
-          objArray: [{ string: '${MY_API_KEY}' }]
+          string: schemaResult,
+          array: [schemaResult],
+          objArray: [{ string: schemaResult }]
         }
       ],
       object: {
-        string: '${MY_API_KEY}'
+        string: schemaResult
       }
     };
 
@@ -118,32 +92,36 @@ describe('sanitize', () => {
   });
 
   it('Can use a function in the schema', async () => {
-    const data = 'myApiKey';
-
+    const result = API_KEY;
     const schema = {
-      myApiKey: (string, key) => 'functionUsed'
+      [API_KEY]: (string, key) => 'functionUsed'
     };
-
-    const sanitized = sanitize(data, schema);
-
+    const sanitized = sanitize(result, schema);
     await assert.deepStrictEqual(sanitized, 'functionUsed');
   });
 
   it('Can use a function to create the schema', async () => {
-    const context = {
-      data: 'myApiKey'
+    const resultContext = {
+      result: API_KEY
+    };
+
+    const errorContext = {
+      error: API_KEY
     };
 
     const schemaFunc = context => {
       return {
-        myApiKey: '${MY_API_KEY}'
+        [API_KEY]: schemaResult
       };
     };
 
-    const sanitizer = sanitizeData(schemaFunc);
+    const resultHook = sanitizeResult(schemaFunc);
+    const newResultContext = await resultHook(resultContext);
 
-    const newContext = await sanitizer(context);
+    const errorHook = sanitizeError(schemaFunc);
+    const newErrorContext = await errorHook(errorContext);
 
-    await assert.deepStrictEqual(newContext.data, '${MY_API_KEY}');
+    await assert.deepStrictEqual(newResultContext.result, schemaResult);
+    await assert.deepStrictEqual(newErrorContext.error, schemaResult);
   });
 });
