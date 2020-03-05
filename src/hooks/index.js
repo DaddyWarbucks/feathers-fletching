@@ -7,3 +7,4 @@ module.exports.withoutResult = require('./withoutResult');
 module.exports.joinQuery = require('./joinQuery');
 module.exports.contextCache = require('./contextCache');
 module.exports.rateLimit = require('./rateLimit');
+module.exports.sanitizeData = require('../lib/sanitizeData');
