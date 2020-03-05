@@ -847,15 +847,23 @@ Replace sensitive items in the `context.result` according to a schema. This hook
 ```js
 import { sanitizeResult } from 'feathers-fletching';
 
-// Replace the string with a default value
+// Replace the string with a default value. This hook will
+// recursively traverse every object in the result and will
+// replace any occurence of "Ab123cD" with "*****"
 const sanitized = sanitizeResult({
-  Ab123cD: '*****'
+  'Ab123cD': '*****'
 });
 
-// Use a function to sanitize the key
+// Use a function to sanitize the key. This example
+// demonstrates making the *'s the same length as the string
+// it is masking.
 const sanitized = sanitizeResult({
-  Ab123cD: (string, key) => {
-    return string.replace(key, '*****')
+  'Ab123cD': (string, key) => {
+    let mask = '';
+    for (i = 0; i < string.length; i++) {
+      mask = mask + '*';
+    }
+    return string.replace(key, mask)
   }
 });
 
@@ -895,7 +903,7 @@ const sanitized = sanitizeResult(context => {
 
 // Let's use an example where we accidently leak some sensitive data into
 // the result, not because it is data on the actual result, but because
-// we made a mistake in our code.
+// we made a mistake in our code and leaked an environment variable.
 const attachStripeResult = async context => {
   const stripe_id = context.result.stripe_id;
   const stripe_key = app.get('stripeKey');
@@ -915,8 +923,8 @@ const attachStripeResult = async context => {
 // By using the sanitizeResult hook, we safeguard ourselves against
 // this type of mistake. You should create this hook and apply
 // ALL of your sensitive data like api keys, database urls, auth
-// secrets, etc. The use it as an app after hook. This will protect
-// all of your services in one place
+// secrets, etc. Then use it as an app after hook. This will protect
+// all of your services in one place.
 const sanitized = sanitizeResult(context => {
   const stripe_key = app.get('stripeKey');
   return {
@@ -925,15 +933,15 @@ const sanitized = sanitizeResult(context => {
 });
 ```
 
-## sanitizeData
+## sanitizeError
 
-Replace sensitive items in the `context.data` according to a schema.
+Replace sensitive items in the `context.error` according to a schema. It is common for database adapters to throw errors from their underlying libraries like Sequelize, Mongoose, Mongo, etc. Because these errors come straight from those ORM's (and often from one of the many different supported database types within the ORM), there is no way to guarantee that these errors do not contain things like database urls or credentials. This can also be the case when working with third party APIs as well as by leaking information in our own code to errors. This hook improves security by ensuring sensitive data is "masked" within errors.
 
 **Context**
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeData.js) |
+| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeError.js) |
 
 **Arguments**
 
@@ -943,41 +951,52 @@ Replace sensitive items in the `context.data` according to a schema.
 
 
 ```js
-import { sanitizeData } from 'feathers-fletching';
+import { sanitizeError } from 'feathers-fletching';
 
-// Replace the string with a default value
-const sanitized = sanitizeData({
-  Ab123cD: '*****'
+// Replace the string with a default value. This hook will
+// recursively traverse every key in the error and will
+// replace any occurence of "my.database.com:3030" with "*****"
+const sanitized = sanitizeError({
+  'my.database.com:3030': '*****'
 });
 
-// Use a function to sanitize the key
-const sanitized = sanitizeData({
-  Ab123cD: (string, key) => {
-    return string.replace(key, '*****')
+// Use a function to sanitize the key. This example
+// demonstrates making the *'s the same length as the string
+// it is masking.
+const sanitized = sanitizeResult({
+  'my.database.com:3030': (string, key) => {
+    let mask = '';
+    for (i = 0; i < string.length; i++) {
+      mask = mask + '*';
+    }
+    return string.replace(key, mask)
   }
 });
 
 app.service('api/albums').hooks({
-  before: {
+  after: {
     all: [sanitized]
   }
 });
 
-app.service('api/albums').create({
-  title: "Johnny's api key is Ab123cD"
-})
+// This throws some error from the database with
+// message:  "getaddrinfo ENOTFOUND my.database.com:3030"
+app.service('api/albums').find()
 
 /*
-  context.data = {
-    title: "Johnny's api key is *****"
+  context.error = {
+    message: "getaddrinfo ENOTFOUND  *****"
   }
 */
 ```
 
 ```js
 // Use a function to create the schema. This example uses the feathers
-// configuration to replace sensitive data with their variable names instead
-const sanitized = sanitizeData(context => {
+// configuration to replace sensitive data with their variable names instead.
+// You should create this hook and apply ALL of your sensitive data like api
+// keys, database urls, auth secrets, etc. Then use it as an app after
+// hook. This will protect all of your services in one place.
+const sanitized = sanitizeError(context => {
   const apiKey = app.get('API_KEY');
   const databaseUrl = app.get('DATABASE_URL');
   const secret = app.get('authentication').secret;
@@ -988,71 +1007,3 @@ const sanitized = sanitizeData(context => {
   }
 });
 ```
-
-> Sanitizing data in this way may not be helpful to you. Checkout the [withData](#withData) and [withoutData](#withoutData) hooks for more information about how to add, remove, and overwrite data. But, this hook is a nice catch-all to ensure your users are not putting senstive data in the database. This hook was initially designed to sanitize errors where it makes more sense, but has been extended to suit more use cases.
-
-## sanitizeQuery
-
-Replace sensitive items in the `context.params.query` according to a schema.
-
-**Context**
-
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeQuery.js) |
-
-**Arguments**
-
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| schema | Object/Function |  | true | A schema where each key is the sensitive string to replace and the value is either a string to replace it with or a function that returns a string to replace it with |
-
-
-```js
-import { sanitizeQuery } from 'feathers-fletching';
-
-// Replace the string with a default value
-const sanitized = sanitizeQuery({
-  Ab123cD: '*****'
-});
-
-// Use a function to sanitize the key
-const sanitized = sanitizeQuery({
-  Ab123cD: (string, key) => {
-    return string.replace(key, '*****')
-  }
-});
-
-app.service('api/albums').hooks({
-  before: {
-    all: [sanitized]
-  }
-});
-
-app.service('api/albums').find({
-  query: { key: 'Ab123cD' }
-})
-
-/*
-  context.params.query = {
-    key: "*****"
-  }
-*/
-```
-
-```js
-// Use a function to create the schema. This example uses the feathers
-// configuration to replace sensitive data with their variable names instead
-const sanitized = sanitizeData(context => {
-  const apiKey = app.get('API_KEY');
-  const databaseUrl = app.get('DATABASE_URL');
-  const secret = app.get('authentication').secret;
-  return {
-    [apiKey]: 'API_KEY',
-    [databaseUrl]: 'DATABASE_URL',
-    [secret]: 'AUTH_SECRET'
-  }
-});
-```
-
-> Sanitizing queries in this way may not be helpful to you. Checkout the [withQuery](#withQuery) and [withoutQuery](#withoutQuery) hooks for more information about how to add, remove, and overwrite queries. But, this hook is a nice catch-all to ensure your users are not querying senstive data in the database. This hook was initially designed to sanitize errors where it makes more sense, but has been extended to suit more use cases.
