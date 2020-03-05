@@ -912,7 +912,7 @@ const sanitized = sanitizeError(context => {
 
 ## sanitizeResult
 
-Replace sensitive items in the `context.result` according to a schema. This hook improves security by ensuring sensitive data is "masked" before leaving the database. Unlike [withoutResult](#withoutResult) that removes properties totally (and you have to know those property names), this hook is a catch-all that ensures any property on any result does not contain sensitive data.
+Replace sensitive items in the `context.result` according to a schema. This hook improves security by ensuring sensitive data is "masked" before leaving the server. Unlike [withoutResult](#withoutResult) that removes properties totally (and you have to know those property names), this hook is a catch-all that ensures any property on any result does not contain sensitive data.
 
 **Context**
 
