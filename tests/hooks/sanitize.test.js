@@ -1,6 +1,6 @@
 const assert = require('assert');
 const sanitize = require('../../src/lib/sanitize');
-const sanitizeHook = require('../../src/hooks/sanitize');
+const sanitizeData = require('../../src/hooks/sanitizeData');
 
 describe('sanitize', () => {
   it('Sanitizes objects', async () => {
@@ -121,11 +121,29 @@ describe('sanitize', () => {
     const data = 'myApiKey';
 
     const schema = {
-      myApiKey: (string, key) => key
+      myApiKey: (string, key) => 'functionUsed'
     };
 
     const sanitized = sanitize(data, schema);
 
-    await assert.deepStrictEqual(sanitized, 'myApiKey');
+    await assert.deepStrictEqual(sanitized, 'functionUsed');
+  });
+
+  it('Can use a function to create the schema', async () => {
+    const context = {
+      data: 'myApiKey'
+    };
+
+    const schemaFunc = context => {
+      return {
+        myApiKey: '${MY_API_KEY}'
+      };
+    };
+
+    const sanitizer = sanitizeData(schemaFunc);
+
+    const newContext = await sanitizer(context);
+
+    await assert.deepStrictEqual(newContext.data, '${MY_API_KEY}');
   });
 });
