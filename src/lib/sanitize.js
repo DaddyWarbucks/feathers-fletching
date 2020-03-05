@@ -25,10 +25,29 @@ const sanitize = (result, schema) => {
   }
 
   if (result instanceof Error) {
-    return Object.getOwnPropertyNames(result).reduce((sanitized, key) => {
-      sanitized[key] = sanitize(result[key], schema);
-      return sanitized;
-    }, result);
+    // Errors often contain a `hook` property that holds
+    // context of the error. This can create a circular
+    // reference back to this error which creates an
+    // infinite loop. Hook is serialized off the error before
+    // going to the client anyway, so not need to sanitize it
+    if (result.hook) {
+      const hook = result.hook;
+      delete result.hook;
+      const error = Object.getOwnPropertyNames(result).reduce(
+        (sanitized, key) => {
+          sanitized[key] = sanitize(result[key], schema);
+          return sanitized;
+        },
+        result
+      );
+      error.hook = hook;
+      return error;
+    } else {
+      return Object.getOwnPropertyNames(result).reduce((sanitized, key) => {
+        sanitized[key] = sanitize(result[key], schema);
+        return sanitized;
+      }, result);
+    }
   }
 
   if (typeof result === 'object') {

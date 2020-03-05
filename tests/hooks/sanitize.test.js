@@ -124,4 +124,18 @@ describe('sanitize', () => {
     await assert.deepStrictEqual(newResultContext.result, schemaResult);
     await assert.deepStrictEqual(newErrorContext.error, schemaResult);
   });
+
+  it('Does not sanitize an error.hook prop', async () => {
+    const errorContext = {
+      error: API_KEY,
+      hook: {
+        error: API_KEY
+      }
+    };
+
+    const errorHook = sanitizeError(schema);
+    const newErrorContext = await errorHook(errorContext);
+
+    await assert.deepStrictEqual(newErrorContext.hook.error, API_KEY);
+  });
 });
