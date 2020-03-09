@@ -36,14 +36,14 @@ module.exports = class ContextCacheMap {
     return this.map.get(key);
   }
 
-  // Called create(), update(), and patch()
+  // Called after get() and find()
   async set(context) {
     const key = this.makeCacheKey(context);
     const result = this.cloneResult(context);
     return this.map.set(key, result);
   }
 
-  // Called after remove()
+  // Called after create(), update(), patch(), and remove()
   async clear(context) {
     const result = context.result;
     const results = Array.isArray(result) ? result : [result];
