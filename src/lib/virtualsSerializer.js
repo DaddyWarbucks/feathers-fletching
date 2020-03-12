@@ -1,3 +1,5 @@
+const { isPromise } = require('./utils');
+
 // The serializer funtion used for withData, withQuery and withResult.
 // This function iterates the keys of the `virtuals` and assigns
 // the value to that key as the result of some value or function.
@@ -25,7 +27,7 @@
 const resolve = async (virtuals, key, updated, context, prepResult) => {
   if (typeof virtuals[key] === 'function') {
     let result = virtuals[key](updated, context, prepResult);
-    if (typeof result.then === 'function') {
+    if (isPromise(result)) {
       result = await result.then(result => result);
     }
     if (result !== undefined) {
@@ -63,7 +65,7 @@ module.exports.virtualsSerializer = async (
   prepFunc = () => {}
 ) => {
   let prepResult = prepFunc(context);
-  if (prepResult && typeof prepResult.then === 'function') {
+  if (isPromise(prepResult)) {
     prepResult = await prepResult.then(result => result);
   }
   if (Array.isArray(data)) {
@@ -81,7 +83,7 @@ module.exports.asyncVirtualsSerializer = async (
   prepFunc = () => {}
 ) => {
   let prepResult = prepFunc(context);
-  if (prepResult && typeof prepResult.then === 'function') {
+  if (isPromise(prepResult)) {
     prepResult = await prepResult.then(result => result);
   }
   if (Array.isArray(data)) {

@@ -1,5 +1,5 @@
 const { skippable } = require('../lib');
-const filterSerializer = require('../lib/filterSerializer');
+const { filterSerializer } = require('../lib/filterSerializer');
 
 module.exports = (virtuals, prepFunc = () => {}) => {
   return skippable('withoutQuery', async context => {

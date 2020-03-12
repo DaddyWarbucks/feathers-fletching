@@ -13,3 +13,7 @@ module.exports.pick = (obj, ...keys) => {
     return result;
   }, {});
 };
+
+module.exports.isPromise = maybePromise => {
+  return maybePromise && typeof maybePromise.then === 'function';
+};
