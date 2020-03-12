@@ -2,47 +2,70 @@ const { BadRequest } = require('@feathersjs/errors');
 const { skippable } = require('../lib');
 const checkContext = require('../lib/checkContext');
 const stashRecord = require('./stashRecord');
+const { filterSerializer } = require('../lib/filterSerializer');
 
 // TODO: preventChange should handle an array at context.data
 
-module.exports = function preventChange(_props, _options) {
+// module.exports = function preventChange(_props, _options) {
+//   return skippable('preventChange', async context => {
+//     checkContext(context, 'before', ['update', 'patch'], 'preventChange');
+//     const props = Array.isArray(_props) ? _props : [_props];
+//     const options = Object.assign(
+//       {},
+//       {
+//         // Default to false because this works for .update as well.
+//         // Otherwise it would throw an error when the client sends
+//         // the whole payload for an update, which feels weird.
+//         throwError: false,
+//         stashProp: 'stashed',
+//         getParamsFunc: () => {}
+//       },
+//       _options
+//     );
+//     const { throwError, stashProp, getParamsFunc } = options;
+//     if (throwError) {
+//       const errors = props.filter(
+//         prop => typeof context.data[prop] !== 'undefined'
+//       );
+//       if (errors.length) {
+//         throw new BadRequest(`Cannot change properties ${props}.`);
+//       }
+//     }
+//     if (context.method === 'patch') {
+//       props.forEach(prop => {
+//         delete context.data[prop];
+//         return context;
+//       });
+//     } else {
+//       if (!context.params[stashProp]) {
+//         context = await stashRecord(stashProp, getParamsFunc)(context);
+//       }
+//       props.forEach(prop => {
+//         context.data[prop] = context.params[stashProp][prop];
+//       });
+//       return context;
+//     }
+//   });
+// };
+
+module.exports = (virtuals, prepFunc = () => {}) => {
   return skippable('preventChange', async context => {
     checkContext(context, 'before', ['update', 'patch'], 'preventChange');
-    const props = Array.isArray(_props) ? _props : [_props];
-    const options = Object.assign(
-      {},
-      {
-        // Default to false because this works for .update as well.
-        // Otherwise it would throw an error when the client sends
-        // the whole payload for an update, which feels weird.
-        throwError: false,
-        stashProp: 'stashed',
-        getParamsFunc: () => {}
-      },
-      _options
+
+    context.data = await filterSerializer(
+      context.data,
+      virtuals,
+      context,
+      prepFunc
     );
-    const { throwError, stashProp, getParamsFunc } = options;
-    if (throwError) {
-      const errors = props.filter(
-        prop => typeof context.data[prop] !== 'undefined'
-      );
-      if (errors.length) {
-        throw new BadRequest(`Cannot change properties ${props}.`);
-      }
-    }
-    if (context.method === 'patch') {
-      props.forEach(prop => {
-        delete context.data[prop];
-        return context;
+
+    if (context.method === 'update') {
+      const query = (context.params && context.params.query) || {};
+      context.result = await context.service._patch(context.id, context.data, {
+        query
       });
-    } else {
-      if (!context.params[stashProp]) {
-        context = await stashRecord(stashProp, getParamsFunc)(context);
-      }
-      props.forEach(prop => {
-        context.data[prop] = context.params[stashProp][prop];
-      });
-      return context;
     }
+
+    return context;
   });
 };
