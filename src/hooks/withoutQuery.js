@@ -1,13 +1,10 @@
 const { skippable } = require('../lib');
 const { filterSerializer } = require('../lib/filterSerializer');
+const { hasQuery } = require('../lib/utils');
 
 module.exports = (virtuals, prepFunc = () => {}) => {
   return skippable('withoutQuery', async context => {
-    if (
-      !context.params ||
-      !context.params.query ||
-      !Object.keys(context.params.query).length
-    ) {
+    if (!hasQuery(context)) {
       return context;
     }
 

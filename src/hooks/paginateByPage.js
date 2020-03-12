@@ -1,10 +1,11 @@
 const { BadRequest } = require('@feathersjs/errors');
 const { skippable } = require('../lib');
 const checkContext = require('../lib/checkContext');
+const { hasQuery } = require('../lib/utils');
 
 module.exports = skippable('paginateByPage', context => {
   checkContext(context, 'before', null, 'paginateByPage');
-  if (!context.params.query) {
+  if (!hasQuery) {
     return context;
   }
   if (

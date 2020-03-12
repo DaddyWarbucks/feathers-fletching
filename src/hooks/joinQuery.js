@@ -2,6 +2,7 @@ const { GeneralError } = require('@feathersjs/errors');
 const { skippable } = require('../lib');
 const getResults = require('../lib/getResults');
 const replaceResults = require('../lib/replaceResults');
+const { hasQuery } = require('../lib/utils');
 
 module.exports = _options => {
   const options = Object.assign({}, _options);
@@ -19,11 +20,7 @@ module.exports = _options => {
   });
 
   return skippable('joinQuery', async context => {
-    if (
-      !context.params ||
-      !context.params.query ||
-      !Object.keys(context.params.query).length
-    ) {
+    if (!hasQuery(context)) {
       return context;
     }
 

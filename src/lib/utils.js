@@ -17,3 +17,12 @@ module.exports.pick = (obj, ...keys) => {
 module.exports.isPromise = maybePromise => {
   return maybePromise && typeof maybePromise.then === 'function';
 };
+
+module.exports.hasQuery = context => {
+  const hasQuery =
+    context.params &&
+    context.params.query &&
+    Object.keys(context.params.query).length;
+
+  return !!hasQuery;
+};
