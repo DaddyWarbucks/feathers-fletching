@@ -56,9 +56,13 @@ const beforeHook = async (context, options) => {
 
         const makeParams = await option.makeParams(defaultParams, context);
 
-        const matches = await context.app
+        const result = await context.app
           .service(option.service)
           .find(makeParams);
+
+        // Even though `paginate: false` and matches should be an array,
+        // the dev may have used some hook to shape it back to a result obj
+        const matches = result.data || result;
 
         const foreignKeys = makeForeignKeys(matches, option);
 
