@@ -35,7 +35,9 @@ module.exports = _options => {
 const beforeHook = async (context, options) => {
   const query = Object.assign({}, context.params.query);
 
-  const joinKeys = Object.keys(query).filter(key => {
+  const mergedQuery = mergeOptionDotPaths(query, options);
+
+  const joinKeys = Object.keys(mergedQuery).filter(key => {
     return Object.keys(options).includes(key);
   });
 
@@ -47,7 +49,7 @@ const beforeHook = async (context, options) => {
     joinKeys
       .map(async key => {
         const option = options[key];
-        const optionQuery = query[key];
+        const optionQuery = mergedQuery[key];
 
         const defaultParams = {
           paginate: false,
@@ -89,13 +91,9 @@ const beforeHook = async (context, options) => {
       })
   );
 
-  joinKeys.forEach(key => {
-    delete query[key];
-  });
+  cleanQuery(query, joinKeys, options);
 
-  joinQueries.forEach(joinQuery => {
-    Object.assign(query, joinQuery);
-  });
+  mergeQuery(query, joinQueries);
 
   context.params.query = query;
 
@@ -129,6 +127,52 @@ const afterHook = (context, options) => {
   delete context.params.joinQuery;
 
   return context;
+};
+
+// Determine if a query like `artist.name` is a valid joinQuery
+// according to the options. Note some dot paths may be valid
+// queries even if not a joinQuery, such as querying mongoose subdocs
+const isOptionDotPath = (string, options) => {
+  const optionKey = string.split('.').length > 1 && string.split('.')[0];
+  return optionKey && Object.keys(options).includes(optionKey);
+};
+
+// Convert queries like {'artist.name': 'JC'} to { artist: { name: 'JC' } }
+const mergeOptionDotPaths = (query, options) => {
+  return Object.keys(query).reduce((mergedQuery, key) => {
+    if (isOptionDotPath(key, options)) {
+      const [optionKey, queryProp] = key.split('.');
+      const joinQuery = { [queryProp]: query[key] };
+      mergedQuery[optionKey] = Object.assign(
+        mergedQuery[optionKey] || {},
+        joinQuery
+      );
+    } else {
+      mergedQuery[key] = Object.assign(mergedQuery[key] || {}, query[key]);
+    }
+    return mergedQuery;
+  }, {});
+};
+
+// Remove any invalid queries (aka joinQueries) suchs as
+// {'artist.name': 'JC'} or { artist: { name: 'JC' } }
+const cleanQuery = (query, joinKeys, options) => {
+  joinKeys.forEach(key => {
+    delete query[key];
+  });
+
+  Object.keys(query).forEach(key => {
+    if (isOptionDotPath(key, options)) {
+      delete query[key];
+    }
+  });
+};
+
+// Merge the new joinQueries onto the main query
+const mergeQuery = (query, joinQueries) => {
+  joinQueries.forEach(joinQuery => {
+    Object.assign(query || {}, joinQuery);
+  });
 };
 
 // Because the matches/foreignKeys arrays are un-paginated and

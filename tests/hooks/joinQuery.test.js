@@ -75,6 +75,32 @@ describe('joinQuery', () => {
     });
   });
 
+  it('Joins the query with dot.paths', async () => {
+    // Query: which albums have an artist with name 'Johnny Cash'
+    const context = {
+      app,
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          'artist.name': 'Johnny Cash'
+        }
+      }
+    };
+
+    const newContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(context);
+
+    await assert.deepStrictEqual(newContext.params.query, {
+      artist_id: { $in: [1] }
+    });
+  });
+
   it('Does not join query if no matches', async () => {
     // Query: which albums have an artist with name 'Elvis'
     const context = {
