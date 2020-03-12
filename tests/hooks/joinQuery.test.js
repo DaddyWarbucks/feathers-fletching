@@ -6,16 +6,16 @@ const joinQuery = require('../../src/hooks/joinQuery');
 describe('joinQuery', () => {
   const app = feathers();
 
-  // app.use(
-  //   'api/albums',
-  //   memory({
-  //     store: [
-  //       { id: 1, title: 'The Man in Black', artist_id: 1 },
-  //       { id: 2, title: 'I Wont Back Down', artist_id: 1 },
-  //       { id: 3, title: 'Life in Nashville', artist_id: 2 }
-  //     ]
-  //   })
-  // );
+  app.use(
+    'api/albums',
+    memory({
+      store: [
+        { id: 1, title: 'The Man in Black', artist_id: 1 },
+        { id: 2, title: 'I Wont Back Down', artist_id: 1 },
+        { id: 3, title: 'Life in Nashville', artist_id: 2 }
+      ]
+    })
+  );
 
   app.use(
     'api/artists',
@@ -189,6 +189,52 @@ describe('joinQuery', () => {
       params: {
         query: {
           artist: { $sort: { name: 1 } }
+        }
+      }
+    };
+
+    const newBeforeContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(beforeContext);
+
+    const afterContext = {
+      type: 'after',
+      method: 'find',
+      result: [
+        { id: 3, title: 'Life in Nashville', artist_id: 2 },
+        { id: 2, title: 'I Wont Back Down', artist_id: 1 }
+      ]
+    };
+
+    const newAfterContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(Object.assign(newBeforeContext, afterContext));
+
+    await assert.deepStrictEqual(newAfterContext.result, [
+      { id: 2, title: 'I Wont Back Down', artist_id: 1 },
+      { id: 3, title: 'Life in Nashville', artist_id: 2 }
+    ]);
+  });
+
+  it('Can $sort on joined queries via dot.path', async () => {
+    // Query: $sort albums by artist name
+    const beforeContext = {
+      app,
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          $sort: {
+            'artist.name': 1
+          }
         }
       }
     };

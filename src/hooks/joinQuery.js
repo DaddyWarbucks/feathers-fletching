@@ -138,8 +138,10 @@ const isOptionDotPath = (string, options) => {
 };
 
 // Convert queries like {'artist.name': 'JC'} to { artist: { name: 'JC' } }
+// Also collect queries from $sort (TODO: and $or)
 const mergeOptionDotPaths = (query, options) => {
-  return Object.keys(query).reduce((mergedQuery, key) => {
+  const mergedQuery = {};
+  Object.keys(query).forEach(key => {
     if (isOptionDotPath(key, options)) {
       const [optionKey, queryProp] = key.split('.');
       const joinQuery = { [queryProp]: query[key] };
@@ -147,11 +149,25 @@ const mergeOptionDotPaths = (query, options) => {
         mergedQuery[optionKey] || {},
         joinQuery
       );
-    } else {
+    } else if (options[key]) {
       mergedQuery[key] = Object.assign(mergedQuery[key] || {}, query[key]);
     }
-    return mergedQuery;
-  }, {});
+  });
+
+  if (query.$sort) {
+    Object.keys(query.$sort).forEach(key => {
+      if (isOptionDotPath(key, options)) {
+        const [optionKey, queryProp] = key.split('.');
+        const joinQuery = { $sort: { [queryProp]: query.$sort[key] } };
+        mergedQuery[optionKey] = Object.assign(
+          mergedQuery[optionKey] || {},
+          joinQuery
+        );
+      }
+    });
+  }
+
+  return mergedQuery;
 };
 
 // Remove any invalid queries (aka joinQueries) suchs as
@@ -166,6 +182,17 @@ const cleanQuery = (query, joinKeys, options) => {
       delete query[key];
     }
   });
+
+  if (query.$sort) {
+    const cleanedSort = Object.keys(query.$sort).filter(key => {
+      return !isOptionDotPath(key, options);
+    });
+    if (cleanedSort.length) {
+      query.$sort = cleanedSort;
+    } else {
+      delete query.$sort;
+    }
+  }
 };
 
 // Merge the new joinQueries onto the main query
