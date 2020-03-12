@@ -1,4 +1,3 @@
-const virtualsSerializer = require('./virtualsSerializer');
 const { omit, pick } = require('./utils');
 
 // This serializer is a bit different from the virtualsSerializer

@@ -1,5 +1,5 @@
 const { skippable } = require('../lib');
-const virtualsSerializer = require('../lib/virtualsSerializer');
+const { virtualsSerializer } = require('../lib/virtualsSerializer');
 
 module.exports = (virtuals, prepFunc = () => {}) => {
   return skippable('withResult', async context => {

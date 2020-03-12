@@ -1,5 +1,5 @@
 const { skippable } = require('../lib');
-const virtualsSerializer = require('../lib/virtualsSerializer');
+const { virtualsSerializer } = require('../lib/virtualsSerializer');
 
 // Force properties onto the query.
 // The value of each property in the virtuals object can be a function,
