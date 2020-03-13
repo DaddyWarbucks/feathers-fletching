@@ -182,12 +182,12 @@ const cleanQuery = (query, joinKeys, options) => {
   });
 
   if (query.$sort) {
-    const cleanedSort = Object.keys(query.$sort).filter(key => {
-      return !isOptionDotPath(key, options);
+    Object.keys(query.$sort).forEach(key => {
+      if (isOptionDotPath(key, options)) {
+        delete query.$sort[key];
+      }
     });
-    if (cleanedSort.length) {
-      query.$sort = cleanedSort;
-    } else {
+    if (!Object.keys(query.$sort).length) {
       delete query.$sort;
     }
   }
