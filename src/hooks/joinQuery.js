@@ -1,8 +1,6 @@
 const { GeneralError } = require('@feathersjs/errors');
 const { skippable } = require('../lib');
-const getResults = require('../lib/getResults');
-const replaceResults = require('../lib/replaceResults');
-const { hasQuery } = require('../lib/utils');
+const { hasQuery, getResults, replaceResults } = require('../lib/utils');
 
 module.exports = _options => {
   const options = Object.assign({}, _options);

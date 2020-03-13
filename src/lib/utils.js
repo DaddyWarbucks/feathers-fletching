@@ -15,7 +15,8 @@ module.exports.pick = (obj, ...keys) => {
 };
 
 module.exports.isPromise = maybePromise => {
-  return maybePromise && typeof maybePromise.then === 'function';
+  const isPromise = maybePromise && typeof maybePromise.then === 'function';
+  return !!isPromise;
 };
 
 module.exports.hasQuery = context => {
@@ -25,4 +26,22 @@ module.exports.hasQuery = context => {
     Object.keys(context.params.query).length;
 
   return !!hasQuery;
+};
+
+module.exports.getResults = context => {
+  return context.method === 'find'
+    ? context.result.data || context.result
+    : context.result;
+};
+
+module.exports.replaceResults = (context, results) => {
+  if (context.method === 'find') {
+    if (context.result && context.result.data) {
+      context.result.data = Array.isArray(results) ? results : [results];
+    } else {
+      context.result = Array.isArray(results) ? results : [results];
+    }
+  } else {
+    context.result = results;
+  }
 };
