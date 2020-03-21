@@ -786,6 +786,44 @@ const contextCacheMap = new ContextCacheMap({ map });
 const cache = contextCache(contextCacheMap);
 ```
 
+```js
+// It is a good practice to setup things like cacheMap, rateLimiters, etc
+// on the service options when setting up the service. This ensures you
+// can access the cacheMap from anywhere in the app, to clear the cache
+// of another service (that may have joined records) for example.
+
+// albums.service.js
+const { ContextCacheMap } = require('feathers-fletching');
+const { Albums } = require('./albums.class');
+const createModel = require('../../models/albums.model');
+const hooks = require('./albums.hooks');
+
+module.exports = function (app) {
+  const options = {
+    Model: createModel(app),
+    paginate: app.get('paginate'),
+    cacheMap: new ContextCacheMap({ max: 100 });
+  };
+
+  // Initialize our service with any options it requires
+  app.use('/albums', new Albums(options, app));
+
+  // Get our initialized service so that we can register hooks
+  const service = app.service('albums');
+
+  service.hooks(hooks);
+};
+
+// albums.hooks.js
+const { contextCache } = require('feathers-fletching');
+
+// Now you can access the cacheMap from the service options
+const cache = context => {
+  const { cacheMap } = context.service.options;
+  return contextCache(cacheMap)(context);
+}
+```
+
 ## rateLimit
 
 Rate limit services using [node-rate-limiter-flexible](https://github.com/animir/node-rate-limiter-flexible).
@@ -861,6 +899,43 @@ const makePoints = context => {
 };
 
 const rateLimitHook = rateLimit(rateLimiter, { makePoints });
+```
+
+```js
+// It is a good practice to setup things like rateLimiters, cacheMap, etc
+// on the service options when setting up the service. This ensures you
+// can access the rateLimiter from anywhere in the app.
+
+// albums.service.js
+const { RateLimiterMemory } = require('feathers-fletching');
+const { Albums } = require('./albums.class');
+const createModel = require('../../models/albums.model');
+const hooks = require('./albums.hooks');
+
+module.exports = function (app) {
+  const options = {
+    Model: createModel(app),
+    paginate: app.get('paginate'),
+    rateLimiter = new RateLimiterMemory({ points: 10, duration: 1 });
+  };
+
+  // Initialize our service with any options it requires
+  app.use('/albums', new Albums(options, app));
+
+  // Get our initialized service so that we can register hooks
+  const service = app.service('albums');
+
+  service.hooks(hooks);
+};
+
+// albums.hooks.js
+const { rateLimit } = require('feathers-fletching');
+
+// Now you can access the rateLimiter from the service options
+const cache = context => {
+  const { rateLimiter } = context.service.options;
+  return rateLimit(rateLimiter)(context);
+}
 ```
 
 ## sanitizeError
