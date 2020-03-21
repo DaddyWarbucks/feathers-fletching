@@ -1,24 +1,17 @@
 const { skippable } = require('../lib');
 const { virtualsSerializer } = require('../lib/virtualsSerializer');
+const { getResults, replaceResults } = require('../lib/utils');
 
 module.exports = (virtuals, prepFunc = () => {}) => {
   return skippable('withResult', async context => {
-    if (context.result.data) {
-      context.result.data = await virtualsSerializer(
-        context.result.data,
-        virtuals,
-        context,
-        prepFunc
-      );
-      return context;
-    } else {
-      context.result = await virtualsSerializer(
-        context.result,
-        virtuals,
-        context,
-        prepFunc
-      );
-      return context;
-    }
+    const results = getResults(context);
+    const updated = await virtualsSerializer(
+      results,
+      virtuals,
+      context,
+      prepFunc
+    );
+    replaceResults(context, updated);
+    return context;
   });
 };

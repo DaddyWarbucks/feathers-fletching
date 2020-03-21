@@ -62,6 +62,7 @@ describe('withResult', () => {
 
   it('Works when `context.result.data` is present', async () => {
     const context = {
+      method: 'find',
       params: {},
       result: {
         data: [{ name: 'Johnny Cash' }, { name: 'Patsy Cline' }]
