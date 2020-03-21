@@ -9,7 +9,7 @@ module.exports = (virtuals, prepFunc = () => {}) => {
     }
 
     if (Array.isArray(virtuals)) {
-      context.params.query = omit(context.params.query, ...virtuals);
+      context.params.query = omit(context.params.query, virtuals);
       return context;
     }
 

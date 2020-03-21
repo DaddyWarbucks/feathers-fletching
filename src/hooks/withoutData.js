@@ -10,8 +10,8 @@ module.exports = (virtuals, prepFunc = () => {}) => {
 
     if (Array.isArray(virtuals)) {
       context.data = Array.isArray(context.data)
-        ? context.data.map(d => omit(d, ...virtuals))
-        : omit(context.data, ...virtuals);
+        ? context.data.map(d => omit(d, virtuals))
+        : omit(context.data, virtuals);
       return context;
     }
 

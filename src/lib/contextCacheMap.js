@@ -1,5 +1,4 @@
 const LRU = require('lru-cache');
-const { omit } = require('../lib/utils');
 
 LRU.prototype.delete = LRU.prototype.del;
 LRU.prototype.clear = LRU.prototype.reset;

@@ -1,6 +1,8 @@
-module.exports.omit = (obj, ...keys) => {
+const unset = require('unset-value');
+
+module.exports.omit = (obj, keys) => {
   const result = Object.assign({}, obj);
-  keys.forEach(key => delete result[key]);
+  keys.forEach(key => unset(result, key));
   return result;
 };
 

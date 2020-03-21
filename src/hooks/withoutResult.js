@@ -12,8 +12,8 @@ module.exports = (virtuals, prepFunc = () => {}) => {
 
     if (Array.isArray(virtuals)) {
       const filtered = Array.isArray(results)
-        ? results.map(result => omit(result, ...virtuals))
-        : omit(results, ...virtuals);
+        ? results.map(result => omit(result, virtuals))
+        : omit(results, virtuals);
       replaceResults(context, filtered);
       return context;
     }
