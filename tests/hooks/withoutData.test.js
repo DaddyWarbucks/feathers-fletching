@@ -95,4 +95,14 @@ describe('withoutData', () => {
       { name: 'Patsy Cline' }
     ]);
   });
+
+  it('Works when `virtuals` is an array', async () => {
+    const context = {
+      data: { name: 'Johnny Cash', email: 'email@example.com' }
+    };
+
+    const newContext = await withoutData(['email'])(context);
+
+    await assert.deepEqual(newContext.data, { name: 'Johnny Cash' });
+  });
 });

@@ -167,7 +167,7 @@ For each virtual in the virtual object, if the value returns a truthy value it w
 
 | Argument | Type | Default | Required | Description |
 | :-: | :-: | :-:  | :-: | - |
-| virtuals | Object |  | true | An object where each key will be the name of a property to be potentially filtered from result. **Return a truthy value to keep the value and return a falsey value to remove it**. |
+| virtuals | Object/Array |  | true | An object where each key will be the name of a property to be potentially filtered from result. **Return a truthy value to keep the value and return a falsey value to remove it**. |
 | prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 ```js
@@ -207,6 +207,15 @@ const withoutResults = withoutResult({
     name: 'Johnny Cash'
   }
 */
+```
+
+```js
+// `withoutResult` also accepts an array of strings as the first
+// argument as a conveniece syntax. When you use this syntaxt, `prepFunc`
+// is ignored.
+const withoutResults = withoutResult(['email', 'ssn']);
+// this is equivelent to
+const withoutResults = withoutResult({ email: true, ssn: true });
 ```
 
 ## withData
@@ -306,7 +315,7 @@ For each virtual in the virtual object, if the value returns a truthy value it w
 
 | Argument | Type | Default | Required | Description |
 | :-: | :-: | :-:  | :-: | - |
-| virtuals | Object |  | true | An object where each key will be the name of a property to be potentially filtered from data. **Return a truthy value to keep the value and return a falsey value to remove it**. |
+| virtuals | Object/Array |  | true | An object where each key will be the name of a property to be potentially filtered from data. **Return a truthy value to keep the value and return a falsey value to remove it**. |
 | prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 ```js
@@ -346,6 +355,14 @@ const withoutDatas = withoutData({
   }
 */
 
+```
+```js
+// `withoutData` also accepts an array of strings as the first
+// argument as a conveniece syntax. When you use this syntaxt, `prepFunc`
+// is ignored.
+const withoutDatas = withoutData(['email', 'ssn']);
+// this is equivelent to
+const withoutDatas = withoutData({ email: true, ssn: true });
 ```
 
 ## withQuery
@@ -429,7 +446,7 @@ Remove properties from the `context.params.query` of a method call.  See the [wi
 
 | Argument | Type | Default | Required | Description |
 | :-: | :-: | :-:  | :-: | - |
-| virtuals | Object |  | true | An object where each key will be the name of a property to be potentially filtered from `context.params.query`. **Return a truthy value to keep the value and return a falsey value to remove it**. |
+| virtuals | Object/Array |  | true | An object where each key will be the name of a property to be potentially filtered from `context.params.query`. **Return a truthy value to keep the value and return a falsey value to remove it**. |
 | prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 ```js
@@ -463,6 +480,15 @@ const withoutQueries = withoutQuery({
   }
 */
 
+```
+
+```js
+// `withoutQuery` also accepts an array of strings as the first
+// argument as a conveniece syntax. When you use this syntaxt, `prepFunc`
+// is ignored.
+const withoutQueries = withoutQuery(['email', 'ssn']);
+// this is equivelent to
+const withoutQueries = withoutQuery({ email: true, ssn: true });
 ```
 
 ## joinQuery
@@ -590,7 +616,9 @@ const joinQueries = joinQuery({
 
 ```js
 // Use the hook as an after hook to sort results by the joined query.
-// You are not required to use this hook after unless you want to sort.
+// Use this after hook with caution. Because the hook can only sort
+// on the results in memory, order may vary. It is generally not
+// recommended to rely on this sort unless you turn pagination off.
 const joinQueries = joinQuery({
   artist: {
     service: 'api/artists',

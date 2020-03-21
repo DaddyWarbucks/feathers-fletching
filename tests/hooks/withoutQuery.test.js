@@ -83,4 +83,16 @@ describe('withoutQuery', () => {
       prop3: 'prop3'
     });
   });
+
+  it('Works when `virtuals` is an array', async () => {
+    const context = {
+      params: {
+        query: { name: 'Johnny Cash', email: 'email@example.com' }
+      }
+    };
+
+    const newContext = await withoutQuery(['email'])(context);
+
+    await assert.deepEqual(newContext.params.query, { name: 'Johnny Cash' });
+  });
 });

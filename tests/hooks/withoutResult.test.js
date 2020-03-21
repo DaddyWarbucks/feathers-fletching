@@ -98,6 +98,7 @@ describe('withoutResult', () => {
 
   it('Works when `context.result.data` is present', async () => {
     const context = {
+      method: 'find',
       result: {
         data: [
           { name: 'Johnny Cash', email: 'email@example.com' },
@@ -114,5 +115,15 @@ describe('withoutResult', () => {
       { name: 'Johnny Cash' },
       { name: 'Patsy Cline' }
     ]);
+  });
+
+  it('Works when `virtuals` is an array', async () => {
+    const context = {
+      result: { name: 'Johnny Cash', email: 'email@example.com' }
+    };
+
+    const newContext = await withoutResult(['email'])(context);
+
+    await assert.deepEqual(newContext.result, { name: 'Johnny Cash' });
   });
 });
