@@ -216,6 +216,9 @@ const withoutResults = withoutResult({
 const withoutResults = withoutResult(['email', 'ssn']);
 // this is equivelent to
 const withoutResults = withoutResult({ email: true, ssn: true });
+
+// This syntax also supports dot notation of object paths
+const withoutResults = withoutResult(['role.role_type']);
 ```
 
 ## withData
@@ -363,6 +366,9 @@ const withoutDatas = withoutData({
 const withoutDatas = withoutData(['email', 'ssn']);
 // this is equivelent to
 const withoutDatas = withoutData({ email: true, ssn: true });
+
+// This syntax also supports dot notation of object paths
+const withoutResults = withoutResult(['role.role_type']);
 ```
 
 ## withQuery
@@ -489,6 +495,9 @@ const withoutQueries = withoutQuery({
 const withoutQueries = withoutQuery(['email', 'ssn']);
 // this is equivelent to
 const withoutQueries = withoutQuery({ email: true, ssn: true });
+
+// This syntax also supports dot notation of object paths
+const withoutResults = withoutResult(['role.role_type']);
 ```
 
 ## joinQuery
