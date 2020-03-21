@@ -1,7 +1,10 @@
 const { GeneralError } = require('@feathersjs/errors');
 const { skippable } = require('../lib');
 const checkContext = require('../lib/checkContext');
-const { filterSerializer } = require('../lib/filterSerializer');
+const {
+  virtualsSerializer,
+  filterResolver
+} = require('../lib/virtualsSerializer');
 
 module.exports = (virtuals, prepFunc = () => {}) => {
   return skippable('preventChange', async context => {
@@ -16,7 +19,8 @@ module.exports = (virtuals, prepFunc = () => {}) => {
         ? context.data.map(d => omit(d, virtuals))
         : omit(context.data, virtuals);
     } else {
-      context.data = await filterSerializer(
+      context.data = await virtualsSerializer(
+        filterResolver,
         context.data,
         virtuals,
         context,

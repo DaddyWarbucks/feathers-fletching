@@ -1,5 +1,8 @@
 const { skippable } = require('../lib');
-const { filterSerializer } = require('../lib/filterSerializer');
+const {
+  virtualsSerializer,
+  filterResolver
+} = require('../lib/virtualsSerializer');
 const { hasQuery, omit } = require('../lib/utils');
 
 module.exports = (virtuals, prepFunc = () => {}) => {
@@ -13,7 +16,8 @@ module.exports = (virtuals, prepFunc = () => {}) => {
       return context;
     }
 
-    context.params.query = await filterSerializer(
+    context.params.query = await virtualsSerializer(
+      filterResolver,
       context.params.query,
       virtuals,
       context,

@@ -1,5 +1,5 @@
 const { skippable } = require('../lib');
-const { virtualsSerializer } = require('../lib/virtualsSerializer');
+const { virtualsSerializer, resolver } = require('../lib/virtualsSerializer');
 
 // Add data, such as defaults to context.data in a before hook.
 // Note `data` could technically be an array of multiple items
@@ -14,6 +14,7 @@ const { virtualsSerializer } = require('../lib/virtualsSerializer');
 module.exports = (virtuals, prepFunc = () => {}) => {
   return skippable('withData', async context => {
     context.data = await virtualsSerializer(
+      resolver,
       context.data,
       virtuals,
       context,

@@ -1,5 +1,8 @@
 const { skippable } = require('../lib');
-const { filterSerializer } = require('../lib/filterSerializer');
+const {
+  virtualsSerializer,
+  filterResolver
+} = require('../lib/virtualsSerializer');
 const { omit } = require('../lib/utils');
 
 module.exports = (virtuals, prepFunc = () => {}) => {
@@ -15,7 +18,8 @@ module.exports = (virtuals, prepFunc = () => {}) => {
       return context;
     }
 
-    context.data = await filterSerializer(
+    context.data = await virtualsSerializer(
+      filterResolver,
       context.data,
       virtuals,
       context,
