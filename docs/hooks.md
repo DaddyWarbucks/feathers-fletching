@@ -214,7 +214,7 @@ const withoutResults = withoutResult({
 // argument as a conveniece syntax. When you use this syntaxt, `prepFunc`
 // is ignored.
 const withoutResults = withoutResult(['email', 'ssn']);
-// this is equivelent to
+// this is equivalent to
 const withoutResults = withoutResult({ email: true, ssn: true });
 
 // This syntax also supports dot notation of object paths
@@ -364,7 +364,7 @@ const withoutDatas = withoutData({
 // argument as a conveniece syntax. When you use this syntaxt, `prepFunc`
 // is ignored.
 const withoutDatas = withoutData(['email', 'ssn']);
-// this is equivelent to
+// this is equivalent to
 const withoutDatas = withoutData({ email: true, ssn: true });
 
 // This syntax also supports dot notation of object paths
@@ -493,7 +493,7 @@ const withoutQueries = withoutQuery({
 // argument as a conveniece syntax. When you use this syntaxt, `prepFunc`
 // is ignored.
 const withoutQueries = withoutQuery(['email', 'ssn']);
-// this is equivelent to
+// this is equivalent to
 const withoutQueries = withoutQuery({ email: true, ssn: true });
 
 // This syntax also supports dot notation of object paths
