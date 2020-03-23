@@ -215,7 +215,7 @@ const withoutResults = withoutResult({
 // is ignored.
 const withoutResults = withoutResult(['email', 'ssn']);
 // this is equivalent to
-const withoutResults = withoutResult({ email: true, ssn: true });
+const withoutResults = withoutResult({ email: false, ssn: false });
 
 // This syntax also supports dot notation of object paths
 const withoutResults = withoutResult(['role.role_type']);
@@ -365,7 +365,7 @@ const withoutDatas = withoutData({
 // is ignored.
 const withoutDatas = withoutData(['email', 'ssn']);
 // this is equivalent to
-const withoutDatas = withoutData({ email: true, ssn: true });
+const withoutDatas = withoutData({ email: false, ssn: false });
 
 // This syntax also supports dot notation of object paths
 const withoutResults = withoutResult(['role.role_type']);
@@ -494,7 +494,7 @@ const withoutQueries = withoutQuery({
 // is ignored.
 const withoutQueries = withoutQuery(['email', 'ssn']);
 // this is equivalent to
-const withoutQueries = withoutQuery({ email: true, ssn: true });
+const withoutQueries = withoutQuery({ email: false, ssn: false });
 
 // This syntax also supports dot notation of object paths
 const withoutResults = withoutResult(['role.role_type']);
