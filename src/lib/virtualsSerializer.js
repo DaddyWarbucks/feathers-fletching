@@ -104,7 +104,6 @@ const serializer = async (item, virtuals, context, prepResult, resolver) => {
       if (isPromise(result)) {
         await result;
       }
-      return result;
     }
   }
 
