@@ -23,23 +23,28 @@ const { isPromise } = require('./utils');
 */
 
 // Mutate the data at updated[key] in place according to its virtual.
-const resolver = (module.exports.resolver = async (
-  virtuals,
+const resolver = (module.exports.resolver = (
+  virtual,
   key,
   updated,
   context,
   prepResult
 ) => {
-  if (typeof virtuals[key] === 'function') {
-    let result = virtuals[key](updated, context, prepResult);
+  if (typeof virtual === 'function') {
+    let result = virtual(updated, context, prepResult);
     if (isPromise(result)) {
-      result = await result.then(result => result);
+      return result.then(result => {
+        updated[key] = result;
+      });
     }
     if (result !== undefined) {
       updated[key] = result;
+      return result;
     }
+    return result;
   } else {
-    updated[key] = virtuals[key];
+    updated[key] = virtual;
+    return virtual;
   }
 });
 
@@ -49,25 +54,32 @@ const resolver = (module.exports.resolver = async (
 // as a "filter" where each function result returns a truth/falsy
 // value indicating if it should be filtered, and `undefined` is falsy
 // and should be respected as a valid returned value
-const filterResolver = (module.exports.filterResolver = async (
-  virtuals,
+const filterResolver = (module.exports.filterResolver = (
+  virtual,
   key,
   updated,
   context,
   prepResult
 ) => {
-  let shouldKeep;
-  if (typeof virtuals[key] === 'function') {
-    shouldKeep = virtuals[key](updated, context, prepResult);
-    if (isPromise(shouldKeep)) {
-      shouldKeep = await shouldKeep.then(result => result);
+  if (typeof virtual === 'function') {
+    const result = virtual(updated, context, prepResult);
+    if (isPromise(result)) {
+      return result.then(shouldKeep => {
+        if (!shouldKeep) {
+          delete updated[key];
+        }
+      });
+    } else {
+      if (!result) {
+        delete updated[key];
+      }
+      return result;
     }
   } else {
-    shouldKeep = virtuals[key];
-  }
-
-  if (!shouldKeep) {
-    delete updated[key];
+    if (!virtual) {
+      delete updated[key];
+    }
+    return virtual;
   }
 });
 
@@ -82,16 +94,27 @@ const serializer = async (item, virtuals, context, prepResult, resolver) => {
 
   if (syncKeys.length) {
     for (const key of syncKeys) {
-      await resolver(virtuals, key, updated, context, prepResult);
+      const result = resolver(
+        virtuals[key],
+        key.substring(1),
+        updated,
+        context,
+        prepResult
+      );
+      if (isPromise(result)) {
+        await result;
+      }
+      return result;
     }
   }
 
   if (asyncKeys.length) {
-    await Promise.all(
-      asyncKeys.map(key => {
-        return resolver(virtuals, key, updated, context, prepResult);
-      })
-    );
+    const results = asyncKeys.map(key => {
+      return resolver(virtuals[key], key, updated, context, prepResult);
+    });
+    if (results.some(result => isPromise(result))) {
+      await Promise.all(results.filter(result => isPromise(result)));
+    }
   }
 
   return updated;
