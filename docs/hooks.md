@@ -63,20 +63,6 @@ const withResults = withResult({
     return context.app.service('artists').get(result.artist_id);
   },
 
-  artist_profile: (result, context, prepResult) => {
-    // Keys are iterated over syncronously in order of their definition.
-    // This means that `status`, `summary`, and `artist` will all be present
-    // by the time this `artist_profile` virtual is run. We can use the
-    // `artist` virtual here because it has already been populated
-    if (artist.is_public) {
-      return context.app.service('profiles').find({
-        query: { artist_id: result.artist_id }
-      });
-    } else {
-      return null;
-    }
-  },
-
   whoops: (result, context, prepResult) => {
     // If undefined is returned, this key will not be on the result at all.
     // It will not be { whoops: undefined }, instead the `whoops` is deleted
@@ -93,8 +79,7 @@ const withResults = withResult({
     artist_id: 123,
     status: 'platinum',
     summary: 'One...'
-    artist: { { name: 'Johnny Cash' } },
-    artist_profile: null
+    artist: { { name: 'Johnny Cash' } }
   }
 */
 
@@ -143,11 +128,54 @@ const withResults = withResult({
 */
 ```
 
-- Virtuals functions are run syncronously in order of their key definition in the `virtuals` object.
+- Virtuals functions are run asyncronously (in parrallel) by default. When using the `@` syntax, all keys that start with `@` will run their virtuals functions syncronously in order of their key definition before running all other keys in parrallel.
 
 - If the result set is an array, then the `result` arg in each virtuals function `(result, context, prepResult) => {}` is the individual item in that array, not the whole array.
 
 - When the result set is an array, the withResult virtuals are applied to each item in the array and this is run asyncrounously via `Promise.all()`.
+
+```js
+import { withResult } from 'feathers-fletching';
+
+// All with* and without* hooks share the `@` syntax. If you preface
+// a key with an `@` symbol, those keys are collected and run
+// synronously in order of their key definition. Then, all other keys
+// are run asyncronously
+
+const withResults = withResult({
+
+  '@first': async () => {
+    // This promise is guaranteed to run FIRST
+    return 'I ran FIRST!';
+  },
+  '@second': async () => {
+    // This promise is guaranteed to run SECOND
+    return 'I ran SECOND!';
+  },
+  third: (result, context, prepResult) => {
+    // Runs in parallel [third, fifth], after @first, @second, @fourth
+    return 'I ran in parrallel with fifth';
+  },
+  '@fourth': (result, context, prepResult) => {
+    // This promise is guaranteed to run THIRD
+    return 'I ran THIRD!';
+  },
+  fifth: (result, context, prepResult) => {
+    // Runs in parallel [third, fifth], after @first, @second, @fourth
+    return 'I ran in parallel with third';
+  }
+
+  /*
+  context.result = {
+    first: 'I ran FIRST!',
+    second: 'I ran SECOND!',
+    third: 'I ran in parallel with fifth',
+    fourth: 'I ran THIRD',
+    fifth: 'I ran in parallel with third'
+  }
+*/
+});
+```
 
 ## withoutResult
 
