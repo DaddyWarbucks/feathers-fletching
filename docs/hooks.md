@@ -86,35 +86,32 @@ const withResults = withResult({
 // withResult takes a second argument `prepFunc`. This function/promise is run
 // before iteration over the virtuals keys and is passed to each
 // virtuals function. It is useful for doing operations that will be
-// used by multiple virtuals.
+// used by multiple virtuals and for setting up batchLoaders.
 
 /*
   context.result = {
-    status: 'processing'
+    artist_id: 123
   }
 */
 const withResults = withResult({
-
-  status_code: (result, context, statuses) => {
-    const currentStatus = statuses.find(status => status.name === result.status);
-    return currentStatus.code;
+  artist: (result, context, loaders) => {
+    return loaders.artists.load(result.artist_id);
   },
-
-  next_status_code: (result, context, statuses) => {
-    const currentIndex = statuses.findIndex(
-      status => status.name === result.status
-    );
-    return currentIndex + 1;
+  ratings: (result, context, loaders) => {
+    return loaders.ratings.load(result.id);
   }
-
 },
 
   async context => {
     // This function is run before iterating over the virtuals object and its
-    // result is passed to each virtuals function.
-    const statuses = await context.app.service('statuses').find();
-    // [{ name: 'pocessing', code: 123 }, { name: 'done', code: 456 }]
-    return statuses;
+    // result is passed to each virtuals function. This is a great place
+    // to setup batchLoaders, which are a very powerful and performant
+    // way of joining related documents. For more info on batchLoaders,
+    // see the feathers-plus/batch-loader docs
+    return {
+      artists: new BatchLoader('artists'),
+      ratings: new BatchLoader('ratings'),
+    }
   }
 
 );
@@ -143,7 +140,6 @@ import { withResult } from 'feathers-fletching';
 // are run asyncronously
 
 const withResults = withResult({
-
   '@first': async () => {
     // This promise is guaranteed to run FIRST
     return 'I ran FIRST!';
@@ -164,6 +160,7 @@ const withResults = withResult({
     // Runs in parallel [third, fifth], after @first, @second, @fourth
     return 'I ran in parallel with third';
   }
+});
 
   /*
   context.result = {
@@ -174,7 +171,6 @@ const withResults = withResult({
     fifth: 'I ran in parallel with third'
   }
 */
-});
 ```
 
 ## withoutResult
