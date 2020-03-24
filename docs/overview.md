@@ -25,9 +25,9 @@ With that in mind, feathers-fletching has a core set of hooks often called the `
 For example
 - if you want a `protect` hook that ensures passwords are not returned, use `withoutResult(['password'])`
 
-- if you want a `preventChange` hook that ensures emails are not changed, use `withouData(['email'])`
+- if you want a `preventChange` hook that ensures emails are not changed, use `withoutData(['email'])`
 
-- if you want a `preventChange` hook that ensures emails are not changed by anyone other than admin, use `withouData({ email: (result, context) => context.params.user.role === admin })`
+- if you want a `preventChange` hook that ensures emails are not changed by anyone other than admin, use `withoutData({ email: (result, context) => context.params.user.role === admin })`
 
 - if you want a `join` hook that populates records, use `withResult({ artist: (result, context) => context.app.service('artists').get(result.id) })`
 
