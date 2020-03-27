@@ -92,6 +92,30 @@ describe('virtualsSerializer', () => {
     await assert.deepEqual(newData, { name: 'Johnny Cash' });
   });
 
+  it('resolver does not return `undefined` as value', async () => {
+    const data = { name: 'Johnny Cash' };
+
+    const context = {};
+
+    const prepFunc = () => {};
+
+    const virtuals = {
+      prop1: () => {},
+      prop2: () => undefined,
+      prop3: async () => undefined
+    };
+
+    const newData = await virtualsSerializer(
+      resolver,
+      data,
+      virtuals,
+      context,
+      prepFunc
+    );
+
+    await assert.deepEqual(newData, { name: 'Johnny Cash' });
+  });
+
   it('filterResolver removes falsey values', async () => {
     const data = {
       name: 'Johnny Cash',

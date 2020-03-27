@@ -34,10 +34,12 @@ const resolver = (module.exports.resolver = (
     let result = virtual(updated, context, prepResult);
     if (isPromise(result)) {
       return result.then(result => {
-        updated[key] = result;
+        if (typeof result !== 'undefined') {
+          updated[key] = result;
+        }
       });
     }
-    if (result !== undefined) {
+    if (typeof result !== 'undefined') {
       updated[key] = result;
       return result;
     }
