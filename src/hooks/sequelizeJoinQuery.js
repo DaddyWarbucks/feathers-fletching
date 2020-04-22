@@ -104,14 +104,16 @@ const getJoinInclude = (
       .filter(name => name !== rootPath && name.startsWith(rootPath))
       .map(name => name.slice(rootPath.length + 1));
     const targetAssociations = association.target.associations;
-    const targetIncludes = getJoinInclude(
-      targetPaths,
-      targetAssociations,
-      getIncludeOptions,
-      context
-    );
-    if (targetIncludes.length) {
-      include.include = targetIncludes;
+    if (targetPaths && targetAssociations) {
+      const targetIncludes = getJoinInclude(
+        targetPaths,
+        targetAssociations,
+        getIncludeOptions,
+        context
+      );
+      if (targetIncludes.length) {
+        include.include = targetIncludes;
+      }
     }
     includes.push(include);
   });
