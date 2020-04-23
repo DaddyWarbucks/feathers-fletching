@@ -75,7 +75,7 @@ const withResults = withResult({
 /*
   context.result = {
     title: 'The Man in Black',
-    body: 'One of the all time greats!',
+    description: 'One of the all time greats!',
     artist_id: 123,
     status: 'platinum',
     summary: 'One...'
@@ -97,8 +97,8 @@ const withResults = withResult({
   artist: (result, context, loaders) => {
     return loaders.artists.load(result.artist_id);
   },
-  ratings: (result, context, loaders) => {
-    return loaders.ratings.load(result.id);
+  rating: (result, context, loaders) => {
+    return loaders.ratings.load(result.rating_id);
   }
 },
 
@@ -118,9 +118,9 @@ const withResults = withResult({
 
 /*
   context.result = {
-    status: 'processing',
-    status_code: 123,
-    next_status_code: 456
+    artist_id: 123,
+    artist: { name: 'Johnny Cash', ... },
+    rating: { score: 10, ... }
   }
 */
 ```
