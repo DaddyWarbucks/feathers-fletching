@@ -181,10 +181,12 @@ describe('sequelizeJoinQuery', () => {
       method: 'find',
       params: {
         query: {
-          $or: {
-            '$artist.name$': 'Johnny Cash',
-            '$artist.name$': 'Elvis Presly'
-          }
+          $or: [
+            {
+              '$artist.name$': 'Johnny Cash',
+              '$artist.name$': 'Elvis Presly'
+            }
+          ]
         }
       }
     };
