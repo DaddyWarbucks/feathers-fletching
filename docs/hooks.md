@@ -694,6 +694,89 @@ const albums = await app.service('api/albums').find({
 
 > When using this hook on the client, use the [disablePagination](https://hooks-common.feathersjs.com/hooks.html#disablepagination) hook on the server to ensure proper results. Then be sure to include `$limit: -1` with your join query like `artist: { name: 'Johnny Cash', $limit: -1 }`. Otherwise, the query passed to the join service will not return all joined records and your result set will be incomplete.
 
+## sequelizeJoinQuery
+
+The sequelizeJoinQuery hook leverages Sequelize's [$nested.column.syntax$](https://sequelize.org/master/manual/eager-loading.html#complex-where-clauses-at-the-top-level) and allows you to query across tables without having to manually construct `params.sequelize.include`. The hook scans the `params.query` for any `$nested.column.syntax$` and contructs the `params.sequelize.include` accordingly. The hook supports `$deeply.nested.associations$` and supports all Sequelize query operators.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sequelizeJoinQuery.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| options | Object |  | true | An object of options. |
+| options.makeIncludeOptions | Object |  | false | A function that is called for each association and returns association options |
+
+```js
+import { sequelizeJoinQuery } from 'feathers-fletching';
+
+// Given Albums, Artists, and Ratings models
+// that have the following associations
+Albums.belongsTo(Artists, {
+  foreignKey: 'artist_id',
+  targetKey: 'id',
+  as: 'artist'
+});
+
+Ratings.belongsTo(Artists, {
+  foreignKey: 'rating_id',
+  targetKey: 'id',
+  as: 'rating'
+});
+
+const sequelizeJoin = sequelizeJoinQuery();
+
+// Find albums where the artist's name is Johnny
+// Cash and the artist's rating score is 10
+const albums = await app.service('api/albums').find({
+  query: {
+    '$artist.name$': 'Johnny Cash',
+    '$artist.rating.score$': 10
+  }
+});
+```
+
+```js
+// By default, this hook does not actually append the
+// joined records onto the result. In the author's opinion,
+// joining documents should be done via the service interface
+// with `withResults` (or some other hook). This hook is meant
+// to be a query mechanism only, not necessarily a
+// joing/populating mechanism.
+
+// You can set the option to append records as well as
+// all other sequelize options in the makeIncludeOptions
+
+const sequelizeJoin = sequelizeJoinQuery({
+  makeIncludeOptions: (association, context) => {
+    /*
+      default = {
+        attributes: [], // dont append results
+        required: true // left inner join
+      }
+    */
+
+    // Here you can return any standard sequelize options
+    // A common option for HasMany relationships is `duplicating`
+    const options = {
+      required: false, // left outer join
+      attributes: ['name'], // append the record's name to result
+      nest: true, // append as an obj instead of dot syntax
+    };
+    if (association.associationType === 'HasMany') {
+      options.duplicating = false;
+    }
+    return options;
+  }
+});
+```
+
+> Note that you will need to whitelist all nested query operators. To learn more about whitelisting operators, see the [feathers-sequelize docs](https://github.com/feathersjs-ecosystem/feathers-sequelize). For the example above, the whitelist would be `['$artist.name$', '$artist.rating.score$']`
+
 ## contextCache
 
 Cache the results of `get()` and `find()` requests. Clear the cache on any other method.
