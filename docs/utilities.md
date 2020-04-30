@@ -20,10 +20,10 @@ app.service('albums').find({ skipHooks: ['myHook'] });
 // Skip all skippable hooks
 app.service('albums').find({ skipHooks: ['all'] });
 
-// Hook all skippable before hooks
+// Skip all skippable before hooks
 app.service('albums').find({ skipHooks: ['before'] });
 
-// Hook all skippable after hooks
+// Skip all skippable after hooks
 app.service('albums').find({ skipHooks: ['after'] });
 
 // Skip all skippable before hooks, and just "myHook" if after
