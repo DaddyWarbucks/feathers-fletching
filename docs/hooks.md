@@ -709,7 +709,7 @@ The sequelizeJoinQuery hook leverages Sequelize's [$nested.column.syntax$](https
 | Argument | Type | Default | Required | Description |
 | :-: | :-: | :-:  | :-: | - |
 | options | Object |  | true | An object of options. |
-| options.makeIncludeOptions | Object |  | false | A function that is called for each association and returns association options |
+| options.makeIncludeOptions | Function |  | false | A function that is called for each association and returns association options |
 
 ```js
 import { sequelizeJoinQuery } from 'feathers-fletching';
