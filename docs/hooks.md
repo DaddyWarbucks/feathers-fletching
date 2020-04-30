@@ -696,7 +696,7 @@ const albums = await app.service('api/albums').find({
 
 ## sequelizeJoinQuery
 
-The sequelizeJoinQuery hook leverages Sequelize's [$nested.column.syntax$](https://sequelize.org/master/manual/eager-loading.html#complex-where-clauses-at-the-top-level) and allows you to query across tables without having to manually construct `params.sequelize.include`. The hook scans the `params.query` for any `$nested.column.syntax$` and contructs the `params.sequelize.include` accordingly. The hook supports `$deeply.nested.associations$` and supports all Sequelize query operators.
+The sequelizeJoinQuery hook leverages Sequelize's [$nested.column.syntax$](https://sequelize.org/master/manual/eager-loading.html#complex-where-clauses-at-the-top-level) and allows you to query across tables without having to manually construct `params.sequelize.include`. The hook scans the `params.query` for any `$nested.column.syntax$` and constructs the `params.sequelize.include` accordingly. The hook supports `$deeply.nested.associations$` and supports all Sequelize query operators.
 
 **Context**
 
