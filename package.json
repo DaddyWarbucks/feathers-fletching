@@ -1,6 +1,6 @@
 {
   "name": "feathers-fletching",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Hooks, services, and plugins for feathers.js",
   "main": "src/",
   "repository": "https://github.com/DaddyWarbucks/feathers-fletching.git",
