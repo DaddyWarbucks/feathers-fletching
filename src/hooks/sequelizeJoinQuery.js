@@ -34,8 +34,9 @@ const getColumnProp = string => {
 const getColumnPaths = query => {
   const queryPaths = filterColumnQueries(query);
   const sortPaths = filterColumnQueries(query.$sort);
-  const orPaths = filterColumnQueries(query.$or);
   const selectPaths = filterColumnQueries(query.$select);
+  const orQueries = (query.$or || []).map(Object.keys).flat();
+  const orPaths = filterColumnQueries(orQueries);
   return unique([...queryPaths, ...selectPaths, ...sortPaths, ...orPaths]);
 };
 
