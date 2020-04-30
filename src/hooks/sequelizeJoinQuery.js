@@ -1,5 +1,6 @@
 const { GeneralError, BadRequest } = require('@feathersjs/errors');
 const { hasQuery } = require('../lib/utils');
+const { skippable } = require('../lib');
 
 const unique = arr => {
   return arr.filter((value, index, self) => self.indexOf(value) === index);
@@ -145,7 +146,7 @@ module.exports = (options = {}) => {
   const makeIncludeOptions =
     options.makeIncludeOptions || defaultIncludeOptions;
 
-  return context => {
+  return skippable('sequelizeJoinQuery', context => {
     if (!hasQuery(context)) {
       return context;
     }
@@ -187,5 +188,5 @@ module.exports = (options = {}) => {
     context.params.query = getCleanQuery(query);
 
     return context;
-  };
+  });
 };
