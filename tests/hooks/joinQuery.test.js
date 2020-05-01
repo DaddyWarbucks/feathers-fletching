@@ -9,18 +9,21 @@ describe('joinQuery', () => {
   app.use(
     'api/albums',
     memory({
-      store: [
-        { id: 1, title: 'The Man in Black', artist_id: 1 },
-        { id: 2, title: 'I Wont Back Down', artist_id: 1 },
-        { id: 3, title: 'Life in Nashville', artist_id: 2 }
-      ]
+      store: {
+        1: { id: 1, title: 'The Man in Black', artist_id: 1 },
+        2: { id: 2, title: 'I Wont Back Down', artist_id: 1 },
+        3: { id: 3, title: 'Life in Nashville', artist_id: 2 }
+      }
     })
   );
 
   app.use(
     'api/artists',
     memory({
-      store: [{ id: 1, name: 'Johnny Cash' }, { id: 2, name: 'Patsy Cline' }]
+      store: {
+        1: { id: 1, name: 'Johnny Cash' },
+        2: { id: 2, name: 'Patsy Cline' }
+      }
     })
   );
 
@@ -41,11 +44,11 @@ describe('joinQuery', () => {
   app.use(
     'api/ratings',
     memory({
-      store: [
-        { id: 1, album_id: null, rating: 5 },
-        { id: 2, album_id: 1, rating: 5 },
-        { id: 3, album_id: 2, name: 5 }
-      ]
+      store: {
+        1: { id: 1, album_id: null, rating: 5 },
+        2: { id: 2, album_id: 1, rating: 5 },
+        3: { id: 3, album_id: 2, name: 5 }
+      }
     })
   );
 
