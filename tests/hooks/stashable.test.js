@@ -1,46 +1,27 @@
 const assert = require('assert');
 const feathers = require('@feathersjs/feathers');
 const memory = require('feathers-memory');
-
-const stash = stashFunc => {
-  let stashed = null;
-  return context => {
-    return () => {
-      if (!stashed) {
-        stashed = stashFunc(context);
-      }
-      return stashed;
-    };
-  };
-};
-
-const stashFunc = context => {
-  if (context.id) {
-    return context.service.get(context.id, context.params);
-  }
-
-  const findParams = Object.assign({}, context.params, { paginate: false });
-  return context.service.find(findParams);
-};
-
-const stashable = _options => {
-  const options = Object.assign({ propName: 'stashed', stashFunc }, _options);
-
-  return context => {
-    context.params[options.propName] = stash(options.stashFunc)(context);
-    return context;
-  };
-};
+const stashable = require('../../src/hooks/stashable');
 
 describe('stashable', () => {
   const app = feathers();
 
-  const JC = { id: 1, title: 'The Man in Black', artist_id: 1 };
+  app.use(
+    'api/albums',
+    memory({
+      store: {
+        1: { id: 1, title: 'The Man in Black', artist_id: 1 },
+        2: { id: 2, title: 'The Man in Black', artist_id: 1 }
+      }
+    })
+  );
 
-  app.use('api/albums', memory({ store: { 1: JC } }));
+  const service = app.service('api/albums');
 
   it('Returns a stashed value', async () => {
     const context = {
+      type: 'before',
+      method: 'patch',
       app,
       id: 1,
       service: app.service('api/albums'),
@@ -51,13 +32,13 @@ describe('stashable', () => {
 
     const stashed = await newContext.params.stashed();
 
-    await assert.deepStrictEqual(stashed, JC);
-
-    calledCount = 0;
+    await assert.deepStrictEqual(stashed, service.store['1']);
   });
 
   it('Only calls the stash function once', async () => {
     const context = {
+      type: 'before',
+      method: 'patch',
       app,
       id: 1,
       service: app.service('api/albums'),
@@ -74,6 +55,8 @@ describe('stashable', () => {
 
   it('Can use a custom `propName` option', async () => {
     const context = {
+      type: 'before',
+      method: 'patch',
       app,
       id: 1,
       service: app.service('api/albums'),
@@ -87,18 +70,39 @@ describe('stashable', () => {
 
   it('Can use a custom `stashFunc` option', async () => {
     const context = {
+      type: 'before',
+      method: 'patch',
       app,
       id: 1,
       service: app.service('api/albums'),
       params: {}
     };
 
-    const stashFunc = context => ({ stashed: true });
+    const stashFunc = async context => ({ stashed: true });
 
     const newContext = await stashable({ stashFunc })(context);
 
-    const stashed = newContext.params.stashed();
+    const stashed = await newContext.params.stashed();
 
     await assert.deepStrictEqual(stashed, { stashed: true });
+  });
+
+  it('Handles multi: true', async () => {
+    const context = {
+      type: 'before',
+      method: 'patch',
+      app,
+      id: null,
+      service: app.service('api/albums'),
+      params: {
+        query: { id: { $in: [1, 2] } }
+      }
+    };
+
+    const newContext = await stashable()(context);
+
+    const stashed = await newContext.params.stashed();
+
+    await assert.deepStrictEqual(stashed.length, 2);
   });
 });
