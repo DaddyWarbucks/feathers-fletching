@@ -12,12 +12,12 @@ const stash = (stashFunc, context) => {
 };
 
 const stashFunc = context => {
-  if (context.id) {
-    return context.service.get(context.id, context.params);
+  if (context.id === null) {
+    const findParams = Object.assign({}, context.params, { paginate: false });
+    return context.service.find(findParams);
   }
 
-  const findParams = Object.assign({}, context.params, { paginate: false });
-  return context.service.find(findParams);
+  return context.service.get(context.id, context.params);
 };
 
 module.exports = _options => {

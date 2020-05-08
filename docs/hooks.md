@@ -1229,3 +1229,169 @@ const attachStripeResult = async context => {
 // stripe key. Uh Oh! By using the sanitizeResult hook, we safeguard
 // ourselves against this type of mistake.
 ```
+
+## stashable
+
+Stash the result of an update, patch, or remove before mutating it.
+
+Stashing a document in a hook so that it can be compared is a common practice. This is accomplished easily enough and hardly worth a custom hook. But, when working with multiple hooks that may or may not need that stashed record, it becomes difficult keep track of if the document has already been stashed or not. The `stashable` hook stashes a memoized version of the promise, rather than the result. This allows you to call `const stashed = await context.params.stashed()` multiple times but only actually call the underlying stash function once.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| yes | no | update, patch, remove | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| option.propName | String | `stashed` | false | The name of the property on context.params to place the stashed function |
+| option.stashFunc | Function/Promise | [See source](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.js)  | false | A function/promise that returns the document/documents to be stashed |
+
+
+```js
+import { stashable } from 'feathers-fletching';
+
+const stashed = stashable();
+
+app.service('api/albums').hooks({
+  before: {
+    update: [stashed, hook1, hook2],
+    patch: [stashed, hook1, hook2],
+    remove: [stashed, hook1, hook2],
+  }
+});
+
+const hook1 = async context => {
+  // Calls the stash function for the first time
+  const stashed = await context.params.stashed();
+}
+
+const hook2 = async context => {
+  // Returns a memoized promise (does not call DB again)
+  const stashed = await context.params.stashed();
+}
+```
+
+
+```js
+// Example of how this would traditionally be accomplished
+
+const stash = async context => {
+  // Assign the document to params so that it can be referenced later
+  context.params.stashed = await context.service.get(context.id);
+  return context;
+}
+
+const hook1 = context => {
+  if (context.params.someCondition) {
+    const stashed = context.params.stashed;
+    // Do something with stashed record
+  }
+  return context;
+}
+
+const hook2 = context => {
+  if (context.params.someOtherCondition) {
+    const stashed = context.params.stashed;
+    // Use the stashed record to do somehting else
+  }
+  return context;
+}
+
+// So what's wrong with this? It seems like it would work well enough.
+// And it does! But what happens when neither `someCondition` or
+// `someOtherCondition` are met? We have wasted a call to the
+// stash function because that stashed record was never used. We
+// can make this better...
+
+const hook1 = async context => {
+  if (context.params.someCondition) {
+    // Move the call to the DB here in the first hook where
+    // we first need it
+    context.params.stashed = await context.service.get(context.id);
+    // Do something with stashed record
+  }
+  return context;
+}
+
+const hook2 = async context => {
+  if (context.params.someOtherCondition) {
+
+    // Geww...this is gross. The record may or may not be stashed
+    // yet so we have to check and stash it if not.
+    if (!context.params.stashed) {
+      context.params.stashed = await context.service.get(context.id);
+    }
+
+    // Use the stashed record to do somehting else
+  }
+  return context;
+}
+
+// This is better for performance because we only stash the record when/if
+// we need it. But, the code is bulky and specific. With a long chain of
+// hooks this becomes cumbersome and unweildy.
+
+
+// Example with the same hooks using the stashable hook. This hook allows
+// you to call the stash function as many times as you would like in as
+// many hooks as you need, but it only ever actually calls the DB on
+// the first invocation of the function. This allows you to create
+// much cleaner and more readable code where you call the stash
+// function wherever you need it, without the performance penalty
+// of calling the DB multiple times
+
+const hook1 = context => {
+  if (context.params.someCondition) {
+    // This calls the DB for the first time
+    const stashed = await context.params.stashed();
+    // Do something with stashed record
+  }
+  return context;
+}
+
+const hook2 = context => {
+  if (context.params.someOtherCondition) {
+    // No need to check if the stash function has been called before.
+    // If it has already been called via hook1 then the DB is not
+    // called again. If it has not already been called, then the DB
+    // is called for the first time
+    const stashed = await context.params.stashed();
+    // Use the stashed record to do somehting else
+  }
+  return context;
+}
+
+```
+
+```js
+// Use the `propName` option to assign the function to a different property.
+const stashed = stashable({ propName: 'myProp' });
+
+const hook1 = context => {
+  const stashed = await context.params.myProp();
+}
+```
+
+```js
+// Use the `stashFunc` to use a different stash function or params.
+
+// Default stashFunc. This function uses the same params as the parent.
+// It also handles multi:true via the `context.id === null` block
+const stashFunc = context => {
+  if (context.id === null) {
+    const findParams = Object.assign({}, context.params, { paginate: false });
+    return context.service.find(findParams);
+  }
+
+  return context.service.get(context.id, context.params);
+};
+
+// You can also pass in your own function/params to handle the
+// stashing of the document how you see fit
+const myStashFunc = context => {};
+
+const stashed = stashable({ stashFunc: myStashFunc });
+```
