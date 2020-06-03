@@ -10,3 +10,4 @@ module.exports.rateLimit = require('./rateLimit');
 module.exports.sanitizeError = require('./sanitizeError');
 module.exports.sanitizeResult = require('./sanitizeResult');
 module.exports.sequelizeJoinQuery = require('./sequelizeJoinQuery');
+module.exports.stashable = require('./stashable');
