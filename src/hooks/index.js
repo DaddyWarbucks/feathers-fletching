@@ -9,3 +9,4 @@ module.exports.contextCache = require('./contextCache');
 module.exports.rateLimit = require('./rateLimit');
 module.exports.sanitizeError = require('./sanitizeError');
 module.exports.sanitizeResult = require('./sanitizeResult');
+module.exports.sequelizeJoinQuery = require('./sequelizeJoinQuery');
