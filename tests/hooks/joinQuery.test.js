@@ -298,4 +298,66 @@ describe('joinQuery', () => {
       id: { $in: [1, 2] }
     });
   });
+
+  it('Can be used in an $or query', async () => {
+    const context = {
+      app,
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          $or: [
+            { title: 'The Man in Black' },
+            { artist: { name: 'Patsy Cline' } }
+          ]
+        }
+      }
+    }
+
+    const newContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(context)
+
+    await assert.deepStrictEqual(newContext.params.query, {
+      $or: [
+        { title: 'The Man in Black' },
+        { artist_id: { $in: [2] } }
+      ]
+    })
+  })
+
+  it('Can be used in an $or query and dot.path', async () => {
+    const context = {
+      app,
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          $or: [
+            { title: 'The Man in Black' },
+            { 'artist.name': 'Patsy Cline' }
+          ]
+        }
+      }
+    }
+
+    const newContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(context)
+
+    await assert.deepStrictEqual(newContext.params.query, {
+      $or: [
+        { title: 'The Man in Black' },
+        { artist_id: { $in: [2] } }
+      ]
+    })
+  })
 });
