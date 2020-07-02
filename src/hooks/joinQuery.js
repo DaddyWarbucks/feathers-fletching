@@ -83,27 +83,11 @@ const afterHook = (context, options) => {
     const sorted = [...results];
 
     if (baseQuery) {
-      const joinKeys = Object.keys(baseQuery);
-      joinKeys.forEach(key => {
-        const { query, foreignKeys } = baseQuery[key];
-        const option = options[key];
-        if (query.$sort) {
-          sortResults(foreignKeys, sorted, option);
-        }
-      });
+      sortByJoinQuery(baseQuery, sorted, options);
     }
 
     if (orQuery) {
-      orQuery.forEach(q => {
-        const joinKeys = Object.keys(q);
-        joinKeys.forEach(key => {
-          const { query, foreignKeys } = q[key];
-          const option = options[key];
-          if (query.$sort) {
-            sortResults(foreignKeys, sorted, option);
-          }
-        });
-      });
+      orQuery.forEach(query => sortByJoinQuery(query, sorted, options));
     }
 
     replaceResults(context, sorted);
@@ -277,6 +261,17 @@ const makeForeignKeys = (matches, option) => {
   //   }
   // });
   // return foreignKeys;
+};
+
+const sortByJoinQuery = (q, results, options) => {
+  const joinKeys = Object.keys(q);
+  joinKeys.forEach(key => {
+    const { query, foreignKeys } = q[key];
+    const option = options[key];
+    if (query.$sort) {
+      sortResults(foreignKeys, results, option);
+    }
+  });
 };
 
 const sortResults = (foreignKeys, results, option) => {
