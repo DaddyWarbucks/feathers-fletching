@@ -594,6 +594,14 @@ const albums = await app.service('api/albums').find({
   }
 });
 
+// You can also use dot.syntax instead of objects. This example
+// is the same as the `artist: { name: 'Johnny Cash' }` above
+const albums = await app.service('api/albums').find({
+  query: {
+    'artist.name': 'Johnny Cash'
+  }
+});
+
 /*
   context.params.query = {
     artist_id: { $in: [123] }
@@ -606,6 +614,18 @@ const albums = await app.service('api/albums').find({
     { title: 'I Wont Back Down', artist_id: 123 }
   ]
 */
+```
+
+```js
+// You can also use $or queries
+const albums = await app.service('api/albums').find({
+  query: {
+    $or: [
+      { 'artist.name': 'Johnny Cash' },
+      { 'artist.name': 'Johnny Paycheck' },
+    ]
+  }
+});
 ```
 
 ```js
