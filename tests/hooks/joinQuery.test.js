@@ -104,9 +104,7 @@ describe('joinQuery', () => {
     });
   });
 
-  it('Does not join query if no matches', async () => {
-    // TODO: This should really throw a not found...?
-    // Query: which albums have an artist with name 'Elvis'
+  it('Throws NotFound error if no matches', async () => {
     const context = {
       app,
       type: 'before',
@@ -118,7 +116,7 @@ describe('joinQuery', () => {
       }
     };
 
-    const newContext = await joinQuery({
+    const shouldReject = joinQuery({
       artist: {
         service: 'api/artists',
         targetKey: 'id',
@@ -126,7 +124,30 @@ describe('joinQuery', () => {
       }
     })(context);
 
-    await assert.deepStrictEqual(newContext.params.query, {});
+    await assert.rejects(shouldReject, { name: 'NotFound' });
+  });
+
+  it('Throws NotFound error if no $or matches', async () => {
+    const context = {
+      app,
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          $or: [{ artist: { name: 'Elvis' } }]
+        }
+      }
+    };
+
+    const shouldReject = joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(context);
+
+    await assert.rejects(shouldReject, { name: 'NotFound' });
   });
 
   it('Can use a custom makeKey option', async () => {
@@ -239,6 +260,50 @@ describe('joinQuery', () => {
           $sort: {
             'artist.name': 1
           }
+        }
+      }
+    };
+
+    const newBeforeContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(beforeContext);
+
+    const afterContext = {
+      type: 'after',
+      method: 'find',
+      result: [
+        { id: 3, title: 'Life in Nashville', artist_id: 2 },
+        { id: 2, title: 'I Wont Back Down', artist_id: 1 }
+      ]
+    };
+
+    const newAfterContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(Object.assign(newBeforeContext, afterContext));
+
+    await assert.deepStrictEqual(newAfterContext.result, [
+      { id: 2, title: 'I Wont Back Down', artist_id: 1 },
+      { id: 3, title: 'Life in Nashville', artist_id: 2 }
+    ]);
+  });
+
+  it('Can $sort on joined $or queries', async () => {
+    // Query: $sort albums by artist name
+    const beforeContext = {
+      app,
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          $or: [{ artist: { $sort: { name: 1 } } }]
         }
       }
     };

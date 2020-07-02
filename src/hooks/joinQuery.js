@@ -1,20 +1,18 @@
-const { GeneralError } = require('@feathersjs/errors');
+const { GeneralError, NotFound } = require('@feathersjs/errors');
 const { skippable } = require('../lib');
 const { hasQuery, getResults, replaceResults } = require('../lib/utils');
 
 module.exports = _options => {
-  const options = Object.assign({}, _options);
+  const options = { ..._options };
 
   Object.keys(options).forEach(key => {
-    options[key] = Object.assign(
-      {
-        makeKey: key => key,
-        makeParams: (defaultParams, context) => {
-          return defaultParams;
-        }
+    options[key] = {
+      makeKey: key => key,
+      makeParams: (defaultParams, context) => {
+        return defaultParams;
       },
-      options[key]
-    );
+      ...options[key]
+    };
   });
 
   return skippable('joinQuery', async context => {
@@ -31,41 +29,82 @@ module.exports = _options => {
 };
 
 const beforeHook = async (context, options) => {
-  const query = Object.assign({}, context.params.query);
+  const { $or: orQuery = [], ...baseQuery } = context.params.query;
 
-  await applyJoinQueries(query, options, context);
+  const allQueries = {};
 
-  if (Array.isArray(query.$or) && query.$or.length) {
-    await Promise.all(
-      query.$or.map(orQuery => applyJoinQueries(orQuery, options, context))
-    );
-  }
+  const [toplevel, ...$or] = await Promise.all(
+    [baseQuery, ...orQuery].map(async (query, index) => {
+      const merged = mergeOptionDotPaths(query, options);
+      const joinKeys = getJoinKeys(merged, options);
 
-  context.params.query = query;
+      if (!joinKeys.length) {
+        return query;
+      }
+
+      const { joinQueries, joinParams } = await getJoinQueries(
+        joinKeys,
+        merged,
+        options,
+        context
+      );
+
+      if (index === 0) {
+        allQueries.baseQuery = { ...joinParams };
+      } else {
+        allQueries.orQuery = [...(allQueries.orQuery || []), joinParams];
+      }
+
+      const cleanedQuery = cleanQuery(query, joinKeys, options);
+      const mergedQuery = mergeQuery(cleanedQuery, joinQueries);
+
+      return mergedQuery;
+    })
+  );
+
+  throwIfNotFound(allQueries);
+
+  context.params.joinQuery = allQueries;
+
+  context.params.query = $or.length ? { ...toplevel, $or } : toplevel;
 
   return context;
 };
 
 const afterHook = (context, options) => {
-  const { joinQuery } = context.params;
-
-  if (!joinQuery) {
+  if (!context.params.joinQuery) {
     return context;
   }
 
+  const { baseQuery, orQuery } = context.params.joinQuery;
   const results = getResults(context);
 
   if (Array.isArray(results)) {
-    const joinKeys = Object.keys(joinQuery);
     const sorted = [...results];
 
-    joinKeys.forEach(key => {
-      const { query, foreignKeys } = joinQuery[key];
-      const option = options[key];
-      if (query.$sort) {
-        sortResults(foreignKeys, sorted, option);
-      }
-    });
+    if (baseQuery) {
+      const joinKeys = Object.keys(baseQuery);
+      joinKeys.forEach(key => {
+        const { query, foreignKeys } = baseQuery[key];
+        const option = options[key];
+        if (query.$sort) {
+          sortResults(foreignKeys, sorted, option);
+        }
+      });
+    }
+
+    if (orQuery) {
+      orQuery.forEach(q => {
+        const joinKeys = Object.keys(q);
+        joinKeys.forEach(key => {
+          const { query, foreignKeys } = q[key];
+          const option = options[key];
+          if (query.$sort) {
+            sortResults(foreignKeys, sorted, option);
+          }
+        });
+      });
+    }
 
     replaceResults(context, sorted);
   }
@@ -80,7 +119,7 @@ const afterHook = (context, options) => {
 // queries even if not a joinQuery, such as querying mongoose subdocs
 const isOptionDotPath = (string, options) => {
   const optionKey = string.split('.').length > 1 && string.split('.')[0];
-  return optionKey && Object.keys(options).includes(optionKey);
+  return optionKey && !!options[optionKey];
 };
 
 // Convert queries like {'artist.name': 'JC'} to { artist: { name: 'JC' } }
@@ -120,79 +159,49 @@ const getJoinKeys = (query, options) => {
   return Object.keys(query).filter(key => !!options[key]);
 };
 
-const getJoinQueries = (joinKeys, mergedQuery, options, context) => {
-  return Promise.all(
-    joinKeys
-      .map(async key => {
-        const option = options[key];
-        const optionQuery = mergedQuery[key];
+const getJoinQueries = async (joinKeys, mergedQuery, options, context) => {
+  const joinParams = {};
 
-        const defaultParams = {
-          paginate: false,
-          query: Object.assign({ $select: [option.targetKey] }, optionQuery)
-        };
+  const joinQueries = await Promise.all(
+    joinKeys.map(async key => {
+      const option = options[key];
+      const optionQuery = mergedQuery[key];
 
-        const makeParams = await option.makeParams(defaultParams, context);
+      const defaultParams = {
+        paginate: false,
+        query: { $select: [option.targetKey], ...optionQuery }
+      };
 
-        const result = await context.app
-          .service(option.service)
-          .find(makeParams);
+      const makeParams = await option.makeParams(defaultParams, context);
 
-        // Even though `paginate: false` by default and matched should be arr
-        // the dev may have used some hook to shape it back to a result obj
-        // or may have enabled pagination via makeParams
-        const matches = result.data || result;
+      const result = await context.app.service(option.service).find(makeParams);
 
-        const foreignKeys = makeForeignKeys(matches, option);
+      // Even though `paginate: false` by default and matched should be arr
+      // the dev may have used some hook to shape it back to a result obj
+      // or may have enabled pagination via makeParams
+      const matches = result.data || result;
 
-        if (foreignKeys.length > 0) {
-          context.params.joinQuery = Object.assign(
-            {},
-            context.params.joinQuery,
-            {
-              [key]: {
-                query: optionQuery,
-                foreignKeys
-              }
-            }
-          );
-          return {
-            [option.foreignKey]: { $in: foreignKeys }
-          };
-        } else {
-          // TODO: This should throw a NotFound, right?
-          console.log('Not Found');
-          return undefined;
+      const foreignKeys = makeForeignKeys(matches, option);
+
+      Object.assign(joinParams, {
+        [key]: {
+          query: optionQuery,
+          foreignKeys
         }
-      })
-      .filter(joinQuery => {
-        return joinQuery !== undefined;
-      })
+      });
+
+      return {
+        [option.foreignKey]: { $in: foreignKeys }
+      };
+    })
   );
+
+  return { joinQueries, joinParams };
 };
 
-const applyJoinQueries = async (query, options, context) => {
-  const mergedQuery = mergeOptionDotPaths(query, options);
+const cleanQuery = (_query, joinKeys, options) => {
+  const { ...query } = _query;
 
-  const joinKeys = getJoinKeys(mergedQuery, options);
-
-  if (joinKeys.length) {
-    const joinQueries = await getJoinQueries(
-      joinKeys,
-      mergedQuery,
-      options,
-      context
-    );
-
-    cleanQuery(query, joinKeys, options);
-
-    mergeQuery(query, joinQueries);
-  }
-};
-
-// Remove any invalid queries (aka joinQueries) suchs as
-// {'artist.name': 'JC'} or { artist: { name: 'JC' } }
-const cleanQuery = (query, joinKeys, options) => {
   joinKeys.forEach(key => {
     delete query[key];
   });
@@ -213,13 +222,34 @@ const cleanQuery = (query, joinKeys, options) => {
       delete query.$sort;
     }
   }
+
+  return query;
 };
 
-// Merge the new joinQueries onto the main query
-const mergeQuery = (query, joinQueries) => {
+const mergeQuery = (_query, joinQueries) => {
+  const { ...query } = _query;
+
   joinQueries.forEach(joinQuery => {
-    Object.assign(query || {}, joinQuery);
+    Object.assign(query, joinQuery);
   });
+
+  return query;
+};
+
+throwIfNotFound = ({ baseQuery, orQuery }) => {
+  // All joinQueries in the baseQuery must have returned results
+  if (baseQuery && !joinWasFound(baseQuery)) {
+    throw new NotFound();
+  }
+
+  // At least one joinQuery in the orQuery has to have returned results
+  if (orQuery && !orQuery.find(joinWasFound)) {
+    throw new NotFound();
+  }
+};
+
+const joinWasFound = query => {
+  return Object.values(query).every(value => value.foreignKeys.length);
 };
 
 // Because the matches/foreignKeys arrays are un-paginated and
