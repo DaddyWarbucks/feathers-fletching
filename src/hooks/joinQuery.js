@@ -35,63 +35,84 @@ const beforeHook = async (context, options) => {
 
   const mergedQuery = mergeOptionDotPaths(query, options);
 
-  const joinKeys = Object.keys(mergedQuery).filter(key => {
-    return Object.keys(options).includes(key);
-  });
+  const getJoinKeys = mergedQuery =>
+    Object.keys(mergedQuery).filter(key => {
+      return Object.keys(options).includes(key);
+    });
 
-  if (!joinKeys.length) {
-    return context;
-  }
+  const getJoinQueries = (joinKeys, mergedQuery) => {
+    if (!joinKeys.length) {
+      return [];
+    }
 
-  const joinQueries = await Promise.all(
-    joinKeys
-      .map(async key => {
-        const option = options[key];
-        const optionQuery = mergedQuery[key];
+    return Promise.all(
+      joinKeys
+        .map(async key => {
+          const option = options[key];
+          const optionQuery = mergedQuery[key];
 
-        const defaultParams = {
-          paginate: false,
-          query: Object.assign({ $select: [option.targetKey] }, optionQuery)
-        };
-
-        const makeParams = await option.makeParams(defaultParams, context);
-
-        const result = await context.app
-          .service(option.service)
-          .find(makeParams);
-
-        // Even though `paginate: false` and matches should be an array,
-        // the dev may have used some hook to shape it back to a result obj
-        const matches = result.data || result;
-
-        const foreignKeys = makeForeignKeys(matches, option);
-
-        if (foreignKeys.length > 0) {
-          context.params.joinQuery = Object.assign(
-            {},
-            context.params.joinQuery,
-            {
-              [key]: {
-                query: optionQuery,
-                foreignKeys
-              }
-            }
-          );
-          return {
-            [option.foreignKey]: { $in: foreignKeys }
+          const defaultParams = {
+            paginate: false,
+            query: Object.assign({ $select: [option.targetKey] }, optionQuery)
           };
-        } else {
-          return undefined;
-        }
-      })
-      .filter(joinQuery => {
-        return joinQuery !== undefined;
-      })
-  );
 
-  cleanQuery(query, joinKeys, options);
+          const makeParams = await option.makeParams(defaultParams, context);
+
+          const result = await context.app
+            .service(option.service)
+            .find(makeParams);
+
+          // Even though `paginate: false` and matches should be an array,
+          // the dev may have used some hook to shape it back to a result obj
+          const matches = result.data || result;
+
+          const foreignKeys = makeForeignKeys(matches, option);
+
+          if (foreignKeys.length > 0) {
+            context.params.joinQuery = Object.assign(
+              {},
+              context.params.joinQuery,
+              {
+                [key]: {
+                  query: optionQuery,
+                  foreignKeys
+                }
+              }
+            );
+            return {
+              [option.foreignKey]: { $in: foreignKeys }
+            };
+          } else {
+            return undefined;
+          }
+        })
+        .filter(joinQuery => {
+          return joinQuery !== undefined;
+        })
+    );
+  };
+
+  const topJoinKeys = getJoinKeys(mergedQuery);
+  const joinQueries = await getJoinQueries(topJoinKeys, mergedQuery);
+
+  cleanQuery(query, topJoinKeys, options);
 
   mergeQuery(query, joinQueries);
+
+  // handle joins within the toplevel $or
+  if (Array.isArray(query.$or)) {
+    for (let orQuery of query.$or) {
+      let mergedOrQuery = mergeOptionDotPaths(orQuery, options);
+
+      let joinKeys = getJoinKeys(mergedOrQuery);
+
+      let joinQueries = await getJoinQueries(joinKeys, mergedOrQuery);
+
+      cleanQuery(orQuery, joinKeys, options);
+
+      mergeQuery(orQuery, joinQueries);
+    }
+  }
 
   context.params.query = query;
 
