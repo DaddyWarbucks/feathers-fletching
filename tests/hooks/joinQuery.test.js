@@ -105,6 +105,7 @@ describe('joinQuery', () => {
   });
 
   it('Does not join query if no matches', async () => {
+    // TODO: This should really throw a not found...?
     // Query: which albums have an artist with name 'Elvis'
     const context = {
       app,
@@ -312,7 +313,7 @@ describe('joinQuery', () => {
           ]
         }
       }
-    }
+    };
 
     const newContext = await joinQuery({
       artist: {
@@ -320,15 +321,12 @@ describe('joinQuery', () => {
         targetKey: 'id',
         foreignKey: 'artist_id'
       }
-    })(context)
+    })(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
-      $or: [
-        { title: 'The Man in Black' },
-        { artist_id: { $in: [2] } }
-      ]
-    })
-  })
+      $or: [{ title: 'The Man in Black' }, { artist_id: { $in: [2] } }]
+    });
+  });
 
   it('Can be used in an $or query and dot.path', async () => {
     const context = {
@@ -337,13 +335,10 @@ describe('joinQuery', () => {
       method: 'find',
       params: {
         query: {
-          $or: [
-            { title: 'The Man in Black' },
-            { 'artist.name': 'Patsy Cline' }
-          ]
+          $or: [{ title: 'The Man in Black' }, { 'artist.name': 'Patsy Cline' }]
         }
       }
-    }
+    };
 
     const newContext = await joinQuery({
       artist: {
@@ -351,13 +346,43 @@ describe('joinQuery', () => {
         targetKey: 'id',
         foreignKey: 'artist_id'
       }
-    })(context)
+    })(context);
+
+    await assert.deepStrictEqual(newContext.params.query, {
+      $or: [{ title: 'The Man in Black' }, { artist_id: { $in: [2] } }]
+    });
+  });
+
+  it('Can handle multiple $or queries', async () => {
+    const context = {
+      app,
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          $or: [
+            { title: 'The Man in Black' },
+            { 'artist.name': 'Patsy Cline' },
+            { 'artist.name': 'Johnny Cash' }
+          ]
+        }
+      }
+    };
+
+    const newContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id'
+      }
+    })(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
       $or: [
         { title: 'The Man in Black' },
-        { artist_id: { $in: [2] } }
+        { artist_id: { $in: [2] } },
+        { artist_id: { $in: [1] } }
       ]
-    })
-  })
+    });
+  });
 });
