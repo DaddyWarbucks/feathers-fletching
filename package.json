@@ -21,9 +21,9 @@
     "mocha": "mocha tests --recursive --exit",
     "mocha:watch": "mocha tests --recursive --watch tests/*.test.js",
     "test": "npm run lint && npm run mocha",
-    "release:patch": "npm version patch && npm publish",
-    "release:minor": "npm version minor && npm publish",
-    "release:major": "npm version major && npm publish"
+    "release:patch": "npm run test && npm version patch && npm publish",
+    "release:minor": "npm run test && npm version minor && npm publish",
+    "release:major": "npm run test && npm version major && npm publish"
   },
   "dependencies": {
     "@feathersjs/errors": "^4.3.4",
