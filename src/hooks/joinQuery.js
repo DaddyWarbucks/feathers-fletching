@@ -220,7 +220,7 @@ const mergeQuery = (_query, joinQueries) => {
   return query;
 };
 
-throwIfNotFound = ({ baseQuery, orQuery }) => {
+const throwIfNotFound = ({ baseQuery, orQuery }) => {
   // All joinQueries in the baseQuery must have returned results
   if (baseQuery && !joinWasFound(baseQuery)) {
     throw new NotFound();
