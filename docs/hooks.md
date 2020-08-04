@@ -750,6 +750,12 @@ Ratings.belongsTo(Artists, {
 
 const sequelizeJoin = sequelizeJoinQuery();
 
+app.service('api/albums').hooks({
+  before: {
+    all: [sequelizeJoin]
+  }
+});
+
 // Find albums where the artist's name is Johnny
 // Cash and the artist's rating score is 10
 const albums = await app.service('api/albums').find({
