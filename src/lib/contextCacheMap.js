@@ -1,4 +1,5 @@
 const LRU = require('lru-cache');
+const { stableStringify } = require('./utils');
 
 LRU.prototype.delete = LRU.prototype.del;
 LRU.prototype.clear = LRU.prototype.reset;
@@ -9,7 +10,7 @@ module.exports = class ContextCacheMap {
   }
 
   makeCacheKey(context) {
-    return JSON.stringify({
+    return stableStringify({
       method: context.method,
       id: context.id,
       query: context.params && context.params.query

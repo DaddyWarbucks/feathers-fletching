@@ -21,6 +21,12 @@ module.exports.isPromise = maybePromise => {
   return !!isPromise;
 };
 
+const isObject = maybeObj => {
+  return maybeObj && typeof maybeObj === 'object' && !Array.isArray(maybeObj);
+};
+
+module.exports.isObject = isObject;
+
 module.exports.hasQuery = context => {
   const hasQuery =
     context.params &&
@@ -46,4 +52,23 @@ module.exports.replaceResults = (context, results) => {
   } else {
     context.result = results;
   }
+};
+
+module.exports.stableStringify = obj => {
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === 'function') {
+      throw new Error('Cannot stringify non JSON value');
+    }
+
+    if (isObject(value)) {
+      return Object.keys(value)
+        .sort()
+        .reduce((result, key) => {
+          result[key] = value[key];
+          return result;
+        }, {});
+    }
+
+    return value;
+  });
 };
