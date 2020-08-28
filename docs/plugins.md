@@ -4,7 +4,7 @@ Plugins are functions that are used to configure the app instance and are used v
 
 ## strictRestQuery
 
-Configure the Express query parser to parse string numbers/booleans to proper types as well as handle `null`. When using sockets, the query is parsed via `JSON.parse` which means that the query maintains its types for things like numbers, booleans, null, etc. But when using REST, Express.js uses `qs` to parse query strings and this means that numbers/booleans must be converted to strings and null/empty string are treated the same. This plugin manually sets the underlying `qs` instance to parse query strings more like `JSON.parse` so that queries are parsed exactly the same whether coming from internal, sockets, or rest.
+Configure the Express query parser to parse string numbers/booleans to proper types as well as handle `null`. When using sockets, the query is parsed via `JSON.parse` which means that the query maintains its types for things like numbers, booleans, null, etc. But when using REST, Express.js uses `qs` to parse query strings and this means that numbers/booleans must be converted to strings and null/empty string are treated the same. This plugin manually sets the underlying `qs` instance to parse query strings more like `JSON.parse` so that queries are parsed more similarly coming from internal, sockets, or rest.
 
 By default, Express.js only allows you to minimally configure how queries are parsed via the
 
