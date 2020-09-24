@@ -101,6 +101,7 @@ module.exports.extendTransactionService = Service => {
   return class TransactionService extends Service {
     constructor(options, app) {
       super(options, app);
+      this.options = options;
       this.app = app;
     }
 
