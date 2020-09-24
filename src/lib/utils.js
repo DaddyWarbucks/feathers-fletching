@@ -72,3 +72,21 @@ module.exports.stableStringify = obj => {
     return value;
   });
 };
+
+module.exports.insertHook = (hooks, path, hook) => {
+  const [type, method, position] = path.split('.');
+
+  console.log(type, method, position);
+  const index = Number(position);
+
+  hooks[type] = hooks[type] || {};
+  hooks[type][method] = hooks[type][method] || [];
+
+  if (index === -1) {
+    hooks[type][method].push(hook);
+    return hooks;
+  }
+
+  hooks[type][method].splice(index, 0, hook);
+  return hooks;
+};
