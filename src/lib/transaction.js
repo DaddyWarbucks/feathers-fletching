@@ -12,6 +12,8 @@ module.exports.defaultTransactionFuncs = {
     ctx.stashed = await ctx.service._get(ctx.id, ctx.params);
   },
   rollback: async ctx => {
+    // TODO: Use the ctx.service.id to use the proper model
+    // id instead of just _id
     if (ctx.method === 'create' && ctx.result) {
       return ctx.service._remove(ctx.result._id);
     }
@@ -82,27 +84,27 @@ const getOptions = (params, service) => {
   };
 };
 
-const getCtx = ({ id, data, params, service, method }) => {
+const getCtx = ({ id, data, params, service, method, app }) => {
   return {
     id,
     data,
     params,
     service,
     method,
-    app: service.app,
-    event: service.app.eventMappings[method],
-    path: Object.keys(service.app.services).find(
-      path => service.app.services[path] === service
-    )
+    app,
+    event: app.eventMappings[method],
+    path: Object.keys(app.services).find(path => app.services[path] === service)
   };
 };
 
-module.exports.extendTransactionService = Service => {
+module.exports.extendTransactionService = (Service, app) => {
   return class TransactionService extends Service {
-    constructor(options, app) {
-      super(options, app);
-      this.options = options;
-      this.app = app;
+    constructor({ transaction, ...restOptions }, ...restArgs) {
+      super(restOptions, ...restArgs);
+      this.options = {
+        ...this.options,
+        transaction
+      };
     }
 
     async create(data, params = {}) {
@@ -119,7 +121,8 @@ module.exports.extendTransactionService = Service => {
           data,
           params,
           service: this,
-          method: 'create'
+          method: 'create',
+          app
         });
 
         if (funcs.prep) {
@@ -150,7 +153,8 @@ module.exports.extendTransactionService = Service => {
           data,
           params,
           service: this,
-          method: 'update'
+          method: 'update',
+          app
         });
 
         if (funcs.prep) {
@@ -181,7 +185,8 @@ module.exports.extendTransactionService = Service => {
           data,
           params,
           service: this,
-          method: 'patch'
+          method: 'patch',
+          app
         });
 
         if (funcs.prep) {
@@ -211,7 +216,8 @@ module.exports.extendTransactionService = Service => {
           id,
           params,
           service: this,
-          method: 'remove'
+          method: 'remove',
+          app
         });
 
         if (funcs.prep) {
@@ -229,7 +235,7 @@ module.exports.extendTransactionService = Service => {
   };
 };
 
-module.exports.TransactionManager = class TransactionManager {
+class TransactionManager {
   constructor() {
     this.promises = [];
     this.commits = [];
@@ -248,7 +254,9 @@ module.exports.TransactionManager = class TransactionManager {
       rollbacks: this.rollbacks
     };
   }
-};
+}
+
+module.exports.TransactionManager = TransactionManager;
 
 const setupTransaction = context => {
   if (!context.params.transaction) {
@@ -264,7 +272,7 @@ const setupTransaction = context => {
 module.exports.setupTransaction = setupTransaction;
 
 const rollbackTransaction = async context => {
-  if (context.transactionIsLocal) {
+  if (context.transactionIsLocal && context.params.transaction) {
     const { rollbacks } = await context.params.transaction.resolve();
     for (const rollback of rollbacks.reverse()) {
       await rollback();
@@ -277,7 +285,7 @@ const rollbackTransaction = async context => {
 module.exports.rollbackTransaction = rollbackTransaction;
 
 const commitTransaction = async context => {
-  if (context.transactionIsLocal) {
+  if (context.transactionIsLocal && context.params.transaction) {
     const { commits } = await context.params.transaction.resolve();
     for (const commit of commits) {
       await commit();

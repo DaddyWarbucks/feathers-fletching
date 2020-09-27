@@ -76,7 +76,6 @@ module.exports.stableStringify = obj => {
 module.exports.insertHook = (hooks, path, hook) => {
   const [type, method, position] = path.split('.');
 
-  console.log(type, method, position);
   const index = Number(position);
 
   hooks[type] = hooks[type] || {};
