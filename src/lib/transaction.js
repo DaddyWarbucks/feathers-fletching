@@ -297,18 +297,13 @@ const commitTransaction = async context => {
 
 module.exports.commitTransaction = commitTransaction;
 
-const defaultTransactionHooks = {
-  setupTransaction,
-  rollbackTransaction,
-  commitTransaction
-};
-
 const extendTransactionHooks = (_hooks, transactionHooks = {}) => {
   const hooks = { ..._hooks };
-  const { setupTransaction, rollbackTransaction, commitTransaction } = {
-    ...defaultTransactionHooks,
-    ...transactionHooks
-  };
+  const {
+    setupTransaction,
+    rollbackTransaction,
+    commitTransaction
+  } = transactionHooks;
 
   if (setupTransaction) {
     insertHook(hooks, 'before.create.0', setupTransaction);

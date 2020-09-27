@@ -116,7 +116,7 @@ describe('transaction', () => {
     assert(rolledBack === false);
   });
 
-  it('Extends a Service to include transactions', async () => {
+  it('Extends a Service to include transactions : extendTransactionService', async () => {
     const app = feathers();
     const TransactionService = extendTransactionService(Service, app);
     app.use(
@@ -164,5 +164,87 @@ describe('transaction', () => {
     await service.remove(created.id, {
       transaction: new TransactionManager()
     });
+  });
+
+  it('Extends a set of hooks : extendTransactionHooks', async () => {
+    const myHook = () => { };
+    const hooks = {
+      before: {
+        create: [myHook],
+        update: [myHook],
+        patch: [myHook],
+        remove: [myHook]
+      },
+      after: {
+        create: [myHook],
+        update: [myHook],
+        patch: [myHook],
+        remove: [myHook]
+      },
+      error: {
+        create: [myHook],
+        update: [myHook],
+        patch: [myHook],
+        remove: [myHook]
+      }
+    };
+
+    const newHooks = extendTransactionHooks(hooks, {
+      setupTransaction,
+      commitTransaction,
+      rollbackTransaction
+    });
+
+    Object.values(newHooks.before).forEach(hookArray => {
+      assert(hookArray.indexOf(setupTransaction) === 0);
+    });
+
+    Object.values(newHooks.after).forEach(hookArray => {
+      assert(hookArray.indexOf(commitTransaction) === 1);
+    });
+
+    Object.values(newHooks.error).forEach(hookArray => {
+      assert(hookArray.indexOf(rollbackTransaction) === 0);
+    });
+  });
+
+  it('Handles nesting transactions in multiple services', async () => {
+    const app = feathers();
+    const TransactionService = extendTransactionService(Service, app);
+    app.use(
+      'api/albums',
+      new TransactionService({
+        transaction: defaultTransactionFuncs
+      })
+    );
+
+    app.use(
+      'api/artists',
+      new TransactionService({
+        transaction: defaultTransactionFuncs
+      })
+    );
+
+    const artistsService = app.service('api/artists');
+
+    const createAlbum = async context => {
+      await context.app.service('api/albums').create(
+        {
+          artist_id: context.result.id
+        },
+        {
+          transaction: context.params.transaction
+        }
+      );
+      return context;
+    };
+
+    artistsService.hooks({
+      before: {
+        create: [setupTransaction, createAlbum]
+      }
+    });
+
+    await artistsService.create({ name: 'Johnny Cash' });
   });
 });
