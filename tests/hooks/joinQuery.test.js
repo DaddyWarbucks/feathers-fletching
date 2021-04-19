@@ -10,7 +10,7 @@ describe('joinQuery', () => {
     'api/albums',
     memory({
       store: {
-        1: { id: 1, title: 'The Man in Black', artist_id: 1 },
+        1: { id: 1, title: 'Man in Black', artist_id: 1 },
         2: { id: 2, title: 'I Wont Back Down', artist_id: 1 },
         3: { id: 3, title: 'Life in Nashville', artist_id: 2 }
       }
@@ -373,7 +373,7 @@ describe('joinQuery', () => {
       params: {
         query: {
           $or: [
-            { title: 'The Man in Black' },
+            { title: 'Man in Black' },
             { artist: { name: 'Patsy Cline' } }
           ]
         }
@@ -389,7 +389,7 @@ describe('joinQuery', () => {
     })(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
-      $or: [{ title: 'The Man in Black' }, { artist_id: { $in: [2] } }]
+      $or: [{ title: 'Man in Black' }, { artist_id: { $in: [2] } }]
     });
   });
 
@@ -400,7 +400,7 @@ describe('joinQuery', () => {
       method: 'find',
       params: {
         query: {
-          $or: [{ title: 'The Man in Black' }, { 'artist.name': 'Patsy Cline' }]
+          $or: [{ title: 'Man in Black' }, { 'artist.name': 'Patsy Cline' }]
         }
       }
     };
@@ -414,7 +414,7 @@ describe('joinQuery', () => {
     })(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
-      $or: [{ title: 'The Man in Black' }, { artist_id: { $in: [2] } }]
+      $or: [{ title: 'Man in Black' }, { artist_id: { $in: [2] } }]
     });
   });
 
@@ -426,7 +426,7 @@ describe('joinQuery', () => {
       params: {
         query: {
           $or: [
-            { title: 'The Man in Black' },
+            { title: 'Man in Black' },
             { 'artist.name': 'Patsy Cline' },
             { 'artist.name': 'Johnny Cash' }
           ]
@@ -444,7 +444,7 @@ describe('joinQuery', () => {
 
     await assert.deepStrictEqual(newContext.params.query, {
       $or: [
-        { title: 'The Man in Black' },
+        { title: 'Man in Black' },
         { artist_id: { $in: [2] } },
         { artist_id: { $in: [1] } }
       ]

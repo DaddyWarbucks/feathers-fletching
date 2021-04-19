@@ -3,7 +3,7 @@ const contextCache = require('../../src/hooks/contextCache');
 const ContextCacheMap = require('../../src/lib/contextCacheMap');
 
 describe('contextCache', () => {
-  const result1 = { id: 1, title: 'The Man in Black' };
+  const result1 = { id: 1, title: 'Man in Black' };
   const result2 = { id: 2, title: 'I wont Back Down' };
 
   it('Returns from the cache in before hook', async () => {

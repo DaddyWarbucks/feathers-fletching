@@ -10,7 +10,7 @@ describe('ServiceLoader', () => {
     'api/albums',
     memory({
       store: {
-        1: { id: 1, alt_id: 1, title: 'The Man in Black', artist_id: 1 },
+        1: { id: 1, alt_id: 1, title: 'Man in Black', artist_id: 1 },
         2: { id: 2, alt_id: 2, title: 'I Wont Back Down', artist_id: 1 },
         3: { id: 3, alt_id: 3, title: 'Life in Nashville', artist_id: 2 }
       }
@@ -50,13 +50,13 @@ describe('ServiceLoader', () => {
   });
 
   it('Creates a get() loader with same id and params', async () => {
-    await serviceLoader.get(1, { query: { title: 'The Man in Black' } });
-    await serviceLoader.get(1, { query: { title: 'The Man in Black' } });
+    await serviceLoader.get(1, { query: { title: 'Man in Black' } });
+    await serviceLoader.get(1, { query: { title: 'Man in Black' } });
     assert.deepEqual(serviceLoader.getCache.size, 1);
   });
 
   it('Creates a get() loader with same id and different params', async () => {
-    await serviceLoader.get(1, { query: { title: 'The Man in Black' } });
+    await serviceLoader.get(1, { query: { title: 'Man in Black' } });
     await serviceLoader.get(1, { query: { artist_id: 1 } });
     assert.deepEqual(serviceLoader.getCache.size, 2);
   });
@@ -70,7 +70,7 @@ describe('ServiceLoader', () => {
     let called = false;
     await serviceLoader.get(
       1,
-      { query: { title: 'The Man in Black' } },
+      { query: { title: 'Man in Black' } },
       {
         myFunc: () => {
           called = true;
@@ -82,10 +82,10 @@ describe('ServiceLoader', () => {
 
   it('get() loader loads the proper value', async () => {
     const result1 = await service.get(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     const result2 = await serviceLoader.get(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     assert.deepEqual(result1, result2);
   });
@@ -106,7 +106,7 @@ describe('ServiceLoader', () => {
   it('get() loader can be cleared progressively', async () => {
     await serviceLoader.get(1);
     await serviceLoader.get(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     assert.deepEqual(serviceLoader.getCache.size, 2);
     serviceLoader.clearGet(1);
@@ -116,11 +116,11 @@ describe('ServiceLoader', () => {
   it('get() loader can be cleared progressively by params', async () => {
     await serviceLoader.get(1);
     await serviceLoader.get(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     assert.deepEqual(serviceLoader.getCache.size, 2);
     serviceLoader.clearGet(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     assert.deepEqual(serviceLoader.getCache.size, 1);
   });
@@ -134,13 +134,13 @@ describe('ServiceLoader', () => {
   });
 
   it('Creates a find() loader with same params', async () => {
-    await serviceLoader.find({ query: { title: 'The Man in Black' } });
-    await serviceLoader.find({ query: { title: 'The Man in Black' } });
+    await serviceLoader.find({ query: { title: 'Man in Black' } });
+    await serviceLoader.find({ query: { title: 'Man in Black' } });
     assert.deepEqual(serviceLoader.findCache.size, 1);
   });
 
   it('Creates a find() loader with different params', async () => {
-    await serviceLoader.find({ query: { title: 'The Man in Black' } });
+    await serviceLoader.find({ query: { title: 'Man in Black' } });
     await serviceLoader.find({ query: { title: 'I Wont Back Down' } });
     assert.deepEqual(serviceLoader.findCache.size, 2);
   });
@@ -153,7 +153,7 @@ describe('ServiceLoader', () => {
   it('Passes extra params to find() loader', async () => {
     let called = false;
     await serviceLoader.find(
-      { query: { title: 'The Man in Black' } },
+      { query: { title: 'Man in Black' } },
       {
         myFunc: () => {
           called = true;
@@ -165,31 +165,31 @@ describe('ServiceLoader', () => {
 
   it('find() loader loads the proper value', async () => {
     const result1 = await service.find({
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     const result2 = await serviceLoader.find({
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     assert.deepEqual(result1, result2);
   });
 
   it('find() loader can be cleared by params', async () => {
     await serviceLoader.find({
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     await serviceLoader.find({
       query: { title: 'I Wont Back Down' }
     });
     assert.deepEqual(serviceLoader.findCache.size, 2);
     serviceLoader.clearFind({
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     assert.deepEqual(serviceLoader.findCache.size, 1);
   });
 
   it('find() loader can be cleared all', async () => {
     await serviceLoader.find({
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     await serviceLoader.find({
       query: { title: 'I Wont Back Down' }
@@ -212,13 +212,13 @@ describe('ServiceLoader', () => {
 
   it('Creates a load() loader with different params', async () => {
     await serviceLoader.load(1);
-    await serviceLoader.load(1, { query: { title: 'The Man in Black' } });
+    await serviceLoader.load(1, { query: { title: 'Man in Black' } });
     assert.deepEqual(serviceLoader.loadCache.size, 2);
   });
 
   it('Creates a load() loader with same params', async () => {
-    await serviceLoader.load(1, { query: { title: 'The Man in Black' } });
-    await serviceLoader.load(1, { query: { title: 'The Man in Black' } });
+    await serviceLoader.load(1, { query: { title: 'Man in Black' } });
+    await serviceLoader.load(1, { query: { title: 'Man in Black' } });
     assert.deepEqual(serviceLoader.loadCache.size, 1);
   });
 
@@ -232,7 +232,7 @@ describe('ServiceLoader', () => {
     let called = false;
     await serviceLoader.load(
       1,
-      { query: { title: 'The Man in Black' } },
+      { query: { title: 'Man in Black' } },
       {
         myFunc: () => {
           called = true;
@@ -250,10 +250,10 @@ describe('ServiceLoader', () => {
 
   it('load() loader loads the proper value with params', async () => {
     const result1 = await service.get(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     const result2 = await serviceLoader.load(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     assert.deepEqual(result1, result2);
   });
@@ -269,11 +269,11 @@ describe('ServiceLoader', () => {
   it('load() loader can be cleared progressively', async () => {
     await serviceLoader.load(1);
     await serviceLoader.load(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     const loader1 = serviceLoader.loadCache.get('["id",null]');
     const loader2 = serviceLoader.loadCache.get(
-      '["id",{"query":{"title":"The Man in Black"}}]'
+      '["id",{"query":{"title":"Man in Black"}}]'
     );
     assert.deepEqual(loader1._promiseCache.size, 1);
     assert.deepEqual(loader2._promiseCache.size, 1);
@@ -285,16 +285,16 @@ describe('ServiceLoader', () => {
   it('load() loader can be cleared progressively with params', async () => {
     await serviceLoader.load(1);
     await serviceLoader.load(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     const loader1 = serviceLoader.loadCache.get('["id",null]');
     const loader2 = serviceLoader.loadCache.get(
-      '["id",{"query":{"title":"The Man in Black"}}]'
+      '["id",{"query":{"title":"Man in Black"}}]'
     );
     assert.deepEqual(loader1._promiseCache.size, 1);
     assert.deepEqual(loader2._promiseCache.size, 1);
     serviceLoader.clearLoad(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     assert.deepEqual(loader1._promiseCache.size, 1);
     assert.deepEqual(loader2._promiseCache.size, 0);
@@ -304,11 +304,11 @@ describe('ServiceLoader', () => {
     await serviceLoader.load(1);
     await serviceLoader.load(2);
     await serviceLoader.load(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     const loader1 = serviceLoader.loadCache.get('["id",null]');
     const loader2 = serviceLoader.loadCache.get(
-      '["id",{"query":{"title":"The Man in Black"}}]'
+      '["id",{"query":{"title":"Man in Black"}}]'
     );
     assert.deepEqual(loader1._promiseCache.size, 2);
     assert.deepEqual(loader2._promiseCache.size, 1);
@@ -331,7 +331,7 @@ describe('ServiceLoader', () => {
     await serviceLoader.loadMany({ artist_id: 1 });
     await serviceLoader.loadMany(
       { artist_id: 1 },
-      { query: { title: 'The Man in Black' } }
+      { query: { title: 'Man in Black' } }
     );
     assert.deepEqual(serviceLoader.loadManyCache.size, 2);
   });
@@ -339,11 +339,11 @@ describe('ServiceLoader', () => {
   it('Creates a loadMany() loader with same params', async () => {
     await serviceLoader.loadMany(
       { artist_id: 1 },
-      { query: { title: 'The Man in Black' } }
+      { query: { title: 'Man in Black' } }
     );
     await serviceLoader.loadMany(
       { artist_id: 1 },
-      { query: { title: 'The Man in Black' } }
+      { query: { title: 'Man in Black' } }
     );
     assert.deepEqual(serviceLoader.loadManyCache.size, 1);
   });
@@ -375,7 +375,7 @@ describe('ServiceLoader', () => {
     let called = false;
     await serviceLoader.loadMany(
       { artist_id: 1 },
-      { query: { title: 'The Man in Black' } },
+      { query: { title: 'Man in Black' } },
       {
         myFunc: () => {
           called = true;
@@ -398,12 +398,12 @@ describe('ServiceLoader', () => {
     await serviceLoader.loadMany(
       { artist_id: 1 },
       {
-        query: { title: 'The Man in Black' }
+        query: { title: 'Man in Black' }
       }
     );
     const loader1 = serviceLoader.loadManyCache.get('["artist_id",null]');
     const loader2 = serviceLoader.loadManyCache.get(
-      '["artist_id",{"query":{"title":"The Man in Black"}}]'
+      '["artist_id",{"query":{"title":"Man in Black"}}]'
     );
     assert.deepEqual(loader1._promiseCache.size, 1);
     assert.deepEqual(loader2._promiseCache.size, 1);
@@ -415,16 +415,16 @@ describe('ServiceLoader', () => {
   it('loadMany() loader can be cleared progressively with params', async () => {
     await serviceLoader.loadMany(1);
     await serviceLoader.loadMany(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     const loader1 = serviceLoader.loadManyCache.get('["id",null]');
     const loader2 = serviceLoader.loadManyCache.get(
-      '["id",{"query":{"title":"The Man in Black"}}]'
+      '["id",{"query":{"title":"Man in Black"}}]'
     );
     assert.deepEqual(loader1._promiseCache.size, 1);
     assert.deepEqual(loader2._promiseCache.size, 1);
     serviceLoader.clearLoadMany(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     assert.deepEqual(loader1._promiseCache.size, 1);
     assert.deepEqual(loader2._promiseCache.size, 0);
@@ -434,11 +434,11 @@ describe('ServiceLoader', () => {
     await serviceLoader.loadMany(1);
     await serviceLoader.loadMany(2);
     await serviceLoader.loadMany(1, {
-      query: { title: 'The Man in Black' }
+      query: { title: 'Man in Black' }
     });
     const loader1 = serviceLoader.loadManyCache.get('["id",null]');
     const loader2 = serviceLoader.loadManyCache.get(
-      '["id",{"query":{"title":"The Man in Black"}}]'
+      '["id",{"query":{"title":"Man in Black"}}]'
     );
     assert.deepEqual(loader1._promiseCache.size, 2);
     assert.deepEqual(loader2._promiseCache.size, 1);

@@ -10,8 +10,8 @@ describe('stashable', () => {
     'api/albums',
     memory({
       store: {
-        1: { id: 1, title: 'The Man in Black', artist_id: 1 },
-        2: { id: 2, title: 'The Man in Black', artist_id: 1 }
+        1: { id: 1, title: 'Man in Black', artist_id: 1 },
+        2: { id: 2, title: 'Man in Black', artist_id: 1 }
       }
     })
   );
