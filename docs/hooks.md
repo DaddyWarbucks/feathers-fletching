@@ -1421,3 +1421,301 @@ const myStashFunc = context => {};
 
 const stashed = stashable({ stashFunc: myStashFunc });
 ```
+
+## serviceLoader
+
+This section is not a hook per-se, but is an example of how to use the `ServiceLoader` and `LazyLoader` classes to boost performance. The `ServiceLoader` class is an abstraction around `feathers-batchloader` which is heavily inspired by [GraphQL DataLoader](https://github.com/graphql/dataloader) with some additional features. For more info about how DataLoader works, checkout this awesome video of the [DataLoader Walkthrough](https://www.youtube.com/watch?v=OQTnXNCDywA)
+
+**Context**
+
+| Before | After | Methods | Multi |                                                Source                                                 |
+| :----: | :---: | :-----: | :---: | :---------------------------------------------------------------------------------------------------: |
+|  yes   |  yes  |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/lib/serviceLoader.js) |
+
+All of the examples below assume the following services and collections. These collections are meant to represent the most common relationship types.
+
+```js
+albums = [
+  {
+    id: 'album_123'
+    title: 'Man in Black',
+    artist_id: 'artist_123', // note same id
+    categorey_ids: ['category_123', 'category_456']
+  },
+  {
+    id: 'album_456'
+    title: 'I walk the line',
+    artist_id: 'artist_123', // note same id
+    categorey_ids: ['category_456']
+  },
+  {
+    id: 'album_789'
+    title: 'Always',
+    artist_id: 'artist_456',
+    categorey_ids: ['category_123']
+  },
+];
+
+artists = [
+  {
+    id: 'artist_123',
+    name: 'Johnny Cash',
+  },
+  {
+    id: 'artist_456',
+    title: 'Patsy Cline',
+  }
+];
+
+categories = [
+  {
+    id: 'category_123',
+    name: 'country'
+  },
+  {
+    id: 'category_456',
+    name: "rock"
+  }
+];
+
+reviews = [
+  {
+    id: 'review_123',
+    album_id: 'album_123', // note same id
+    text: 'Its the best!'
+  },
+  {
+    id: 'review_456',
+    album_id: 'album_123', // note same id
+    text: 'All time greatest!'
+  },
+  {
+    id: 'review_789',
+    album_id: 'album_456',
+    text: 'Its great!'
+  }
+];
+```
+
+```js
+// We can setup a ServiceLoader for each service and attach it to
+// context or context.params.
+const setupLoaders = (context) => {
+  context.artistsLoader = new ServiceLoader(context.app.service('artists'));
+  context.categoriesLoader = new ServiceLoader(context.app.service('categories'));
+  context.reviewsLoader = new ServiceLoader(context.app.service('reviews'));
+
+  return context;
+};
+
+// Even better, use the LazyLoader. By using the LazyLoader, you
+// do not have to know what services will be used and therefore
+// don't have to manually setup each loader. Instead, a new
+// ServiceLoader is lazily created and cached when called.
+const setupLoaders = (context) => {
+  context.lazyLoader = new LazyLoader(context);
+  context.loader = context.lazyLoader.loader;
+
+  return context;
+};
+```
+
+The first two methods to explore are the `get()` and `load()` methods. The `get()` method is a direct replacement to the `service.get()` method, except that it caches the results of the id/params. The `load()` method uses a `batchLoader` under the hood to collate multiple service calls into one.
+
+**The `load()` method returns 1 record per id, similar to get()**
+
+```js
+// This example uses the standard service.get() method
+// and would result in 3 service calls. This is the most
+// basic way to join a record in Feathers.
+const withResults = withResult({
+  artist: (album, context) => {
+    return context.app.service('artists').get(album.artist_id);
+  }
+});
+
+// 3 service calls
+app.service('artists').get('artist_123');
+app.service('artists').get('artist_123');
+app.service('artists').get('artist_456');
+```
+
+```js
+// This example uses the context.loader('artists').get() method.
+// Using the get() method from the loader results in 2 service
+// calls. This is because the loader's get() method caches
+// results, and because we have two albums with the same artist_id,
+// the result for that artist_id is cached.
+const withResults = withResult({
+  artist: (album, context) => {
+    return context.loader('artists').get(album.artist_id);
+  }
+});
+
+// 2 service calls
+app.service('artists').get('artist_123');
+// app.service("api/artists").get("artist_123"); // cache hit
+app.service('artists').get('artist_456');
+```
+
+```js
+// This example uses the context.loader('artists').load() method.
+// Using the load() method from the loader results in 1 service
+// call. This is because the loader's load() method caches
+// & batches results via a batchLoader.
+const withResults = withResult({
+  artist: (album, context) => {
+    return context.loader('artists').load(album.artist_id);
+  }
+});
+
+// 1 service call. Nice! Thats what we want!
+app.service('artists').find({
+  query: {
+    id: { $in: ['artist_123', 'artist_456'] },
+  }
+});
+```
+
+```js
+// So when would you use load() vs get()? Generally, you can prefer
+// load(). But, its important to keep in mind that when using load(),
+// if an id is not found it will return `null` instead of throwing an
+// error. This is done because load() is "batching" all of its ids
+// into one service call, so even if some ids fail others will be
+// returned. Use get() when you want a more traditional flow
+const withResults = withResult({
+  artist: (album, context) => {
+    // This will throw an error just like a service.get()
+    return context.loader('artists').get('some_bogus_id');
+  },
+  artist: (album, context) => {
+    // This will return null
+    return context.loader('artists').load('some_bogus_id');
+  }
+});
+
+// 1 service call. Nice! Thats what we want!
+app.service('artists').find({
+  query: {
+    id: { $in: ['artist_123', 'artist_456'] },
+  }
+});
+```
+
+```js
+// You can also use an object as the id. This is helpful
+// when the relationship is not on the service's primary id
+const withResults = withResult({
+  artist: (album, context) => {
+    return context.loader('artists').load({ id: album.artist_id });
+    // same as below because the default primary key on artists is "id"
+    // return context.loader('artists').load(album.artist_id);
+  },
+  artist2: (album, context) => {
+    return context.loader('artists').load(
+      { some_other_id: album.some_other_artist_id }
+    );
+  }
+});
+```
+
+```js
+// The load() method can also accept an array of ids. The result
+// will be an array of records matching those ids.
+const withResults = withResult({
+  categories: (album, context) => {
+    return context.loader('categories').load(album.categorey_ids);
+  }
+});
+```
+
+Next we will look at the `find()` and `loadMany()` methods. The `find()`  method is a direct replacement to the `service.find()` method, except that it caches the results of the params. The `loadMany()` method uses a `batchLoader` under the hood to collate multiple service calls into one.
+
+**The `loadMany()` method returns many records per id, similar to how a find() returns many records**
+
+```js
+// This example uses the standard service.find() method
+// and would result in 3 service calls.
+const withResults = withResult({
+  reviews: (album, context) => {
+    return context.app.service('reviews').find({
+      query: { album_id: album.id }
+    });
+  }
+});
+
+// 3 service calls
+app.service('reviews').find({
+  query: { album_id: 'album_123' }
+});
+app.service('reviews').find({
+  query: { album_id: 'album_456' }
+});
+app.service('reviews').find({
+  query: { album_id: 'album_789' }
+});
+```
+
+```js
+// This example uses the context.loader('reviews').find() method
+// and would also result in 3 service calls. Bummer, why does this
+// also result in 3 service calls. This is because each query
+// is unique, so caching cannot be done effectively.
+const withResults = withResult({
+  reviews: (album, context) => {
+    return context.loader('reviews').find({
+      query: { album_id: album.id }
+    });
+  }
+});
+
+// 3 service calls
+app.service('reviews').find({
+  query: { album_id: 'album_123' }
+});
+app.service('reviews').find({
+  query: { album_id: 'album_456' }
+});
+app.service('reviews').find({
+  query: { album_id: 'album_789' }
+});
+```
+
+```js
+// This example uses the context.loader('reviews').loadMany() method.
+// Using the loadMany() method from the loader results in 1 service
+// call. This is because the loader's loadMany() method caches
+// & batches results via a batchLoader.
+const withResults = withResult({
+  reviews: (album, context) => {
+    return context.loader('reviews').loadMany({
+      query: { album_id: album.id }
+    });
+  }
+});
+
+// 1 service call. Nice! Thats what we want!
+app.service('reviews').find({
+  query: {
+    album_id: { $in: ['album_123', 'album_456', 'album_789'] },
+  }
+});
+```
+
+```js
+// When would you want to use find() vs loadMany(). If there is
+// some kind of localKey/foreignKey relationship, use loadMany().
+// If you are using no query or an arbitrary query, use find()
+// and it will cache equivalent queries.
+const withResults = withResult({
+  reviews: (album, context) => {
+    // There is a known localKey/foreignKey relationship and will
+    // result in 1 service call to fetch all reviews
+    return context.loader('reviews').loadMany({
+      query: { album_id: album.id }
+    });
+  },
+  // TODO: Static find query and variable query that has some dupes
+});
+```
