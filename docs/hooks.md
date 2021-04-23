@@ -1424,6 +1424,8 @@ const stashed = stashable({ stashFunc: myStashFunc });
 
 ## serviceLoader
 
+**Please note that LazyLoader, ServiceLoader, and these docs are a WIP. They are not currently published to NPM and the docs are only published as an easy way for beta testers to see what they are all about. If you like this feature or have some feedback, open an issue describing what you like or don't like. And hopefully this will be released soon!**
+
 This section is not a hook per-se, but is an example of how to use the `ServiceLoader` and `LazyLoader` classes to boost performance. The `ServiceLoader` class is an abstraction around `feathers-batchloader` which is heavily inspired by [GraphQL DataLoader](https://github.com/graphql/dataloader) with some additional features. For more info about how DataLoader works, checkout this awesome video of the [DataLoader Walkthrough](https://www.youtube.com/watch?v=OQTnXNCDywA)
 
 **Context**
