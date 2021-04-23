@@ -430,7 +430,7 @@ describe('ServiceLoader', () => {
     assert.deepEqual(loader2._promiseCache.size, 0);
   });
 
-  it('loadMan() loader can be cleared all', async () => {
+  it('loadMany() loader can be cleared all', async () => {
     await serviceLoader.loadMany(1);
     await serviceLoader.loadMany(2);
     await serviceLoader.loadMany(1, {
