@@ -3,6 +3,25 @@ const feathers = require('@feathersjs/feathers');
 const memory = require('feathers-memory');
 const ServiceLoader = require('../../src/lib/serviceLoader');
 
+// Mimic a Mongoose/Mongo ObjectId
+// mongoose.Types.ObjectId
+const ObjectId = id => {
+  return {
+    value: id,
+    toString() {
+      return String(id);
+    },
+    toJSON() {
+      return JSON.stringify(id);
+    }
+  };
+};
+
+const objectId1 = ObjectId(1);
+const objectId2 = ObjectId(2);
+const objectId3 = ObjectId(3);
+const objectId4 = ObjectId(4);
+
 describe('ServiceLoader', () => {
   const app = feathers();
 
@@ -10,9 +29,25 @@ describe('ServiceLoader', () => {
     'api/albums',
     memory({
       store: {
-        1: { id: 1, alt_id: 1, title: 'Man in Black', artist_id: 1 },
-        2: { id: 2, alt_id: 2, title: 'I Wont Back Down', artist_id: 1 },
-        3: { id: 3, alt_id: 3, title: 'Life in Nashville', artist_id: 2 }
+        1: { id: 1, alt_id: objectId1, title: 'Man in Black', artist_id: 1 },
+        2: {
+          id: 2,
+          alt_id: objectId2,
+          title: 'I Wont Back Down',
+          artist_id: 1
+        },
+        3: {
+          id: 3,
+          alt_id: objectId3,
+          title: 'Life in Nashville',
+          artist_id: 2
+        },
+        [objectId4]: {
+          id: objectId4,
+          alt_id: objectId3,
+          title: 'Life in Nashville',
+          artist_id: 2
+        }
       }
     })
   );
@@ -96,10 +131,23 @@ describe('ServiceLoader', () => {
     assert.deepEqual(result1, result2);
   });
 
+  it('get() loader loads the proper value with object id', async () => {
+    const result1 = await service.get(objectId4);
+    const result2 = await serviceLoader.load({ id: objectId4 });
+    assert.deepEqual(result1, result2);
+  });
+
   it('get() loader can be cleared by id', async () => {
     await serviceLoader.get(1);
     assert.deepEqual(serviceLoader.getCache.size, 1);
     serviceLoader.clearGet(1);
+    assert.deepEqual(serviceLoader.getCache.size, 0);
+  });
+
+  it('get() loader can be cleared by object id', async () => {
+    await serviceLoader.get(objectId4);
+    assert.deepEqual(serviceLoader.getCache.size, 1);
+    serviceLoader.clearGet(objectId4);
     assert.deepEqual(serviceLoader.getCache.size, 0);
   });
 
@@ -248,6 +296,12 @@ describe('ServiceLoader', () => {
     assert.deepEqual(result1, result2);
   });
 
+  it('load() loader loads the proper value with object id', async () => {
+    const result1 = await service.get(1);
+    const result2 = await serviceLoader.load({ alt_id: objectId1 });
+    assert.deepEqual(result1, result2);
+  });
+
   it('load() loader loads the proper value with params', async () => {
     const result1 = await service.get(1, {
       query: { title: 'Man in Black' }
@@ -263,6 +317,14 @@ describe('ServiceLoader', () => {
     const loader = serviceLoader.loadCache.get('["id",null]');
     assert.deepEqual(loader._promiseCache.size, 1);
     serviceLoader.clearLoad(1);
+    assert.deepEqual(loader._promiseCache.size, 0);
+  });
+
+  it('load() loader can be cleared by objectid', async () => {
+    await serviceLoader.load({ alt_id: objectId1 });
+    const loader = serviceLoader.loadCache.get('["alt_id",null]');
+    assert.deepEqual(loader._promiseCache.size, 1);
+    serviceLoader.clearLoad({ alt_id: objectId1 });
     assert.deepEqual(loader._promiseCache.size, 0);
   });
 

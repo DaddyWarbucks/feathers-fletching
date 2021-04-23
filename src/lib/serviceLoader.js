@@ -4,7 +4,10 @@ const { isObject, stableStringify } = require('./utils');
 module.exports = class ServiceLoader {
   constructor(service, loaderOptions = {}) {
     this.service = service;
-    this.loaderOptions = loaderOptions;
+    this.loaderOptions = {
+      cacheKeyFn: key => (key.toString ? key.toString() : String(key)),
+      ...loaderOptions
+    };
     this.getCache = new Map();
     this.findCache = new Map();
     this.loadCache = new Map();
@@ -16,12 +19,10 @@ module.exports = class ServiceLoader {
     const key = stableStringify([idProp, params]);
     const cached =
       this.loadCache.get(key) ||
-      createLoader({
+      this.createLoader({
         idProp,
         params: { ...params, ...extraParams },
-        resultType: '!',
-        service: this.service,
-        loaderOptions: this.loaderOptions
+        resultType: '!'
       });
 
     this.loadCache.set(key, cached);
@@ -60,12 +61,10 @@ module.exports = class ServiceLoader {
     const key = stableStringify([idProp, params]);
     const cached =
       this.loadManyCache.get(key) ||
-      createLoader({
+      this.createLoader({
         idProp,
         params: { ...params, ...extraParams },
-        resultType: '[!]',
-        service: this.service,
-        loaderOptions: this.loaderOptions
+        resultType: '[!]'
       });
 
     this.loadManyCache.set(key, cached);
@@ -114,6 +113,8 @@ module.exports = class ServiceLoader {
   }
 
   clearGet(id, params) {
+    const { cacheKeyFn } = this.loaderOptions;
+
     if (!id) {
       this.getCache.clear();
       return;
@@ -121,7 +122,7 @@ module.exports = class ServiceLoader {
 
     this.getCache.forEach((value, key) => {
       const [_id, _params] = JSON.parse(key);
-      if (id === _id) {
+      if (cacheKeyFn(id) === cacheKeyFn(_id)) {
         if (!params) {
           this.getCache.delete(key);
         }
@@ -153,30 +154,21 @@ module.exports = class ServiceLoader {
     }
 
     this.findCache.forEach((value, key) => {
-      const [_params] = JSON.parse(key);
-      if (stableStringify(params) === stableStringify(_params)) {
+      if (stableStringify([params]) === key) {
         this.findCache.delete(key);
       }
     });
   }
-};
 
-const createLoader = ({
-  idProp,
-  service,
-  resultType,
-  params = {},
-  loaderOptions = {}
-}) => {
-  if (!service.find) {
-    throw new Error(
-      'Cannot create a loder for a service that does not have a find method.'
-    );
-  }
+  createLoader({ idProp, resultType, params = {} }) {
+    if (!this.service.find) {
+      throw new Error(
+        'Cannot create a loder for a service that does not have a find method.'
+      );
+    }
 
-  return new BatchLoader(
-    async keys => {
-      return service
+    return new BatchLoader(async keys => {
+      return this.service
         .find({
           paginate: false,
           ...params,
@@ -193,12 +185,8 @@ const createLoader = ({
             resultType
           );
         });
-    },
-    {
-      cacheKeyFn: key => (key.toString ? key.toString() : key),
-      ...loaderOptions
-    }
-  );
+    }, this.loaderOptions);
+  }
 };
 
 const getIdOptions = (idObj, defaultProp) => {
@@ -207,7 +195,7 @@ const getIdOptions = (idObj, defaultProp) => {
 
     if (entries.length !== 1) {
       throw new Error(
-        'When using an object as an it must have exactly one key representing the id property like { id: "123" }'
+        'When using an object as an id, the object must have exactly one property where the property name is the name of the foreign key. For example, { post_id: "123" } or { post_id: ["123", "456"] }'
       );
     }
 
