@@ -163,7 +163,7 @@ module.exports = class ServiceLoader {
   createLoader({ idProp, resultType, params = {} }) {
     if (!this.service.find) {
       throw new Error(
-        'Cannot create a loder for a service that does not have a find method.'
+        'Cannot create a loader for a service that does not have a find method.'
       );
     }
 
