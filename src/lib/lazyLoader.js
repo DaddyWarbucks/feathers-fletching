@@ -5,10 +5,10 @@ module.exports = class LazyLoader {
     this.loader = this.loader.bind(this);
   }
 
-  loader(serviceName) {
+  loader(serviceName, loaderOptions) {
     const cached =
       this.loaderCache.get(serviceName) ||
-      new ServiceLoader(this.context.app.service(serviceName));
+      new ServiceLoader(this.context.app.service(serviceName), loaderOptions);
 
     this.loaderCache.set(serviceName, cached);
 
