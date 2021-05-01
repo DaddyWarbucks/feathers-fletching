@@ -5,8 +5,8 @@ module.exports = class ServiceLoader {
   constructor(service, loaderOptions = {}) {
     this.service = service;
     this.loaderOptions = {
-      cacheKeyFn: key => (key.toString ? key.toString() : String(key)),
-      ...loaderOptions
+      ...loaderOptions,
+      cacheKeyFn: key => (key.toString ? key.toString() : String(key))
     };
     this.getCache = new Map();
     this.findCache = new Map();
