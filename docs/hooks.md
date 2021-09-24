@@ -244,7 +244,157 @@ const withoutResults = withoutResult({ email: false, ssn: false });
 // This syntax also supports dot notation of object paths
 const withoutResults = withoutResult(['role.role_type']);
 ```
+## withParam
 
+Add or overwrite properties to the `context.params` of a method call. Useful for adding default params and adding server side rules to params.
+
+**Context**
+
+| Before | After | Methods | Multi | Source                                                                                               |
+| :-:    | :-:   | :-:     | :-:   | :-:                                                                                                  |
+| yes    | no    | all     | yes   | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withParams.js) |
+
+**Arguments**
+
+| Argument | Type             | Default  | Required | Description                                                                                                                                             |
+| :-:      | :-:              | :-:      | :-:      | -                                                                                                                                                       |
+| virtuals | Object           |          | true     | An object where each key will be the name of a property to be added to the `context.params` and each value is either a primitive, function, or promise. |
+| prepFunc | Function/Promise | () => {} | false    | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.   |
+
+```js
+import { withParam } from 'feathers-fletching';
+
+/*
+  context.params = {
+    user: {
+      role: 'admin' 
+    }
+  }
+*/
+
+const withDatas = withData({
+
+  // This hook is useful for forcing properties onto data that
+  // the client should not have control of. For example, you
+  // may always force the `user_id` onto a record from the
+  // `context.params.user` to ensure that the `user_id` is
+  // always from the authorized user instead of trusting the
+  // client to send the proper `user_id`. Even if the client
+  // sends `{ user_id: 456 }` which is some other user's id,
+  // this hook will overwrite that `user_id` to ensure the
+  // data cannot be spoofed.
+  user_id: (data, context, prepResult) => context.params.user.id,
+
+  // You can also use this hook to sanitize data by overwriting
+  // data that already exists.
+  permissions: (params, context, prepResult) => {
+    return data.email.trim().toLowerCase();
+  },
+
+  // You can also use this hook to create or update "joined"
+  // records. Allow the client to pass joined records as
+  // an array, and you can handle updating them.
+  category_ids: async (data, context, prepResult) => {
+    if (data.catgories) {
+
+      const promises = data.categories.map(newCat => {
+        return context.app.service('categories').create(newCat);
+      });
+
+      const newCategories = await Promise.all(promises);
+      const newCategoryIds = newCategories.map(newCat => newCat.id);
+
+      delete data.categories;
+
+      return [...data.category_ids, ...newCategoryIds]
+    }
+
+    return data.category_ids;
+  }
+});
+
+/*
+  context.data = {
+    user_id: 123,
+    email: 'jcash@example.com',
+    category_ids: [123, 456, 789]
+  }
+*/
+```
+
+## withoutData
+
+Remove properties from the `context.data` of a method call. This hook can be used similar to a "preventChange" hook.
+
+If you think of `withData` (or any of the `with*` hooks) similar to `Array.protype.map`, you can think of the `withoutData` (or any of the `without*` hooks) as similar to `Array.protype.filter`.
+
+For each virtual in the virtual object, if the value returns a truthy value it will be kept and if it returns a falsey value it will be filtered.
+
+**Context**
+
+| Before | After | Methods | Multi | Source |
+| :-: | :-: | :-:  | :-: | :-: |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutData.js) |
+
+**Arguments**
+
+| Argument | Type | Default | Required | Description |
+| :-: | :-: | :-:  | :-: | - |
+| virtuals | Object/Array |  | true | An object where each key will be the name of a property to be potentially filtered from data. **Return a truthy value to keep the value and return a falsey value to remove it**. |
+| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
+
+```js
+import { withoutData } from 'feathers-fletching';
+
+/*
+  context.data = {
+    name: 'Johnny Cash',
+    ssn: 123456789,
+    email: 'themaninblack@example.com'
+  }
+*/
+
+const withoutDatas = withoutData({
+
+  // Simply pass false if you don't need to do any logic
+  // and this property will be filtered
+  ssn: false,
+
+  // Similar to all of the with* and without* hooks, you
+  // can use a function/promise with `result`, `context`, `prepResult` args
+  email: (data, context, prepResult) => {
+    return context.params.user.role === 'admin';
+  }
+});
+
+/*
+  // if authenticated user is admin
+  context.data = {
+    name: 'Johnny Cash',
+    email: 'themaninblack@example.com'
+  }
+
+  // if authenticated user is NOT admin
+  context.data = {
+    name: 'Johnny Cash'
+  }
+*/
+
+```
+```js
+// `withoutData` also accepts an array of strings as the first
+// argument as a conveniece syntax. When you use this syntaxt, `prepFunc`
+// is ignored.
+const withoutDatas = withoutData(['email', 'ssn']);
+// this is equivalent to
+const withoutDatas = withoutData({ email: false, ssn: false });
+
+// This syntax also supports dot notation of object paths
+const withoutResults = withoutResult(['role.role_type']);
+```
+
+
+## 
 ## withData
 
 Add or overwrite properties to the `context.data` of a method call. Useful for adding default data, creating joined data, and adding server side rules to data.
@@ -394,6 +544,7 @@ const withoutDatas = withoutData({ email: false, ssn: false });
 // This syntax also supports dot notation of object paths
 const withoutResults = withoutResult(['role.role_type']);
 ```
+
 
 ## withQuery
 
