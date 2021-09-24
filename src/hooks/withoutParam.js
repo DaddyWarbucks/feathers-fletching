@@ -1,14 +1,14 @@
 const unset = require('unset-value');
 
-const { skippable } = require("../lib");
+const { skippable } = require('../lib');
 const {
   virtualsSerializer,
-  filterResolver,
-} = require("../lib/virtualsSerializer");
-const { omit } = require("../lib/utils");
+  filterResolver
+} = require('../lib/virtualsSerializer');
+const { omit } = require('../lib/utils');
 
 module.exports = (virtuals, prepFunc = () => {}) => {
-  return skippable("withoutParam", async (context) => {
+  return skippable('withoutParam', async context => {
     if (!context.params) {
       context.params = {};
     }
@@ -18,7 +18,7 @@ module.exports = (virtuals, prepFunc = () => {}) => {
         ? context.data.map(d => unset(context.params, virtuals))
         : unset(context.params, virtuals);
       return context;
-    } 
+    }
 
     context.params = await virtualsSerializer(
       filterResolver,
