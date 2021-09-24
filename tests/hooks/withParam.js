@@ -1,42 +1,56 @@
-const assert = require('assert');
-const withParam = require('../../src/hooks/withParam');
+const assert = require("assert");
+const withParam = require("../../src/hooks/withParam");
 
-describe('withParam', () => {
-  it('Merges the param', async () => {
+describe("withParam", () => {
+  it("Merges the param", async () => {
     const context = {
-      params: {},
-      param: { name: 'Gene Autry' }
+      params: { name: "Gene Autry" },
     };
 
     const newContext = await withParam({
-      addedProp: 'addedProp'
+      addedProp: "Conway Twitty",
     })(context);
 
-    await assert.deepEqual(newContext.param, {
-      name: 'Gene Autry',
-      addedProp: 'addedProp'
+    await assert.deepEqual(newContext.params, {
+      name: "Gene Autry",
+      addedProp: "Conway Twitty",
     });
   });
 
-  it('Works when `context.param` is an array', async () => {
+  it("Works when `context.data` is an array", async () => {
     const context = {
       params: {},
-      data: [{ name: 'Gene Autry' }, { name: 'Loretta Lynn' }]
+      data: [{ name: "June Carter" }, { name: "Loretta Lynn" }],
     };
 
     const newContext = await withParam({
-      addedProp: 'addedProp'
+      addedProp: "Dolly Parton",
     })(context);
 
-    await assert.deepEqual(newContext.param, [
+    await assert.deepEqual(
+      newContext.params.addedProp,
+      "Dolly Parton"
+    );
+  });
+
+  it("Allows manipulation at for each item when `context.data is an array`", async () => {
+    const context = {
+      params: {},
+      data: [{ name: "June Carter" }, { name: "Loretta Lynn" }],
+    };
+
+    const newContext = await withParam(
       {
-        name: 'Gene Autry',
-        addedProp: 'addedProp'
+        addedProp: (params) => {
+          params.addedProp.push("Dolly Parton");
+        },
       },
-      {
-        name: 'Loretta Lynn',
-        addedProp: 'addedProp'
+      (context) => {
+        context.params.addedProp = [];
+        return context;
       }
-    ]);
+    )(context);
+
+    await assert.deepEqual(newContext.params.addedProp, ["Dolly Parton"]);
   });
 });
