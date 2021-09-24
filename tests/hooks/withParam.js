@@ -1,40 +1,40 @@
 const assert = require('assert');
-const withData = require('../../src/hooks/withData');
+const withParam = require('../../src/hooks/withParam');
 
-describe('withData', () => {
-  it('Merges the data', async () => {
+describe('withParam', () => {
+  it('Merges the param', async () => {
     const context = {
       params: {},
-      data: { name: 'Johnny Cash' }
+      param: { name: 'Gene Autry' }
     };
 
-    const newContext = await withData({
+    const newContext = await withParam({
       addedProp: 'addedProp'
     })(context);
 
-    await assert.deepEqual(newContext.data, {
-      name: 'Johnny Cash',
+    await assert.deepEqual(newContext.param, {
+      name: 'Gene Autry',
       addedProp: 'addedProp'
     });
   });
 
-  it('Works when `context.data` is an array', async () => {
+  it('Works when `context.param` is an array', async () => {
     const context = {
       params: {},
-      data: [{ name: 'Johnny Cash' }, { name: 'Patsy Cline' }]
+      data: [{ name: 'Gene Autry' }, { name: 'Loretta Lynn' }]
     };
 
-    const newContext = await withData({
+    const newContext = await withParam({
       addedProp: 'addedProp'
     })(context);
 
-    await assert.deepEqual(newContext.data, [
+    await assert.deepEqual(newContext.param, [
       {
-        name: 'Johnny Cash',
+        name: 'Gene Autry',
         addedProp: 'addedProp'
       },
       {
-        name: 'Patsy Cline',
+        name: 'Loretta Lynn',
         addedProp: 'addedProp'
       }
     ]);
