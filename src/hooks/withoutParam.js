@@ -14,8 +14,8 @@ module.exports = (virtuals, prepFunc = () => {}) => {
     }
 
     if (Array.isArray(virtuals)) {
-      context.data = Array.isArray(context.data)
-        ? context.data.map(d => unset(context.params, virtuals))
+      Array.isArray(context.data)
+        ? context.data.forEach(d => unset(context.params, virtuals))
         : unset(context.params, virtuals);
       return context;
     }
