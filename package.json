@@ -26,7 +26,6 @@
     "release:major": "npm run test && npm version major && npm publish"
   },
   "dependencies": {
-    "@feathers-plus/batch-loader": "^0.3.6",
     "@feathersjs/errors": "^4.3.4",
     "lru-cache": "^5.1.1",
     "qs": "^6.9.1",

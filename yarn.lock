@@ -692,11 +692,6 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@feathers-plus/batch-loader@^0.3.6":
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/@feathers-plus/batch-loader/-/batch-loader-0.3.6.tgz#1e096e95fcdffb83fb1a65468e6ef80b416f7d98"
-  integrity sha512-r+n31iZ/B5Rl1mLkC9/S20UI445MdkZvE3VBmjupep2t8OuyTYHPkFEgR25HY6khH+RothK1VL3B5eumk9N2QQ==
-
 "@feathersjs/adapter-commons@^4.3.6":
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/@feathersjs/adapter-commons/-/adapter-commons-4.5.0.tgz#3906cda9edb88c8237491217e75d396a70d75e5b"
