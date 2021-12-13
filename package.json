@@ -19,7 +19,7 @@
     "lint": "eslint src/.",
     "fixcode": "eslint src/. --fix",
     "mocha": "mocha tests --recursive --exit",
-    "mocha:watch": "mocha tests --recursive --watch tests/*.test.js",
+    "mocha:watch": "mocha tests --recursive --watch",
     "test": "npm run lint && npm run mocha",
     "release:patch": "npm run test && npm version patch && npm publish",
     "release:minor": "npm run test && npm version minor && npm publish",
