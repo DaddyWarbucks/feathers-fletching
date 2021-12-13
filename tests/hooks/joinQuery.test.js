@@ -703,4 +703,61 @@ describe('joinQuery', () => {
 
     await assert.deepStrictEqual(usesPaginateFalse, true);
   });
+
+  it('Can handle default pagination', async () => {
+    // Query: which albums have an artist with name 'Johnny Cash'
+    const context = {
+      app,
+      service: app.service('api/albums'),
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          artist: { name: 'Johnny Cash' }
+        }
+      }
+    };
+
+    let usesLimit = null;
+
+    await joinQuery({
+      artist: {
+        ...joinQueryOptions.artist,
+        makeParams: async defaultParams => {
+          usesLimit = defaultParams.query.$limit === 10;
+          return defaultParams;
+        }
+      }
+    })(context);
+
+    await assert.deepStrictEqual(usesLimit, true);
+  });
+
+  it('Does not overwrite user query', async () => {
+    // Query: which albums have an artist with name 'Johnny Cash'
+    const context = {
+      app,
+      service: app.service('api/albums'),
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          artist_id: 1,
+          artist: { name: 'Patsy Cline' }
+        }
+      }
+    };
+
+    const newContext = await joinQuery({
+      artist: {
+        ...joinQueryOptions.artist,
+        overwrite: false
+      }
+    })(context);
+
+    await assert.deepStrictEqual(newContext.params.query, {
+      artist_id: 1,
+      $and: [{ artist_id: { $in: [2] } }]
+    });
+  });
 });

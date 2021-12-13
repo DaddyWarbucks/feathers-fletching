@@ -6,6 +6,7 @@ module.exports = _options => {
 
   Object.keys(options).forEach(key => {
     options[key] = {
+      overwrite: true,
       makeKey: key => key,
       makeParams: (defaultParams, context, option) => {
         return defaultParams;
@@ -67,26 +68,46 @@ const traverse = async (obj, callback) => {
 };
 
 async function normalizeQuery(query, options) {
-  return traverse(query, async (parent, [key, value]) => {
-    if (!isJoinQuery(key, options)) {
+  const normalizedQuery = await traverse(
+    query,
+    async (parent, [key, value]) => {
+      if (!isJoinQuery(key, options)) {
+        return;
+      }
+
+      const [optionKey, optionQuery] = parseJoinQuery(key);
+
+      if (optionQuery) {
+        delete parent[key];
+        parent[optionKey] = {
+          ...parent[optionKey],
+          [optionQuery]: value
+        };
+      } else {
+        parent[optionKey] = {
+          ...parent[optionKey],
+          ...value
+        };
+      }
+    }
+  );
+
+  Object.entries(normalizedQuery).forEach(([rootKey, rootVal]) => {
+    if (!isJoinQuery(rootKey, options)) {
       return;
     }
 
-    const [optionKey, optionQuery] = parseJoinQuery(key);
-
-    if (optionQuery) {
-      delete parent[key];
-      parent[optionKey] = {
-        ...parent[optionKey],
-        [optionQuery]: value
-      };
-    } else {
-      parent[optionKey] = {
-        ...parent[optionKey],
-        ...value
-      };
+    const option = options[rootKey];
+    if (option.overwrite === true) {
+      return;
     }
+
+    delete normalizedQuery[rootKey];
+    normalizedQuery.$and = normalizedQuery.$and || [];
+    normalizedQuery.$and.push({ [rootKey]: rootVal });
   });
+
+  return normalizedQuery;
 }
 
 const cleanQuery = async (query, options, context) => {
