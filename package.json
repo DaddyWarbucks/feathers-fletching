@@ -3,7 +3,7 @@
   "version": "1.12.2",
   "description": "Hooks, services, and plugins for feathers.js",
   "main": "src/",
-  "repository": "https://github.com/DaddyWarbucks/feathers-fletching.git",
+  "repository": "https://github.com/RubyRubenstahl/feathers-fletching",
   "author": "DaddyWarbucks <techtbeau@gmail.com>",
   "license": "MIT",
   "keywords": [
