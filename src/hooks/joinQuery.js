@@ -221,6 +221,10 @@ const mergeQuery = (_query, joinQueries) => {
 };
 
 const throwIfNotFound = ({ baseQuery, orQuery }) => {
+  const joinWasFound = query => {
+    return Object.values(query).every(value => value.foreignKeys.length);
+  };
+
   // All joinQueries in the baseQuery must have returned results
   if (baseQuery && !joinWasFound(baseQuery)) {
     throw new NotFound();
@@ -230,10 +234,6 @@ const throwIfNotFound = ({ baseQuery, orQuery }) => {
   if (orQuery && !orQuery.find(joinWasFound)) {
     throw new NotFound();
   }
-};
-
-const joinWasFound = query => {
-  return Object.values(query).every(value => value.foreignKeys.length);
 };
 
 // Because the matches/foreignKeys arrays are un-paginated and

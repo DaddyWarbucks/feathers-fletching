@@ -21,8 +21,8 @@ module.exports.isPromise = maybePromise => {
   return !!isPromise;
 };
 
-const isObject = maybeObj => {
-  return maybeObj && typeof maybeObj === 'object' && !Array.isArray(maybeObj);
+const isObject = obj => {
+  return obj && typeof maybeObj === 'object' && !Array.isArray(obj);
 };
 
 module.exports.isObject = isObject;
@@ -71,4 +71,79 @@ module.exports.stableStringify = obj => {
 
     return value;
   });
+};
+
+const traverse = (obj, callback) => {
+  Object.entries(obj).forEach(([rootKey, rootVal]) => {
+    if (Array.isArray(rootVal)) {
+      rootVal.forEach(childVal => traverse(childVal, callback));
+    }
+    if (isObject(rootVal)) {
+      traverse(rootVal, callback);
+    }
+    return callback(obj, [rootKey, rootVal]);
+  });
+
+  return obj;
+};
+
+module.exports.traverse = traverse;
+
+const asyncTraverse = async (obj, callback) => {
+  await Promise.all(
+    Object.entries(obj).map(async ([rootKey, rootVal]) => {
+      if (Array.isArray(rootVal)) {
+        await Promise.all(
+          rootVal.map(childVal => asyncTraverse(childVal, callback))
+        );
+      }
+      if (isObject(rootVal)) {
+        await asyncTraverse(rootVal, callback);
+      }
+      return callback(obj, [rootKey, rootVal]);
+    })
+  );
+
+  return obj;
+};
+
+module.exports.asyncTraverse = asyncTraverse;
+
+// https://github.com/angus-c/just/blob/master/packages/collection-clone/index.js
+const clone = obj => {
+  if (typeof obj == 'function') {
+    return obj;
+  }
+  var result = Array.isArray(obj) ? [] : {};
+  for (var key in obj) {
+    // include prototype properties
+    var value = obj[key];
+    var type = {}.toString.call(value).slice(8, -1);
+    if (type == 'Array' || type == 'Object') {
+      result[key] = clone(value);
+    } else if (type == 'Date') {
+      result[key] = new Date(value.getTime());
+    } else if (type == 'RegExp') {
+      result[key] = RegExp(value.source, getRegExpFlags(value));
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+};
+
+module.exports.clone = clone;
+
+const getRegExpFlags = regExp => {
+  if (typeof regExp.source.flags == 'string') {
+    return regExp.source.flags;
+  } else {
+    var flags = [];
+    regExp.global && flags.push('g');
+    regExp.ignoreCase && flags.push('i');
+    regExp.multiline && flags.push('m');
+    regExp.sticky && flags.push('y');
+    regExp.unicode && flags.push('u');
+    return flags.join('');
+  }
 };

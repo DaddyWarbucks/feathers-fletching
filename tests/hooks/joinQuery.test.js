@@ -17,6 +17,7 @@ describe('joinQuery', () => {
   app.use(
     'api/albums',
     memory({
+      whitelist: ['$and'],
       paginate: {
         default: 10,
         max: 100
@@ -29,9 +30,26 @@ describe('joinQuery', () => {
     })
   );
 
+  app
+    .service('api/albums')
+    // .find({ query: { $and: [{ artist_id: { $in: [] } }] } })
+    .find({
+      query: {
+        $and: [
+          {
+            artist_id: {
+              $in: []
+            }
+          }
+        ]
+      }
+    })
+    .then(console.log);
+
   app.use(
     'api/artists',
     memory({
+      whitelist: ['$and'],
       paginate: {
         default: 10,
         max: 100
@@ -47,6 +65,7 @@ describe('joinQuery', () => {
   app.use(
     'api/ratings',
     memory({
+      whitelist: ['$and'],
       paginate: {
         default: 10,
         max: 100
@@ -76,7 +95,7 @@ describe('joinQuery', () => {
     const newContext = await joinQuery(joinQueryOptions)(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
-      artist_id: { $in: [1] }
+      $and: [{ artist_id: { $in: [1] } }]
     });
   });
 
@@ -97,8 +116,28 @@ describe('joinQuery', () => {
     const newContext = await joinQuery(joinQueryOptions)(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
-      artist_id: { $in: [1] }
+      $and: [{ artist_id: { $in: [1] } }]
     });
+  });
+
+  it('Returns no results on FIND', async () => {
+    const context = {
+      app,
+      service: app.service('api/albums'),
+      type: 'before',
+      method: 'get',
+      params: {
+        query: {
+          artist: { name: 'Elvis' }
+        }
+      }
+    };
+
+    const newContext = await joinQuery(joinQueryOptions)(context);
+
+    const result = await app.service('api/albums').find(newContext.params);
+
+    await assert.deepStrictEqual(result.total, 0);
   });
 
   it('Throws NotFound error if no matches for GET', async () => {
@@ -114,7 +153,9 @@ describe('joinQuery', () => {
       }
     };
 
-    const shouldReject = joinQuery(joinQueryOptions)(context);
+    const newContext = await joinQuery(joinQueryOptions)(context);
+
+    const shouldReject = app.service('api/albums').get(1, newContext.params);
 
     await assert.rejects(shouldReject, { name: 'NotFound' });
   });
@@ -132,53 +173,19 @@ describe('joinQuery', () => {
       }
     };
 
-    const shouldReject = joinQuery(joinQueryOptions)(context);
+    const newContext = await joinQuery(joinQueryOptions)(context);
+
+    const shouldReject = app.service('api/albums').get(1, newContext.params);
 
     await assert.rejects(shouldReject, { name: 'NotFound' });
   });
 
-  it('Throws NotFound error if no matches for PATCH', async () => {
+  it('Throws NotFound error if no matches for PATCH with ID', async () => {
     const context = {
       app,
       service: app.service('api/albums'),
       type: 'before',
       method: 'patch',
-      params: {
-        query: {
-          artist: { name: 'Elvis' }
-        }
-      }
-    };
-
-    const shouldReject = joinQuery(joinQueryOptions)(context);
-
-    await assert.rejects(shouldReject, { name: 'NotFound' });
-  });
-
-  it('Throws NotFound error if no matches for REMOVE', async () => {
-    const context = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'patch',
-      params: {
-        query: {
-          artist: { name: 'Elvis' }
-        }
-      }
-    };
-
-    const shouldReject = joinQuery(joinQueryOptions)(context);
-
-    await assert.rejects(shouldReject, { name: 'NotFound' });
-  });
-
-  it('Does not throw NotFound error if no matches for FIND', async () => {
-    const context = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'find',
       params: {
         query: {
           artist: { name: 'Elvis' }
@@ -188,29 +195,87 @@ describe('joinQuery', () => {
 
     const newContext = await joinQuery(joinQueryOptions)(context);
 
-    await assert.deepStrictEqual(newContext.params.result, {
-      total: 0,
-      data: []
-    });
+    const shouldReject = app.service('api/albums').patch(1, newContext.params);
+
+    await assert.rejects(shouldReject, { name: 'NotFound' });
   });
 
-  it('Throws NotFound error if no $or matches', async () => {
+  it('Throws NotFound error if no matches for PATCH without ID', async () => {
     const context = {
       app,
       service: app.service('api/albums'),
       type: 'before',
-      method: 'find',
+      method: 'patch',
       params: {
         query: {
-          $or: [{ artist: { name: 'Elvis' } }]
+          artist: { name: 'Elvis' }
         }
       }
     };
 
-    const shouldReject = joinQuery(joinQueryOptions)(context);
+    const newContext = await joinQuery(joinQueryOptions)(context);
+
+    const shouldReject = app.service('api/albums').patch(newContext.params);
 
     await assert.rejects(shouldReject, { name: 'NotFound' });
   });
+
+  // it('Throws NotFound error if no matches for REMOVE', async () => {
+  //   const context = {
+  //     app,
+  //     service: app.service('api/albums'),
+  //     type: 'before',
+  //     method: 'patch',
+  //     params: {
+  //       query: {
+  //         artist: { name: 'Elvis' }
+  //       }
+  //     }
+  //   };
+
+  //   const shouldReject = joinQuery(joinQueryOptions)(context);
+
+  //   await assert.rejects(shouldReject, { name: 'NotFound' });
+  // });
+
+  // it('Does not throw NotFound error if no matches for FIND', async () => {
+  //   const context = {
+  //     app,
+  //     service: app.service('api/albums'),
+  //     type: 'before',
+  //     method: 'find',
+  //     params: {
+  //       query: {
+  //         artist: { name: 'Elvis' }
+  //       }
+  //     }
+  //   };
+
+  //   const newContext = await joinQuery(joinQueryOptions)(context);
+
+  //   await assert.deepStrictEqual(newContext.params.result, {
+  //     total: 0,
+  //     data: []
+  //   });
+  // });
+
+  // it('Throws NotFound error if no $or matches', async () => {
+  //   const context = {
+  //     app,
+  //     service: app.service('api/albums'),
+  //     type: 'before',
+  //     method: 'find',
+  //     params: {
+  //       query: {
+  //         $or: [{ artist: { name: 'Elvis' } }]
+  //       }
+  //     }
+  //   };
+
+  //   const shouldReject = joinQuery(joinQueryOptions)(context);
+
+  //   await assert.rejects(shouldReject, { name: 'NotFound' });
+  // });
 
   it('Can use a custom makeKey option', async () => {
     // Query: which albums have an artist with name 'Johnny Cash'
@@ -236,7 +301,35 @@ describe('joinQuery', () => {
     })(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
-      artist_id: { $in: ['1'] }
+      $and: [{ artist_id: { $in: ['1'] } }]
+    });
+  });
+
+  it('Can use a overwrite option', async () => {
+    // Query: which albums have an artist with name 'Johnny Cash'
+    const context = {
+      app,
+      service: app.service('api/albums'),
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          artist: { name: 'Johnny Cash' }
+        }
+      }
+    };
+
+    const newContext = await joinQuery({
+      artist: {
+        service: 'api/artists',
+        targetKey: 'id',
+        foreignKey: 'artist_id',
+        overwrite: true
+      }
+    })(context);
+
+    await assert.deepStrictEqual(newContext.params.query, {
+      artist_id: { $in: [1] }
     });
   });
 
@@ -272,42 +365,44 @@ describe('joinQuery', () => {
     await assert.deepStrictEqual(makeParamsCalled, true);
   });
 
+  // it('Can $sort on joined queries', async () => {
+  //   // Query: $sort albums by artist name
+  //   const beforeContext = {
+  //     app,
+  //     service: app.service('api/albums'),
+  //     type: 'before',
+  //     method: 'find',
+  //     params: {
+  //       query: {
+  //         $sort: {
+  //           'artist.name': 1
+  //         }
+  //       }
+  //     }
+  //   };
+
+  //   const newBeforeContext = await joinQuery(joinQueryOptions)(beforeContext);
+
+  //   const afterContext = {
+  //     type: 'after',
+  //     method: 'find',
+  //     result: [
+  //       { id: 3, title: 'Life in Nashville', artist_id: 2 },
+  //       { id: 2, title: 'I Wont Back Down', artist_id: 1 }
+  //     ]
+  //   };
+
+  //   const newAfterContext = await joinQuery(joinQueryOptions)(
+  //     Object.assign(newBeforeContext, afterContext)
+  //   );
+
+  //   await assert.deepStrictEqual(newAfterContext.result, [
+  //     { id: 2, title: 'I Wont Back Down', artist_id: 1 },
+  //     { id: 3, title: 'Life in Nashville', artist_id: 2 }
+  //   ]);
+  // });
+
   it('Can $sort on joined queries', async () => {
-    // Query: $sort albums by artist name
-    const beforeContext = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'find',
-      params: {
-        query: {
-          artist: { $sort: { name: 1 } }
-        }
-      }
-    };
-
-    const newBeforeContext = await joinQuery(joinQueryOptions)(beforeContext);
-
-    const afterContext = {
-      type: 'after',
-      method: 'find',
-      result: [
-        { id: 3, title: 'Life in Nashville', artist_id: 2 },
-        { id: 2, title: 'I Wont Back Down', artist_id: 1 }
-      ]
-    };
-
-    const newAfterContext = await joinQuery(joinQueryOptions)(
-      Object.assign(newBeforeContext, afterContext)
-    );
-
-    await assert.deepStrictEqual(newAfterContext.result, [
-      { id: 2, title: 'I Wont Back Down', artist_id: 1 },
-      { id: 3, title: 'Life in Nashville', artist_id: 2 }
-    ]);
-  });
-
-  it('Can $sort on joined queries via dot.path', async () => {
     // Query: $sort albums by artist name
     const beforeContext = {
       app,
@@ -402,7 +497,7 @@ describe('joinQuery', () => {
     })(context);
 
     await assert.deepStrictEqual(newContext.params.query, {
-      id: { $in: [1, 2] }
+      $and: [{ id: { $in: [1, 2] } }]
     });
   });
 
@@ -509,228 +604,6 @@ describe('joinQuery', () => {
         }
       ]
     });
-  });
-
-  it('Can handle paginate:false', async () => {
-    // Query: which albums have an artist with name 'Johnny Cash'
-    const context = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'find',
-      params: {
-        paginate: false,
-        query: {
-          artist: { name: 'Johnny Cash' }
-        }
-      }
-    };
-
-    let usesPaginateFalse = null;
-
-    await joinQuery({
-      artist: {
-        ...joinQueryOptions.artist,
-        makeParams: async defaultParams => {
-          usesPaginateFalse = defaultParams.paginate === false;
-          return defaultParams;
-        }
-      }
-    })(context);
-
-    await assert.deepStrictEqual(usesPaginateFalse, true);
-  });
-
-  it('Can handle no service paginate option', async () => {
-    // Query: which albums have an artist with name 'Johnny Cash'
-    // const albumsService =
-    const context = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'find',
-      params: {
-        query: {
-          artist: { name: 'Johnny Cash' }
-        }
-      }
-    };
-
-    app.service('api/albums').options.paginate = false;
-
-    let usesPaginateFalse = null;
-
-    await joinQuery({
-      artist: {
-        ...joinQueryOptions.artist,
-        makeParams: async defaultParams => {
-          usesPaginateFalse = defaultParams.paginate === false;
-          return defaultParams;
-        }
-      }
-    })(context);
-
-    await assert.deepStrictEqual(usesPaginateFalse, true);
-
-    app.service('api/albums').options.paginate = {
-      default: 10,
-      max: 100
-    };
-  });
-
-  it('Can handle no join-service paginate option', async () => {
-    // Query: which albums have an artist with name 'Johnny Cash'
-    const context = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'find',
-      params: {
-        query: {
-          artist: { name: 'Johnny Cash' }
-        }
-      }
-    };
-
-    app.service('api/artists').options.paginate = false;
-
-    let usesLimit = null;
-
-    await joinQuery({
-      artist: {
-        ...joinQueryOptions.artist,
-        makeParams: async defaultParams => {
-          usesLimit = defaultParams.query.$limit === 10;
-          return defaultParams;
-        }
-      }
-    })(context);
-
-    await assert.deepStrictEqual(usesLimit, true);
-
-    app.service('api/artists').options.paginate = {
-      default: 10,
-      max: 100
-    };
-  });
-
-  it('Can handle $limit:1', async () => {
-    // Query: which albums have an artist with name 'Johnny Cash'
-    const context = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'find',
-      params: {
-        query: {
-          $limit: 1,
-          artist: { name: 'Johnny Cash' }
-        }
-      }
-    };
-
-    let usesLimit = null;
-
-    await joinQuery({
-      artist: {
-        ...joinQueryOptions.artist,
-        makeParams: async defaultParams => {
-          usesLimit = defaultParams.query.$limit === 1;
-          return defaultParams;
-        }
-      }
-    })(context);
-
-    await assert.deepStrictEqual(usesLimit, true);
-  });
-
-  it('Can handle $limit:0', async () => {
-    // Query: which albums have an artist with name 'Johnny Cash'
-    const context = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'find',
-      params: {
-        query: {
-          $limit: 0,
-          artist: { name: 'Johnny Cash' }
-        }
-      }
-    };
-
-    let usesPaginateFalse = null;
-
-    await joinQuery({
-      artist: {
-        ...joinQueryOptions.artist,
-        makeParams: async defaultParams => {
-          usesPaginateFalse = defaultParams.paginate === false;
-          return defaultParams;
-        }
-      }
-    })(context);
-
-    await assert.deepStrictEqual(usesPaginateFalse, true);
-  });
-
-  it('Can handle $skip', async () => {
-    // Query: which albums have an artist with name 'Johnny Cash'
-    const context = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'find',
-      params: {
-        query: {
-          $skip: 1,
-          artist: { name: 'Johnny Cash' }
-        }
-      }
-    };
-
-    let usesPaginateFalse = null;
-
-    await joinQuery({
-      artist: {
-        ...joinQueryOptions.artist,
-        makeParams: async defaultParams => {
-          usesPaginateFalse = defaultParams.paginate === false;
-          return defaultParams;
-        }
-      }
-    })(context);
-
-    await assert.deepStrictEqual(usesPaginateFalse, true);
-  });
-
-  it('Can handle default pagination', async () => {
-    // Query: which albums have an artist with name 'Johnny Cash'
-    const context = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'find',
-      params: {
-        query: {
-          artist: { name: 'Johnny Cash' }
-        }
-      }
-    };
-
-    let usesLimit = null;
-
-    await joinQuery({
-      artist: {
-        ...joinQueryOptions.artist,
-        makeParams: async defaultParams => {
-          usesLimit = defaultParams.query.$limit === 10;
-          return defaultParams;
-        }
-      }
-    })(context);
-
-    await assert.deepStrictEqual(usesLimit, true);
   });
 
   it('Does not overwrite user query', async () => {

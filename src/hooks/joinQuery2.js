@@ -1,12 +1,13 @@
 const { hasQuery, isObject } = require('../lib/utils');
 const { skippable } = require('../lib');
+const { clone, traverse, asyncTraverse } = require('../lib/utils');
 
 module.exports = _options => {
   const options = { ..._options };
 
   Object.keys(options).forEach(key => {
     options[key] = {
-      overwrite: true,
+      overwrite: false,
       makeKey: key => key,
       makeParams: (defaultParams, context, option) => {
         return defaultParams;
@@ -29,17 +30,21 @@ module.exports = _options => {
 };
 
 const beforeHook = async (context, options) => {
-  const { query } = context.params;
+  const query = clone(context.params.query);
   const normalizedQuery = await normalizeQuery(query, options);
-  const cleanedQuery = await cleanQuery(normalizedQuery, options, context);
-  context.params.query = cleanedQuery;
+  const transformedQuery = await transformQuery(
+    normalizedQuery,
+    options,
+    context
+  );
+  context.params.query = transformedQuery;
   return context;
 };
 
 const afterHook = (context, options) => { };
 
 const isJoinQuery = (key, options) => {
-  const [optionKey] = parseJoinQuery(key);
+  const optionKey = key.split('.')[0];
   return !!options[optionKey];
 };
 
@@ -49,50 +54,31 @@ const parseJoinQuery = key => {
   return [optionKey, optionQuery];
 };
 
-const traverse = async (obj, callback) => {
-  await Promise.all(
-    Object.entries(obj).map(async ([rootKey, rootVal]) => {
-      if (Array.isArray(rootVal)) {
-        await Promise.all(
-          rootVal.map(childVal => traverse(childVal, callback))
-        );
-      }
-      if (isObject(rootVal)) {
-        await traverse(rootVal, callback);
-      }
-      return callback(obj, [rootKey, rootVal]);
-    })
-  );
-
-  return obj;
-};
-
 async function normalizeQuery(query, options) {
-  const normalizedQuery = await traverse(
-    query,
-    async (parent, [key, value]) => {
-      if (!isJoinQuery(key, options)) {
-        return;
-      }
-
-      const [optionKey, optionQuery] = parseJoinQuery(key);
-
-      if (optionQuery) {
-        delete parent[key];
-        parent[optionKey] = {
-          ...parent[optionKey],
-          [optionQuery]: value
-        };
-      } else {
-        parent[optionKey] = {
-          ...parent[optionKey],
-          ...value
-        };
-      }
+  traverse(query, (parent, [key, value]) => {
+    if (!isJoinQuery(key, options)) {
+      return;
     }
-  );
 
-  Object.entries(normalizedQuery).forEach(([rootKey, rootVal]) => {
+    const [optionKey, optionQuery] = parseJoinQuery(key);
+
+    if (optionQuery) {
+      // Is dot.path query
+      delete parent[key];
+      parent[optionKey] = {
+        ...parent[optionKey],
+        [optionQuery]: value
+      };
+    } else {
+      // Is object query
+      parent[optionKey] = {
+        ...parent[optionKey],
+        ...value
+      };
+    }
+  });
+
+  Object.entries(query).forEach(([rootKey, rootVal]) => {
     if (!isJoinQuery(rootKey, options)) {
       return;
     }
@@ -102,16 +88,16 @@ async function normalizeQuery(query, options) {
       return;
     }
 
-    delete normalizedQuery[rootKey];
-    normalizedQuery.$and = normalizedQuery.$and || [];
-    normalizedQuery.$and.push({ [rootKey]: rootVal });
+    delete query[rootKey];
+    query.$and = query.$and || [];
+    query.$and.push({ [rootKey]: rootVal });
   });
 
-  return normalizedQuery;
+  return query;
 }
 
-const cleanQuery = async (query, options, context) => {
-  return traverse(query, async (parent, [key, value]) => {
+const transformQuery = async (query, options, context) => {
+  await asyncTraverse(query, async (parent, [key, value]) => {
     if (!isJoinQuery(key, options)) {
       return;
     }
@@ -120,7 +106,10 @@ const cleanQuery = async (query, options, context) => {
 
     const option = options[key];
 
-    const defaultParams = makeDefaultParams(query, value, context, option);
+    const defaultParams = {
+      paginate: false,
+      query: { $select: [option.targetKey], ...value }
+    };
 
     const params = await option.makeParams(defaultParams, context, option);
 
@@ -130,14 +119,14 @@ const cleanQuery = async (query, options, context) => {
       $in: makeForeignKeys(result.data || result, option)
     };
 
-    // return parent;
-
-    // parent[foreignKey] = await
+    return parent;
   });
+
+  return query;
 };
 
 // Because the matches/foreignKeys arrays are un-paginated and
-// potentially very long arrays, I wanted to optimize the functions
+// potentially very long arrays, try to optimize the functions
 // that map/filter/sort. But, with some basic benchmarking there
 // was no difference for array lengths less than 1000, so KISS for now.
 const makeForeignKeys = (result, { makeKey, targetKey }) => {
@@ -161,82 +150,4 @@ const makeForeignKeys = (result, { makeKey, targetKey }) => {
   //   }
   // });
   // return foreignKeys;
-};
-
-const makeDefaultParams = (query, joinQuery, context, option) => {
-  const joinService = context.app.service(option.service);
-  const service = context.service;
-  const servicePaginate = service.options && service.options.paginate;
-  const joinPaginate = joinService.options && joinService.options.paginate;
-
-  const defaultQuery = { $select: [option.targetKey], ...joinQuery };
-
-  const defaultParams = {
-    paginate: false,
-    query: defaultQuery
-  };
-
-  if (context.params.paginate === false || !servicePaginate || query.$skip) {
-    return defaultParams;
-  }
-
-  const hasLimit = Object.prototype.hasOwnProperty.call(query, '$limit');
-
-  if (!joinPaginate) {
-    if (hasLimit) {
-      if (query.$limit === 0) {
-        return defaultParams;
-      }
-      return {
-        query: {
-          ...defaultQuery,
-          $limit: query.$limit
-        }
-      };
-    }
-
-    return {
-      query: {
-        ...defaultQuery,
-        $limit: servicePaginate.default
-      }
-    };
-  }
-
-  if (hasLimit) {
-    if (query.$limit === 0) {
-      return defaultParams;
-    }
-    return query.$limit <= joinPaginate.max
-      ? {
-        query: {
-          ...defaultQuery,
-          $limit: query.$limit
-        }
-      }
-      : defaultParams;
-  }
-
-  if (servicePaginate.default <= joinPaginate.default) {
-    return {
-      query: {
-        ...defaultQuery,
-        $limit: servicePaginate.default
-      }
-    };
-  }
-
-  if (
-    servicePaginate.default > joinPaginate.default &&
-    servicePaginate.default <= joinPaginate.max
-  ) {
-    return {
-      query: {
-        ...defaultQuery,
-        $limit: servicePaginate.default
-      }
-    };
-  }
-
-  return defaultParams;
 };
