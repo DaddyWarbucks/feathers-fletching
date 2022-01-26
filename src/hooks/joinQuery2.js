@@ -9,9 +9,7 @@ module.exports = _options => {
     options[key] = {
       overwrite: false,
       makeKey: key => key,
-      makeParams: (defaultParams, context, option) => {
-        return defaultParams;
-      },
+      makeParams: defaultParams => defaultParams,
       ...options[key]
     };
   });
@@ -31,17 +29,13 @@ module.exports = _options => {
 
 const beforeHook = async (context, options) => {
   const query = clone(context.params.query);
-  const normalizedQuery = await normalizeQuery(query, options);
-  const transformedQuery = await transformQuery(
-    normalizedQuery,
-    options,
-    context
-  );
-  context.params.query = transformedQuery;
+  context.params.query = await transformQuery(query, options, context);
   return context;
 };
 
-const afterHook = (context, options) => { };
+const afterHook = (context, options) => {
+
+};
 
 const isJoinQuery = (key, options) => {
   const optionKey = key.split('.')[0];
@@ -54,7 +48,7 @@ const parseJoinQuery = key => {
   return [optionKey, optionQuery];
 };
 
-async function normalizeQuery(query, options) {
+const normalizeQuery = (query, options) => {
   traverse(query, (parent, [key, value]) => {
     if (!isJoinQuery(key, options)) {
       return;
@@ -94,10 +88,12 @@ async function normalizeQuery(query, options) {
   });
 
   return query;
-}
+};
 
 const transformQuery = async (query, options, context) => {
-  await asyncTraverse(query, async (parent, [key, value]) => {
+  const normalizedQuery = normalizeQuery(query, options);
+
+  await asyncTraverse(normalizedQuery, async (parent, [key, value]) => {
     if (!isJoinQuery(key, options)) {
       return;
     }
@@ -131,13 +127,8 @@ const transformQuery = async (query, options, context) => {
 // was no difference for array lengths less than 1000, so KISS for now.
 const makeForeignKeys = (result, { makeKey, targetKey }) => {
   return result
-    .map(match => {
-      return makeKey(match[targetKey]);
-    })
-    .filter((key, index, self) => {
-      // Filter by keys that exist and are unique
-      return key && self.indexOf(key) === index;
-    });
+    .map(result => makeKey(result[targetKey]))
+    .filter((key, index, self) => key && self.indexOf(key) === index);
 
   // const map = new Map();
   // const foreignKeys = [];
