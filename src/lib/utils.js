@@ -22,16 +22,29 @@ module.exports.isPromise = maybePromise => {
 };
 
 const isObject = obj => {
-  return obj && typeof maybeObj === 'object' && !Array.isArray(obj);
+  return obj && typeof obj === 'object' && !Array.isArray(obj);
 };
 
 module.exports.isObject = isObject;
 
+const isEmpty = obj => {
+  if (Array.isArray(obj)) {
+    return obj.length === 0;
+  }
+  return Object.keys(obj).length === 0;
+};
+
+module.exports.isEmpty = isEmpty;
+
+const hasKey = (obj, key) => {
+  return Object.prototype.hasOwnProperty.call(obj, key);
+};
+
+module.exports.hasKey = hasKey;
+
 module.exports.hasQuery = context => {
   const hasQuery =
-    context.params &&
-    context.params.query &&
-    Object.keys(context.params.query).length;
+    context.params && context.params.query && !isEmpty(context.params.query);
 
   return !!hasQuery;
 };
@@ -73,15 +86,23 @@ module.exports.stableStringify = obj => {
   });
 };
 
+// This is mainly meant to traverse queries and is not
+// meant to be a feature rich traversal. It calls
+// the callback for any key/value in any nested objects.
+// It does not account for Map, Set, etc.
 const traverse = (obj, callback) => {
-  Object.entries(obj).forEach(([rootKey, rootVal]) => {
-    if (Array.isArray(rootVal)) {
-      rootVal.forEach(childVal => traverse(childVal, callback));
+  if (!isObject(obj)) {
+    return obj;
+  }
+
+  Object.entries(obj).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach(childObj => traverse(childObj, callback));
     }
-    if (isObject(rootVal)) {
-      traverse(rootVal, callback);
+    if (isObject(value)) {
+      traverse(value, callback);
     }
-    return callback(obj, [rootKey, rootVal]);
+    return callback(obj, [key, value]);
   });
 
   return obj;
@@ -90,17 +111,21 @@ const traverse = (obj, callback) => {
 module.exports.traverse = traverse;
 
 const asyncTraverse = async (obj, callback) => {
+  if (!isObject(obj)) {
+    return obj;
+  }
+
   await Promise.all(
-    Object.entries(obj).map(async ([rootKey, rootVal]) => {
-      if (Array.isArray(rootVal)) {
+    Object.entries(obj).map(async ([key, value]) => {
+      if (Array.isArray(value)) {
         await Promise.all(
-          rootVal.map(childVal => asyncTraverse(childVal, callback))
+          value.map(childObj => asyncTraverse(childObj, callback))
         );
       }
-      if (isObject(rootVal)) {
-        await asyncTraverse(rootVal, callback);
+      if (isObject(value)) {
+        await asyncTraverse(value, callback);
       }
-      return callback(obj, [rootKey, rootVal]);
+      return callback(obj, [key, value]);
     })
   );
 

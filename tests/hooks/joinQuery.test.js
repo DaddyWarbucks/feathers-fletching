@@ -1,7 +1,7 @@
 const assert = require('assert');
 const feathers = require('@feathersjs/feathers');
 const memory = require('feathers-memory');
-const joinQuery = require('../../src/hooks/joinQuery2');
+const joinQuery = require('../../src/hooks/joinQuery');
 
 const joinQueryOptions = {
   artist: {
@@ -341,45 +341,7 @@ describe('joinQuery', () => {
     await assert.deepStrictEqual(makeParamsCalled, true);
   });
 
-  // it('Can $sort on joined queries', async () => {
-  //   // Query: $sort albums by artist name
-  //   const beforeContext = {
-  //     app,
-  //     service: app.service('api/albums'),
-  //     type: 'before',
-  //     method: 'find',
-  //     params: {
-  //       query: {
-  //         $sort: {
-  //           'artist.name': 1
-  //         }
-  //       }
-  //     }
-  //   };
-
-  //   const newBeforeContext = await joinQuery(joinQueryOptions)(beforeContext);
-
-  //   const afterContext = {
-  //     type: 'after',
-  //     method: 'find',
-  //     result: [
-  //       { id: 3, title: 'Life in Nashville', artist_id: 2 },
-  //       { id: 2, title: 'I Wont Back Down', artist_id: 1 }
-  //     ]
-  //   };
-
-  //   const newAfterContext = await joinQuery(joinQueryOptions)(
-  //     Object.assign(newBeforeContext, afterContext)
-  //   );
-
-  //   await assert.deepStrictEqual(newAfterContext.result, [
-  //     { id: 2, title: 'I Wont Back Down', artist_id: 1 },
-  //     { id: 3, title: 'Life in Nashville', artist_id: 2 }
-  //   ]);
-  // });
-
-  it('Can $sort on joined queries', async () => {
-    // Query: $sort albums by artist name
+  it('Can sort FIND', async () => {
     const beforeContext = {
       app,
       service: app.service('api/albums'),
@@ -388,30 +350,87 @@ describe('joinQuery', () => {
       params: {
         query: {
           $sort: {
-            'artist.name': 1
+            'artist.name': -1
           }
         }
       }
     };
 
-    const newBeforeContext = await joinQuery(joinQueryOptions)(beforeContext);
+    const newContext = await joinQuery(joinQueryOptions)(beforeContext);
 
-    const afterContext = {
-      type: 'after',
-      method: 'find',
-      result: [
+    await assert.deepStrictEqual(newContext.result, {
+      data: [
         { id: 3, title: 'Life in Nashville', artist_id: 2 },
+        { id: 1, title: 'Man in Black', artist_id: 1 },
         { id: 2, title: 'I Wont Back Down', artist_id: 1 }
-      ]
+      ],
+      total: 3,
+      limit: undefined,
+      skip: 0
+    });
+  });
+
+  it('Throws when using $sort after:find', async () => {
+    const context = {
+      app,
+      service: app.service('api/albums'),
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          $sort: {
+            'artist.name': -1
+          }
+        }
+      }
     };
 
-    const newAfterContext = await joinQuery(joinQueryOptions)(
-      Object.assign(newBeforeContext, afterContext)
-    );
+    const newContext = await joinQuery(joinQueryOptions)(context);
 
-    await assert.deepStrictEqual(newAfterContext.result, [
-      { id: 2, title: 'I Wont Back Down', artist_id: 1 },
-      { id: 3, title: 'Life in Nashville', artist_id: 2 }
+    const afterContext = {
+      ...newContext,
+      type: 'after'
+    };
+
+    const shouldReject = joinQuery(joinQueryOptions)(afterContext);
+
+    await assert.rejects(shouldReject, { name: 'GeneralError' });
+  });
+
+  it('Sorts on multi:true mutations', async () => {
+    const beforeContext = {
+      app,
+      service: app.service('api/albums'),
+      type: 'before',
+      method: 'patch',
+      params: {
+        query: {
+          $sort: {
+            'artist.name': -1
+          }
+        }
+      }
+    };
+
+    const newContext = await joinQuery(joinQueryOptions)(beforeContext);
+
+    const result = await app
+      .service('api/albums')
+      .patch(null, {}, newContext.params);
+
+    const afterContext = {
+      ...newContext,
+      id: null,
+      type: 'after',
+      result
+    };
+
+    const resultContext = await joinQuery(joinQueryOptions)(afterContext);
+
+    await assert.deepStrictEqual(resultContext.result, [
+      { id: 3, title: 'Life in Nashville', artist_id: 2 },
+      { id: 1, title: 'Man in Black', artist_id: 1 },
+      { id: 2, title: 'I Wont Back Down', artist_id: 1 }
     ]);
   });
 
