@@ -59,7 +59,7 @@ module.exports = _options => {
     delete context.joinSort;
 
     if (context.method === 'find') {
-      throw new GeneralError('Cannot use joinQuery in after:find');
+      return context;
     }
 
     if (

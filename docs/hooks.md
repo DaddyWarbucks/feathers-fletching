@@ -544,6 +544,7 @@ Query across services for "joined" records on any database type. This hook relie
 | option.foreignKey | String |  | true | The name of the key on the foreign record. Generally this will be `id` or `_id` |
 | option.makeParams | Function/Promise | `(defaultParams, context) => defaultParams` | false | A function/promise that returns params to be sent to the `option.service` find method. |
 | option.makeKey | Function | `(key) => key`  | false | A function that parses the `option.targetKey` and `option.foreignKey` |
+| option.overwrite | Bool | false | false | Overwrite the query or put sub queries in $and |
 
 
 ```js
@@ -578,7 +579,6 @@ app.service('api/albums').hooks({
     all: [joinQueries]
   },
   after: {
-    // Use the hook as an after hook to sort by joined results.
     all: [joinQueries]
   }
 });
@@ -617,13 +617,15 @@ const albums = await app.service('api/albums').find({
 ```
 
 ```js
-// You can also use $or queries
+// You can also use nested $and/$or queries
 const albums = await app.service('api/albums').find({
   query: {
-    $or: [
-      { 'artist.name': 'Johnny Cash' },
-      { 'artist.name': 'Johnny Paycheck' },
-    ]
+    $and: [{
+      $or: [
+        { 'artist.name': 'Johnny Cash' },
+        { 'artist.name': 'Johnny Paycheck' },
+      ]
+    }]
   }
 });
 ```
@@ -668,10 +670,33 @@ const joinQueries = joinQuery({
 ```
 
 ```js
-// Use the hook as an after hook to sort results by the joined query.
-// Use this after hook with caution. Because the hook can only sort
-// on the results in memory, order may vary. It is generally not
-// recommended to rely on this sort unless you turn pagination off.
+// By default, the hook does not clobber the query you provided.
+// Instead, it addes the join queries to $and.
+// Use the `overwrite` option to overwrite joined properties.
+const query = {
+  artist_id: 2,
+  'artist.name': 'Johnny Cash'
+}
+
+// overwrite: false (default)
+const joinQuery = {
+  artist_id: 2,
+  $and: [{
+    artist_id: { $in: [1] }
+  }]
+}
+
+// overwrite: true
+const joinQuery = {
+  artist_id: { $in: [1] }
+}
+```
+
+```js
+// Sorting for .find() actually happens in the before hook,
+// but to sort on other methods (mainly for multi: true) also
+// place the hook as an after hook.
+
 const joinQueries = joinQuery({
   artist: {
     service: 'api/artists',
@@ -711,6 +736,35 @@ const albums = await app.service('api/albums').find({
 */
 
 ```
+
+```js
+// This technique of searching across services has
+// some known performance limitations. Join queries
+// fetch unpaginated ids from their services, and
+// this list of ids may be very long.
+
+const idList = await context.app.service('api/artists').find({
+  paginate: false,
+  query: {
+    $select: ['id'],
+    name: { $like: 'John' }
+  }
+});
+
+// idList may be very long...
+
+const ids = idList.map(record => record.id);
+
+const joinQuery = {
+  ...query,
+  artist_id: { $in: ids }
+}
+
+// $in queries can be slow in some DB's
+
+```
+
+> While this service works great when querying across all types of services. It is recommended to use one of the adapter specific hooks like `sequelizeJoinQuery`.
 
 > When using this hook on the client, use the [disablePagination](https://hooks-common.feathersjs.com/hooks.html#disablepagination) hook on the server to ensure proper results. Then be sure to include `$limit: -1` with your join query like `artist: { name: 'Johnny Cash', $limit: -1 }`. Otherwise, the query passed to the join service will not return all joined records and your result set will be incomplete.
 

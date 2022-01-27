@@ -370,33 +370,6 @@ describe('joinQuery', () => {
     });
   });
 
-  it('Throws when using $sort after:find', async () => {
-    const context = {
-      app,
-      service: app.service('api/albums'),
-      type: 'before',
-      method: 'find',
-      params: {
-        query: {
-          $sort: {
-            'artist.name': -1
-          }
-        }
-      }
-    };
-
-    const newContext = await joinQuery(joinQueryOptions)(context);
-
-    const afterContext = {
-      ...newContext,
-      type: 'after'
-    };
-
-    const shouldReject = joinQuery(joinQueryOptions)(afterContext);
-
-    await assert.rejects(shouldReject, { name: 'GeneralError' });
-  });
-
   it('Sorts on multi:true mutations', async () => {
     const beforeContext = {
       app,
