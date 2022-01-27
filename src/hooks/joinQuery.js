@@ -9,7 +9,6 @@ const {
   isEmpty,
   hasKey
 } = require('../lib/utils');
-const { GeneralError } = require('@feathersjs/errors');
 
 module.exports = _options => {
   const options = { ..._options };
