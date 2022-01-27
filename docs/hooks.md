@@ -543,7 +543,7 @@ Query across services for "joined" records on any database type. This hook relie
 | option.targetKey | String |  | true | The name of the key that exists on the collection this service is querying |
 | option.foreignKey | String |  | true | The name of the key on the foreign record. Generally this will be `id` or `_id` |
 | option.makeParams | Function/Promise | `(defaultParams, context) => defaultParams` | false | A function/promise that returns params to be sent to the `option.service` find method. |
-| option.makeKey | Function | `(key) => key`  | false | A function that parses the `option.targetKey` and `option.foreignKey` |
+| option.makeKey | Function | `(key) => key.toString()`  | false | A function that parses the `option.targetKey` and `option.foreignKey` |
 | option.overwrite | Bool | false | false | Overwrite the query or put sub queries in $and |
 
 
@@ -631,15 +631,16 @@ const albums = await app.service('api/albums').find({
 ```
 
 ```js
-// Use the `makeKey` option to parse ids. This is required
-// when working with mongo/mongoos ObjectID's. Generally if
-// your service uses `_id` you probably want to do this.
+// Use the `makeKey` option to parse ids. By default,
+// the hook tries to call .toString() which is helpful
+// for Mongo/Mongoose ids
 const joinQueries = joinQuery({
   artist: {
     service: 'api/artists',
     foreignKey: 'artist_id',
     targetKey: '_id'
-    makeKey: key => key.toString()
+    // makeKey: key => key.string(),
+    makeKey: key => key
   }
 });
 ```

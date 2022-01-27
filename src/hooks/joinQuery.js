@@ -16,8 +16,12 @@ module.exports = _options => {
   Object.keys(options).forEach(key => {
     options[key] = {
       overwrite: false,
-      makeKey: key => key,
-      makeParams: defaultParams => defaultParams,
+      makeKey: key => {
+        return key.toString ? key.toString() : key;
+      },
+      makeParams: defaultParams => {
+        return defaultParams;
+      },
       ...options[key]
     };
   });
@@ -201,15 +205,6 @@ const findJoinQuerySort = async (query, joinSort, context, options) => {
     context,
     options
   );
-
-  const findForeignKeys = Object.entries(joinSort).map(async ([key, value]) => {
-    const [optionKey, optionQuery] = parseJoinQuery(key, options);
-    const { service, targetKey } = options[optionKey];
-    return context.app.service(service).find({
-      paginate: false,
-      query: { $select: [targetKey], $sort: { [optionQuery]: value } }
-    });
-  });
 
   const findResults = context.service.find({
     paginate: false,
