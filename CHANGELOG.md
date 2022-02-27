@@ -7,4 +7,4 @@ joinQuery:
   - Now supports nested $and/$or queries
   - Adds and defaults `overwrite` option to `false`
   - More accurate sorting
-  - Does not throw Error when no results found on Find
+  - Does not throw error when no results found on `find` method
