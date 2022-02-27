@@ -16,12 +16,8 @@ module.exports = _options => {
   Object.keys(options).forEach(key => {
     options[key] = {
       overwrite: false,
-      makeKey: key => {
-        return key.toString ? key.toString() : key;
-      },
-      makeParams: defaultParams => {
-        return defaultParams;
-      },
+      makeKey: key => key,
+      makeParams: defaultParams => defaultParams,
       ...options[key]
     };
   });
