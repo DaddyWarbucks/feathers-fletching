@@ -542,8 +542,8 @@ Query across services for "joined" records on any database type. This hook relie
 | option.service | String |  | true | The string name of the service to query against |
 | option.targetKey | String |  | true | The name of the key that exists on the collection this service is querying |
 | option.foreignKey | String |  | true | The name of the key on the foreign record. Generally this will be `id` or `_id` |
-| option.makeParams | Function/Promise | `(defaultParams, context) => defaultParams` | false | A function/promise that returns params to be sent to the `option.service` find method. |
-| option.makeKey | Function | `(key) => key.toString()`  | false | A function that parses the `option.targetKey` and `option.foreignKey` |
+| option.makeParams | Function/Promise | `(defaultParams, context, option) => defaultParams` | false | A function/promise that returns params to be sent to the `option.service` find method. |
+| option.makeKey | Function | `(key) => key`  | false | A function that parses the `option.targetKey` and `option.foreignKey` |
 | option.overwrite | Bool | false | false | Overwrite the query or put sub queries in $and |
 
 
@@ -631,16 +631,15 @@ const albums = await app.service('api/albums').find({
 ```
 
 ```js
-// Use the `makeKey` option to parse ids. By default,
-// the hook tries to call .toString() which is helpful
-// for Mongo/Mongoose ids
+// Use the `makeKey` option to parse ids. When using Mongo
+// or Mongoose, you will likely need to parse ObjectId's
+// to strings.
 const joinQueries = joinQuery({
   artist: {
     service: 'api/artists',
     foreignKey: 'artist_id',
     targetKey: '_id'
-    // makeKey: key => key.string(),
-    makeKey: key => key
+    makeKey: key => key.string()
   }
 });
 ```
@@ -697,7 +696,6 @@ const joinQuery = {
 // Sorting for .find() actually happens in the before hook,
 // but to sort on other methods (mainly for multi: true) also
 // place the hook as an after hook.
-
 const joinQueries = joinQuery({
   artist: {
     service: 'api/artists',
@@ -743,7 +741,6 @@ const albums = await app.service('api/albums').find({
 // some known performance limitations. Join queries
 // fetch unpaginated ids from their services, and
 // this list of ids may be very long.
-
 const idList = await context.app.service('api/artists').find({
   paginate: false,
   query: {
@@ -752,20 +749,12 @@ const idList = await context.app.service('api/artists').find({
   }
 });
 
-// idList may be very long...
-
-const ids = idList.map(record => record.id);
-
-const joinQuery = {
-  ...query,
-  artist_id: { $in: ids }
-}
-
-// $in queries can be slow in some DB's
+// Furthermore, when sorting with a join query, the main service
+// also must disable pagination. This can be an extremel
 
 ```
 
-> While this service works great when querying across all types of services. It is recommended to use one of the adapter specific hooks like `sequelizeJoinQuery`.
+> This technique of searching across services has some known performance limitations. Join queries fetch a list of  unpaginated IDs from their services, and this list of ids may be very long. These IDs are then used within an `$in` query, which is generally not a performant query operator. When sorting with a join query, the main service also disables pagination, meaning all results are returned from the database and sorted in memory. While this hook works great when querying across multiple types of feathers database adapters, most applications use one type of database adapter. It is recommended to use one of the database adapter specific hooks like `sequelizeJoinQuery`. These database specific hooks are able to handle the filtering and sorting at the database level and are much more performant.
 
 > When using this hook on the client, use the [disablePagination](https://hooks-common.feathersjs.com/hooks.html#disablepagination) hook on the server to ensure proper results. Then be sure to include `$limit: -1` with your join query like `artist: { name: 'Johnny Cash', $limit: -1 }`. Otherwise, the query passed to the join service will not return all joined records and your result set will be incomplete.
 
