@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Hooks | feathers-fletching</title>
+    <meta name="description" content="A collection of hooks and utilities to make your FeathersJS apps fly straight and true.">
+    
+    
+    <link rel="preload" href="/feathers-fletching/assets/css/0.styles.17a6cf7d.css" as="style"><link rel="preload" href="/feathers-fletching/assets/js/app.533a6a06.js" as="script"><link rel="preload" href="/feathers-fletching/assets/js/2.64a5bae3.js" as="script"><link rel="preload" href="/feathers-fletching/assets/js/5.571578b5.js" as="script"><link rel="prefetch" href="/feathers-fletching/assets/js/10.c9edc631.js"><link rel="prefetch" href="/feathers-fletching/assets/js/3.1c1ef8e9.js"><link rel="prefetch" href="/feathers-fletching/assets/js/4.554dccb8.js"><link rel="prefetch" href="/feathers-fletching/assets/js/6.982e0412.js"><link rel="prefetch" href="/feathers-fletching/assets/js/7.9e220ff8.js"><link rel="prefetch" href="/feathers-fletching/assets/js/8.93d0d1fe.js"><link rel="prefetch" href="/feathers-fletching/assets/js/9.e5097e96.js">
+    <link rel="stylesheet" href="/feathers-fletching/assets/css/0.styles.17a6cf7d.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/feathers-fletching/" class="home-link router-link-active"><img src="/feathers-fletching/logo.svg" alt="feathers-fletching" class="logo"> <span class="site-name can-hide">feathers-fletching</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"> <a href="https://github.com/daddywarbucks/feathers-fletching" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"> <a href="https://github.com/daddywarbucks/feathers-fletching" target="_blank" rel="noopener noreferrer" class="repo-link">
+    GitHub
+    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></nav>  <ul class="sidebar-links"><li><a href="/feathers-fletching/overview.html" class="sidebar-link">Overview</a></li><li><a href="/feathers-fletching/hooks.html" class="active sidebar-link">Hooks</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#notes" class="sidebar-link">Notes</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withresult" class="sidebar-link">withResult</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withoutresult" class="sidebar-link">withoutResult</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withdata" class="sidebar-link">withData</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withoutdata" class="sidebar-link">withoutData</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withquery" class="sidebar-link">withQuery</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#withoutquery" class="sidebar-link">withoutQuery</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#joinquery" class="sidebar-link">joinQuery</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#sequelizejoinquery" class="sidebar-link">sequelizeJoinQuery</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#contextcache" class="sidebar-link">contextCache</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#ratelimit" class="sidebar-link">rateLimit</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#sanitizeerror" class="sidebar-link">sanitizeError</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#sanitizeresult" class="sidebar-link">sanitizeResult</a></li><li class="sidebar-sub-header"><a href="/feathers-fletching/hooks.html#stashable" class="sidebar-link">stashable</a></li></ul></li><li><a href="/feathers-fletching/plugins.html" class="sidebar-link">Plugins</a></li><li><a href="/feathers-fletching/utilities.html" class="sidebar-link">Utilities</a></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="hooks"><a href="#hooks" class="header-anchor">#</a> Hooks</h1> <h2 id="notes"><a href="#notes" class="header-anchor">#</a> Notes</h2> <p>All feathers-fletching hooks are skippable by default. This means that each hook can be skipped by calling a service with the param <code>skipHooks</code> as an array of the names of the feathers-fletching hooks that you want to skip. See also the <code>skippable</code> utils function docs on how to make your own hooks, or other library hooks, skippable as well.</p> <div class="language-js extra-class"><pre class="language-js"><code>app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span> skipHooks<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'withResult'</span><span class="token punctuation">]</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><h2 id="withresult"><a href="#withresult" class="header-anchor">#</a> withResult</h2> <p>Add or overwrite properties onto the <code>context.result</code> or <code>context.result.data</code>. Useful for joining/populating records and creating virtual properties.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">no</td> <td style="text-align:center;">yes</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withResult.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">virtuals</td> <td style="text-align:center;">Object</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>An object where each key will be the name of a property to be added to the <code>context.result</code> and each value is either a primitive, function, or promise.</td></tr> <tr><td style="text-align:center;">prepFunc</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;">() =&gt; {}</td> <td style="text-align:center;">false</td> <td>A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withResult <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.result = {
+    title: 'The Man in Black',
+    description: 'One of the all time greats!',
+    artist_id: 123
+  }
+*/</span>
+
+<span class="token keyword">const</span> withResults <span class="token operator">=</span> <span class="token function">withResult</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+
+  status<span class="token operator">:</span> <span class="token string">'platinum'</span><span class="token punctuation">,</span> <span class="token comment">// return some primitive: number, bool, obj, string, etc</span>
+
+  <span class="token function-variable function">summary</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Return the result of a function that was given the args</span>
+    <span class="token comment">// result, context, prepResult</span>
+    <span class="token keyword">return</span> result<span class="token punctuation">.</span>description<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">'...'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token function-variable function">artist</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Return a promise. Useful for populating/joining records</span>
+    <span class="token keyword">return</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'artists'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>result<span class="token punctuation">.</span>artist_id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token function-variable function">whoops</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// If undefined is returned, this key will not be on the result at all.</span>
+    <span class="token comment">// It will not be { whoops: undefined }, instead the `whoops` is deleted</span>
+    <span class="token comment">// from the object totally.</span>
+    <span class="token keyword">return</span> <span class="token keyword">undefined</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.result = {
+    title: 'The Man in Black',
+    description: 'One of the all time greats!',
+    artist_id: 123,
+    status: 'platinum',
+    summary: 'One...'
+    artist: { { name: 'Johnny Cash' } }
+  }
+*/</span>
+
+<span class="token comment">// withResult takes a second argument `prepFunc`. This function/promise is run</span>
+<span class="token comment">// before iteration over the virtuals keys and is passed to each</span>
+<span class="token comment">// virtuals function. It is useful for doing operations that will be</span>
+<span class="token comment">// used by multiple virtuals and for setting up batchLoaders.</span>
+
+<span class="token comment">/*
+  context.result = {
+    artist_id: 123
+  }
+*/</span>
+<span class="token keyword">const</span> withResults <span class="token operator">=</span> <span class="token function">withResult</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token function-variable function">artist</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> loaders</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> loaders<span class="token punctuation">.</span>artists<span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span>result<span class="token punctuation">.</span>artist_id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token function-variable function">rating</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> loaders</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> loaders<span class="token punctuation">.</span>ratings<span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span>result<span class="token punctuation">.</span>rating_id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token keyword">async</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// This function is run before iterating over the virtuals object and its</span>
+    <span class="token comment">// result is passed to each virtuals function. This is a great place</span>
+    <span class="token comment">// to setup batchLoaders, which are a very powerful and performant</span>
+    <span class="token comment">// way of joining related documents. For more info on batchLoaders,</span>
+    <span class="token comment">// see the feathers-plus/batch-loader docs</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+      artists<span class="token operator">:</span> <span class="token keyword">new</span> <span class="token class-name">BatchLoader</span><span class="token punctuation">(</span><span class="token string">'artists'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+      ratings<span class="token operator">:</span> <span class="token keyword">new</span> <span class="token class-name">BatchLoader</span><span class="token punctuation">(</span><span class="token string">'ratings'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+
+<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.result = {
+    artist_id: 123,
+    artist: { name: 'Johnny Cash', ... },
+    rating: { score: 10, ... }
+  }
+*/</span>
+</code></pre></div><ul><li><p>Virtuals functions are run asyncronously (in parrallel) by default. When using the <code>@</code> syntax, all keys that start with <code>@</code> will run their virtuals functions syncronously in order of their key definition before running all other keys in parrallel.</p></li> <li><p>If the result set is an array, then the <code>result</code> arg in each virtuals function <code>(result, context, prepResult) =&gt; {}</code> is the individual item in that array, not the whole array.</p></li> <li><p>When the result set is an array, the withResult virtuals are applied to each item in the array and this is run asyncrounously via <code>Promise.all()</code>.</p></li></ul> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withResult <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// All with* and without* hooks share the `@` syntax. If you preface</span>
+<span class="token comment">// a key with an `@` symbol, those keys are collected and run</span>
+<span class="token comment">// synronously in order of their key definition. Then, all other keys</span>
+<span class="token comment">// are run asyncronously</span>
+
+<span class="token keyword">const</span> withResults <span class="token operator">=</span> <span class="token function">withResult</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token string">'@first'</span><span class="token operator">:</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// This promise is guaranteed to run FIRST</span>
+    <span class="token keyword">return</span> <span class="token string">'I ran FIRST!'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">'@second'</span><span class="token operator">:</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// This promise is guaranteed to run SECOND</span>
+    <span class="token keyword">return</span> <span class="token string">'I ran SECOND!'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token function-variable function">third</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Runs in parallel [third, fifth], after @first, @second, @fourth</span>
+    <span class="token keyword">return</span> <span class="token string">'I ran in parrallel with fifth'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">'@fourth'</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// This promise is guaranteed to run THIRD</span>
+    <span class="token keyword">return</span> <span class="token string">'I ran THIRD!'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token function-variable function">fifth</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Runs in parallel [third, fifth], after @first, @second, @fourth</span>
+    <span class="token keyword">return</span> <span class="token string">'I ran in parallel with third'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">/*
+  context.result = {
+    first: 'I ran FIRST!',
+    second: 'I ran SECOND!',
+    third: 'I ran in parallel with fifth',
+    fourth: 'I ran THIRD',
+    fifth: 'I ran in parallel with third'
+  }
+*/</span>
+</code></pre></div><h2 id="withoutresult"><a href="#withoutresult" class="header-anchor">#</a> withoutResult</h2> <p>Remove properties from the <code>context.result</code> or <code>context.result.data</code> of a method call. This can be used similar to a &quot;protect&quot; hook.</p> <p>If you think of <code>withResult</code> (or any of the <code>with*</code> hooks) similar to <code>Array.protype.map</code>, you can think of the <code>withoutResult</code> (or any of the <code>without*</code> hooks) as similar to <code>Array.protype.filter</code>.</p> <p>For each virtual in the virtual object, if the value returns a truthy value it will be kept and if it returns a falsey value it will be filtered.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">no</td> <td style="text-align:center;">yes</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutResult.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">virtuals</td> <td style="text-align:center;">Object/Array</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>An object where each key will be the name of a property to be potentially filtered from result. <strong>Return a truthy value to keep the value and return a falsey value to remove it</strong>.</td></tr> <tr><td style="text-align:center;">prepFunc</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;">() =&gt; {}</td> <td style="text-align:center;">false</td> <td>A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withoutResult <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.result = {
+    name: 'Johnny Cash',
+    ssn: 123456789,
+    email: 'jcash@example.com'
+  }
+*/</span>
+
+<span class="token keyword">const</span> withoutResults <span class="token operator">=</span> <span class="token function">withoutResult</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+
+  <span class="token comment">// simply pass false if you don't need to do any logic</span>
+  <span class="token comment">// and this property will be filtered</span>
+  ssn<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+
+  <span class="token comment">// Similar to all of the with* and without* hooks, you</span>
+  <span class="token comment">// can use a function/promise with `result`, `context`, `prepResult` args</span>
+  <span class="token function-variable function">email</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">result<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>role <span class="token operator">===</span> <span class="token string">'admin'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  // if authenticated user is admin
+  context.result = {
+    name: 'Johnny Cash',
+    email: 'jcash@example.com'
+  }
+
+  // if authenticated user is NOT admin
+  context.result = {
+    name: 'Johnny Cash'
+  }
+*/</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// `withoutResult` also accepts an array of strings as the first</span>
+<span class="token comment">// argument as a conveniece syntax. When you use this syntaxt, `prepFunc`</span>
+<span class="token comment">// is ignored.</span>
+<span class="token keyword">const</span> withoutResults <span class="token operator">=</span> <span class="token function">withoutResult</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'email'</span><span class="token punctuation">,</span> <span class="token string">'ssn'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// this is equivalent to</span>
+<span class="token keyword">const</span> withoutResults <span class="token operator">=</span> <span class="token function">withoutResult</span><span class="token punctuation">(</span><span class="token punctuation">{</span> email<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> ssn<span class="token operator">:</span> <span class="token boolean">false</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// This syntax also supports dot notation of object paths</span>
+<span class="token keyword">const</span> withoutResults <span class="token operator">=</span> <span class="token function">withoutResult</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'role.role_type'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><h2 id="withdata"><a href="#withdata" class="header-anchor">#</a> withData</h2> <p>Add or overwrite properties to the <code>context.data</code> of a method call. Useful for adding default data, creating joined data, and adding server side rules to data.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">yes</td> <td style="text-align:center;">no</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withData.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">virtuals</td> <td style="text-align:center;">Object</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>An object where each key will be the name of a property to be added to the <code>context.data</code> and each value is either a primitive, function, or promise.</td></tr> <tr><td style="text-align:center;">prepFunc</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;">() =&gt; {}</td> <td style="text-align:center;">false</td> <td>A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withData <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.data = {
+    user_id: 456,
+    email: '    JCASH@EXAMPLE.COM',
+    category_ids: [123],
+    categories: [{ title: 'Country' }, { title: 'Western' }]
+  }
+*/</span>
+
+<span class="token keyword">const</span> withDatas <span class="token operator">=</span> <span class="token function">withData</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+
+  <span class="token comment">// This hook is useful for forcing properties onto data that</span>
+  <span class="token comment">// the client should not have control of. For example, you</span>
+  <span class="token comment">// may always force the `user_id` onto a record from the</span>
+  <span class="token comment">// `context.params.user` to ensure that the `user_id` is</span>
+  <span class="token comment">// always from the authorized user instead of trusting the</span>
+  <span class="token comment">// client to send the proper `user_id`. Even if the client</span>
+  <span class="token comment">// sends `{ user_id: 456 }` which is some other user's id,</span>
+  <span class="token comment">// this hook will overwrite that `user_id` to ensure the</span>
+  <span class="token comment">// data cannot be spoofed.</span>
+  <span class="token function-variable function">user_id</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+
+  <span class="token comment">// You can also use this hook to sanitize data by overwriting</span>
+  <span class="token comment">// data that already exists.</span>
+  <span class="token function-variable function">email</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> data<span class="token punctuation">.</span>email<span class="token punctuation">.</span><span class="token function">trim</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">toLowerCase</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token comment">// You can also use this hook to create or update &quot;joined&quot;</span>
+  <span class="token comment">// records. Allow the client to pass joined records as</span>
+  <span class="token comment">// an array, and you can handle updating them.</span>
+  <span class="token function-variable function">category_ids</span><span class="token operator">:</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>data<span class="token punctuation">.</span>catgories<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+      <span class="token keyword">const</span> promises <span class="token operator">=</span> data<span class="token punctuation">.</span>categories<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">newCat</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'categories'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span>newCat<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token keyword">const</span> newCategories <span class="token operator">=</span> <span class="token keyword">await</span> Promise<span class="token punctuation">.</span><span class="token function">all</span><span class="token punctuation">(</span>promises<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token keyword">const</span> newCategoryIds <span class="token operator">=</span> newCategories<span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token parameter">newCat</span> <span class="token operator">=&gt;</span> newCat<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token keyword">delete</span> data<span class="token punctuation">.</span>categories<span class="token punctuation">;</span>
+
+      <span class="token keyword">return</span> <span class="token punctuation">[</span><span class="token operator">...</span>data<span class="token punctuation">.</span>category_ids<span class="token punctuation">,</span> <span class="token operator">...</span>newCategoryIds<span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">return</span> data<span class="token punctuation">.</span>category_ids<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.data = {
+    user_id: 123,
+    email: 'jcash@example.com',
+    category_ids: [123, 456, 789]
+  }
+*/</span>
+</code></pre></div><h2 id="withoutdata"><a href="#withoutdata" class="header-anchor">#</a> withoutData</h2> <p>Remove properties from the <code>context.data</code> of a method call. This hook can be used similar to a &quot;preventChange&quot; hook.</p> <p>If you think of <code>withData</code> (or any of the <code>with*</code> hooks) similar to <code>Array.protype.map</code>, you can think of the <code>withoutData</code> (or any of the <code>without*</code> hooks) as similar to <code>Array.protype.filter</code>.</p> <p>For each virtual in the virtual object, if the value returns a truthy value it will be kept and if it returns a falsey value it will be filtered.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">yes</td> <td style="text-align:center;">no</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutData.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">virtuals</td> <td style="text-align:center;">Object/Array</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>An object where each key will be the name of a property to be potentially filtered from data. <strong>Return a truthy value to keep the value and return a falsey value to remove it</strong>.</td></tr> <tr><td style="text-align:center;">prepFunc</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;">() =&gt; {}</td> <td style="text-align:center;">false</td> <td>A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withoutData <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.data = {
+    name: 'Johnny Cash',
+    ssn: 123456789,
+    email: 'themaninblack@example.com'
+  }
+*/</span>
+
+<span class="token keyword">const</span> withoutDatas <span class="token operator">=</span> <span class="token function">withoutData</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+
+  <span class="token comment">// Simply pass false if you don't need to do any logic</span>
+  <span class="token comment">// and this property will be filtered</span>
+  ssn<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+
+  <span class="token comment">// Similar to all of the with* and without* hooks, you</span>
+  <span class="token comment">// can use a function/promise with `result`, `context`, `prepResult` args</span>
+  <span class="token function-variable function">email</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>role <span class="token operator">===</span> <span class="token string">'admin'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  // if authenticated user is admin
+  context.data = {
+    name: 'Johnny Cash',
+    email: 'themaninblack@example.com'
+  }
+
+  // if authenticated user is NOT admin
+  context.data = {
+    name: 'Johnny Cash'
+  }
+*/</span>
+
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// `withoutData` also accepts an array of strings as the first</span>
+<span class="token comment">// argument as a conveniece syntax. When you use this syntaxt, `prepFunc`</span>
+<span class="token comment">// is ignored.</span>
+<span class="token keyword">const</span> withoutDatas <span class="token operator">=</span> <span class="token function">withoutData</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'email'</span><span class="token punctuation">,</span> <span class="token string">'ssn'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// this is equivalent to</span>
+<span class="token keyword">const</span> withoutDatas <span class="token operator">=</span> <span class="token function">withoutData</span><span class="token punctuation">(</span><span class="token punctuation">{</span> email<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> ssn<span class="token operator">:</span> <span class="token boolean">false</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// This syntax also supports dot notation of object paths</span>
+<span class="token keyword">const</span> withoutResults <span class="token operator">=</span> <span class="token function">withoutResult</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'role.role_type'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><h2 id="withquery"><a href="#withquery" class="header-anchor">#</a> withQuery</h2> <p>Add or overwrite properties to the <code>context.params.query</code> of a method call. This hook is useful for creating &quot;ACL&quot; rules by enforicing some queries are only added via the server.</p> <p>This hook is also useful for offering the client a simple query interface that you can then use to create more complicated queries.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">yes</td> <td style="text-align:center;">no</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withQuery.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">virtuals</td> <td style="text-align:center;">Object</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>An object where each key will be the name of a property to be added to the <code>context.params.query</code> and each value is either a primitive, function, or promise.</td></tr> <tr><td style="text-align:center;">prepFunc</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;">() =&gt; {}</td> <td style="text-align:center;">false</td> <td>A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withQuery <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> startOf<span class="token punctuation">,</span> endOf <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'some-date-lib'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.params.query = {
+    user_id: 456,
+    $period: 'week'
+  }
+*/</span>
+
+<span class="token keyword">const</span> withQueries <span class="token operator">=</span> <span class="token function">withQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+
+  <span class="token comment">// This hook is useful for forcing properties onto query that</span>
+  <span class="token comment">// the client should not have control of. For example, you</span>
+  <span class="token comment">// may always force the `user_id` onto a query from the</span>
+  <span class="token comment">// `context.params.user` to ensure that only records created</span>
+  <span class="token comment">// by this user are returned. Even if the client sends</span>
+  <span class="token comment">// `{ user_id: 456 }` which is some other user's id, this</span>
+  <span class="token comment">// hook will overwrite that `user_id` to ensure the query</span>
+  <span class="token comment">// cannot be spoofed.</span>
+  <span class="token function-variable function">user_id</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+
+  <span class="token comment">// Give the client an easier query interface by allowing simple</span>
+  <span class="token comment">// query params that can be used to create complicated queries.</span>
+  <span class="token function-variable function">created_at</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// $period is a made up query param that we are offering the client.</span>
+    <span class="token comment">// The feathers-database-adapters will throw an error if they receive</span>
+    <span class="token comment">// this parameter, so we will use it to create a real query and then</span>
+    <span class="token comment">// delete the &quot;fake&quot; query.</span>
+    <span class="token keyword">const</span> <span class="token punctuation">{</span> $period <span class="token punctuation">}</span> <span class="token operator">=</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>query<span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>$period<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// Delete the &quot;fake&quot; parameter</span>
+      <span class="token keyword">delete</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>query<span class="token punctuation">.</span>$period<span class="token punctuation">;</span>
+      <span class="token comment">// Return some actual query</span>
+      <span class="token keyword">return</span> <span class="token punctuation">{</span> $gte<span class="token operator">:</span> <span class="token function">startOf</span><span class="token punctuation">(</span>$period<span class="token punctuation">)</span><span class="token punctuation">,</span> $lte<span class="token operator">:</span> <span class="token function">endOf</span><span class="token punctuation">(</span>$period<span class="token punctuation">)</span> <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.params.query = {
+    user_id: 123,
+    created_at: { $gte: ...some date, $lte: ...some date }
+  }
+*/</span>
+</code></pre></div><h2 id="withoutquery"><a href="#withoutquery" class="header-anchor">#</a> withoutQuery</h2> <p>Remove properties from the <code>context.params.query</code> of a method call.  See the <a href="#withoutResult">withoutResult</a> docs for more detailed info about how virtuals and prepFunc work in the <code>without*</code> hooks.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">yes</td> <td style="text-align:center;">no</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutQuery.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">virtuals</td> <td style="text-align:center;">Object/Array</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>An object where each key will be the name of a property to be potentially filtered from <code>context.params.query</code>. <strong>Return a truthy value to keep the value and return a falsey value to remove it</strong>.</td></tr> <tr><td style="text-align:center;">prepFunc</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;">() =&gt; {}</td> <td style="text-align:center;">false</td> <td>A function, or promise, that takes argument <code>context</code>. The result of this function will be passed to each serializer function in the virtuals object.</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> withoutQuery <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.params.query = {
+    name: 'Johnny Cash',
+    ssn: 123456789
+  }
+*/</span>
+
+<span class="token keyword">const</span> withoutQueries <span class="token operator">=</span> <span class="token function">withoutQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token function-variable function">ssn</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">data<span class="token punctuation">,</span> context<span class="token punctuation">,</span> prepResult</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">// If the authenticated user is an admin,</span>
+    <span class="token comment">// they can query by ssn</span>
+    <span class="token keyword">return</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>role <span class="token operator">===</span> <span class="token string">'admin'</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  // if authenticated user is admin
+  context.params.query = {
+    name: 'Johnny Cash',
+    role: 123456789
+  }
+
+  // if authenticated user is NOT admin
+  context.params.query = {
+    name: 'Johnny Cash'
+  }
+*/</span>
+
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// `withoutQuery` also accepts an array of strings as the first</span>
+<span class="token comment">// argument as a conveniece syntax. When you use this syntaxt, `prepFunc`</span>
+<span class="token comment">// is ignored.</span>
+<span class="token keyword">const</span> withoutQueries <span class="token operator">=</span> <span class="token function">withoutQuery</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'email'</span><span class="token punctuation">,</span> <span class="token string">'ssn'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token comment">// this is equivalent to</span>
+<span class="token keyword">const</span> withoutQueries <span class="token operator">=</span> <span class="token function">withoutQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span> email<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> ssn<span class="token operator">:</span> <span class="token boolean">false</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// This syntax also supports dot notation of object paths</span>
+<span class="token keyword">const</span> withoutResults <span class="token operator">=</span> <span class="token function">withoutResult</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">'role.role_type'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><h2 id="joinquery"><a href="#joinquery" class="header-anchor">#</a> joinQuery</h2> <p>Query across services for &quot;joined&quot; records on any database type. This hook relies on the service interface, rather than the database, to query across services allowing you to query similar to a relational database even on services that are NoSQL or even those that do not have a database at all.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">yes</td> <td style="text-align:center;">yes</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">options</td> <td style="text-align:center;">Object</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>An object where each key will be the name of a  query prop the client can use and each value defines the service and ids</td></tr> <tr><td style="text-align:center;">option.service</td> <td style="text-align:center;">String</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>The string name of the service to query against</td></tr> <tr><td style="text-align:center;">option.targetKey</td> <td style="text-align:center;">String</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>The name of the key that exists on the collection this service is querying</td></tr> <tr><td style="text-align:center;">option.foreignKey</td> <td style="text-align:center;">String</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>The name of the key on the foreign record. Generally this will be <code>id</code> or <code>_id</code></td></tr> <tr><td style="text-align:center;">option.makeParams</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;"><code>(defaultParams, context, option) =&gt; defaultParams</code></td> <td style="text-align:center;">false</td> <td>A function/promise that returns params to be sent to the <code>option.service</code> find method.</td></tr> <tr><td style="text-align:center;">option.makeKey</td> <td style="text-align:center;">Function</td> <td style="text-align:center;"><code>(key) =&gt; key</code></td> <td style="text-align:center;">false</td> <td>A function that parses the <code>option.targetKey</code> and <code>option.foreignKey</code></td></tr> <tr><td style="text-align:center;">option.overwrite</td> <td style="text-align:center;">Bool</td> <td style="text-align:center;">false</td> <td style="text-align:center;">false</td> <td>Overwrite the query or put sub queries in $and</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> joinQuery <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+
+  &quot;artists&quot; collection via service `app.service('api/artists')`
+  [
+    { id: 123, name: 'Johnny Cash' },
+    { id: 456, name: 'Johnny PayCheck' },
+  ]
+
+  &quot;albums&quot; collection via `app.service('api/albums')`
+  [
+    { title: 'The Man in Black', artist_id: 123 },
+    { title: 'I Wont Back Down', artist_id: 123 },
+    { title: 'Double Trouble', artist_id: 456 }
+  ]
+*/</span>
+
+<span class="token keyword">const</span> joinQueries <span class="token operator">=</span> <span class="token function">joinQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  artist<span class="token operator">:</span> <span class="token punctuation">{</span>
+    service<span class="token operator">:</span> <span class="token string">'api/artists'</span><span class="token punctuation">,</span>
+    foreignKey<span class="token operator">:</span> <span class="token string">'artist_id'</span><span class="token punctuation">,</span>
+    targetKey<span class="token operator">:</span> <span class="token string">'id'</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hooks</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  before<span class="token operator">:</span> <span class="token punctuation">{</span>
+    all<span class="token operator">:</span> <span class="token punctuation">[</span>joinQueries<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  after<span class="token operator">:</span> <span class="token punctuation">{</span>
+    all<span class="token operator">:</span> <span class="token punctuation">[</span>joinQueries<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Notice how we are querying on the joined `artist` prop</span>
+<span class="token comment">// by passing it `{ name: 'Johnny Cash' }` which will only return</span>
+<span class="token comment">// albums where the artist's name is &quot;Johnny Cash&quot;. You can pass</span>
+<span class="token comment">// any query here that you would normally pass to</span>
+<span class="token comment">// app.service('api/artists').find({ query: {...} })</span>
+<span class="token keyword">const</span> albums <span class="token operator">=</span> <span class="token keyword">await</span> app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  query<span class="token operator">:</span> <span class="token punctuation">{</span>
+    artist<span class="token operator">:</span> <span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token string">'Johnny Cash'</span> <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// You can also use dot.syntax instead of objects. This example</span>
+<span class="token comment">// is the same as the `artist: { name: 'Johnny Cash' }` above</span>
+<span class="token keyword">const</span> albums <span class="token operator">=</span> <span class="token keyword">await</span> app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  query<span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token string">'artist.name'</span><span class="token operator">:</span> <span class="token string">'Johnny Cash'</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.params.query = {
+    artist_id: { $in: [123] }
+  }
+*/</span>
+
+<span class="token comment">/*
+  context.result = [
+    { title: 'The Man in Black', artist_id: 123 },
+    { title: 'I Wont Back Down', artist_id: 123 }
+  ]
+*/</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// You can also use nested $and/$or queries</span>
+<span class="token keyword">const</span> albums <span class="token operator">=</span> <span class="token keyword">await</span> app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  query<span class="token operator">:</span> <span class="token punctuation">{</span>
+    $and<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+      $or<span class="token operator">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">{</span> <span class="token string">'artist.name'</span><span class="token operator">:</span> <span class="token string">'Johnny Cash'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span> <span class="token string">'artist.name'</span><span class="token operator">:</span> <span class="token string">'Johnny Paycheck'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Use the `makeKey` option to parse ids. When using Mongo</span>
+<span class="token comment">// or Mongoose, you will likely need to parse ObjectId's</span>
+<span class="token comment">// to strings.</span>
+<span class="token keyword">const</span> joinQueries <span class="token operator">=</span> <span class="token function">joinQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  artist<span class="token operator">:</span> <span class="token punctuation">{</span>
+    service<span class="token operator">:</span> <span class="token string">'api/artists'</span><span class="token punctuation">,</span>
+    foreignKey<span class="token operator">:</span> <span class="token string">'artist_id'</span><span class="token punctuation">,</span>
+    targetKey<span class="token operator">:</span> <span class="token string">'_id'</span>
+    <span class="token function-variable function">makeKey</span><span class="token operator">:</span> <span class="token parameter">key</span> <span class="token operator">=&gt;</span> key<span class="token punctuation">.</span><span class="token function">string</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Use the `makeParams` option to pass additional params to the</span>
+<span class="token comment">// underlying find() to the option.service. Be sure to merge the</span>
+<span class="token comment">// defaultParams onto the result.</span>
+<span class="token keyword">const</span> joinQueries <span class="token operator">=</span> <span class="token function">joinQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  artist<span class="token operator">:</span> <span class="token punctuation">{</span>
+    service<span class="token operator">:</span> <span class="token string">'api/artists'</span><span class="token punctuation">,</span>
+    foreignKey<span class="token operator">:</span> <span class="token string">'artist_id'</span><span class="token punctuation">,</span>
+    targetKey<span class="token operator">:</span> <span class="token string">'id'</span>
+    <span class="token function-variable function">makeParams</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">defaultParams<span class="token punctuation">,</span> context</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token comment">/*
+        defaultParams = {
+          paginate: false,
+          query: { $select: ['id'], { name: 'Johnny Cash' }  }
+        }
+      */</span>
+      <span class="token keyword">return</span> <span class="token punctuation">{</span>
+        <span class="token operator">...</span>defaultParams<span class="token punctuation">,</span>
+        user<span class="token operator">:</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// By default, the hook does not clobber the query you provided.</span>
+<span class="token comment">// Instead, it addes the join queries to $and.</span>
+<span class="token comment">// Use the `overwrite` option to overwrite joined properties.</span>
+<span class="token keyword">const</span> query <span class="token operator">=</span> <span class="token punctuation">{</span>
+  artist_id<span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+  <span class="token string">'artist.name'</span><span class="token operator">:</span> <span class="token string">'Johnny Cash'</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// overwrite: false (default)</span>
+<span class="token keyword">const</span> joinQuery <span class="token operator">=</span> <span class="token punctuation">{</span>
+  artist_id<span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+  $and<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">{</span>
+    artist_id<span class="token operator">:</span> <span class="token punctuation">{</span> $<span class="token keyword">in</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// overwrite: true</span>
+<span class="token keyword">const</span> joinQuery <span class="token operator">=</span> <span class="token punctuation">{</span>
+  artist_id<span class="token operator">:</span> <span class="token punctuation">{</span> $<span class="token keyword">in</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Sorting for .find() actually happens in the before hook,</span>
+<span class="token comment">// but to sort on other methods (mainly for multi: true) also</span>
+<span class="token comment">// place the hook as an after hook.</span>
+<span class="token keyword">const</span> joinQueries <span class="token operator">=</span> <span class="token function">joinQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  artist<span class="token operator">:</span> <span class="token punctuation">{</span>
+    service<span class="token operator">:</span> <span class="token string">'api/artists'</span><span class="token punctuation">,</span>
+    foreignKey<span class="token operator">:</span> <span class="token string">'artist_id'</span><span class="token punctuation">,</span>
+    targetKey<span class="token operator">:</span> <span class="token string">'id'</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hooks</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  before<span class="token operator">:</span> <span class="token punctuation">{</span>
+    all<span class="token operator">:</span> <span class="token punctuation">[</span>joinQueries<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  after<span class="token operator">:</span> <span class="token punctuation">{</span>
+    all<span class="token operator">:</span> <span class="token punctuation">[</span>joinQueries<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Sort albums by artist name where the name is like 'John'</span>
+<span class="token keyword">const</span> albums <span class="token operator">=</span> <span class="token keyword">await</span> app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  query<span class="token operator">:</span> <span class="token punctuation">{</span>
+    artist<span class="token operator">:</span> <span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token punctuation">{</span> $like<span class="token operator">:</span> <span class="token string">'John'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span> $sort<span class="token operator">:</span> <span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token operator">-</span><span class="token number">1</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.params.query = {
+    artist_id: { $in: [123, 456] }
+  }
+*/</span>
+
+<span class="token comment">/*
+  context.result = [
+    { title: 'Double Trouble', artist_id: 456 },
+    { title: 'The Man in Black', artist_id: 123 },
+    { title: 'I Wont Back Down', artist_id: 123 }
+  ]
+*/</span>
+
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// This technique of searching across services has</span>
+<span class="token comment">// some known performance limitations. Join queries</span>
+<span class="token comment">// fetch unpaginated ids from their services, and</span>
+<span class="token comment">// this list of ids may be very long.</span>
+<span class="token keyword">const</span> idList <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/artists'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  paginate<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+  query<span class="token operator">:</span> <span class="token punctuation">{</span>
+    $select<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    name<span class="token operator">:</span> <span class="token punctuation">{</span> $like<span class="token operator">:</span> <span class="token string">'John'</span> <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Furthermore, when sorting with a join query, the main service</span>
+<span class="token comment">// also must disable pagination. This can be an extremel</span>
+
+</code></pre></div><blockquote><p>This technique of searching across services has some known performance limitations. Join queries fetch a list of  unpaginated IDs from their services, and this list of ids may be very long. These IDs are then used within an <code>$in</code> query, which is generally not a performant query operator. When sorting with a join query, the main service also disables pagination, meaning all results are returned from the database and sorted in memory. While this hook works great when querying across multiple types of feathers database adapters, most applications use one type of database adapter. It is recommended to use one of the database adapter specific hooks like <code>sequelizeJoinQuery</code>. These database specific hooks are able to handle the filtering and sorting at the database level and are much more performant.</p></blockquote> <blockquote><p>When using this hook on the client, use the <a href="https://hooks-common.feathersjs.com/hooks.html#disablepagination" target="_blank" rel="noopener noreferrer">disablePagination<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a> hook on the server to ensure proper results. Then be sure to include <code>$limit: -1</code> with your join query like <code>artist: { name: 'Johnny Cash', $limit: -1 }</code>. Otherwise, the query passed to the join service will not return all joined records and your result set will be incomplete.</p></blockquote> <h2 id="sequelizejoinquery"><a href="#sequelizejoinquery" class="header-anchor">#</a> sequelizeJoinQuery</h2> <p>The sequelizeJoinQuery hook leverages Sequelize's <a href="https://sequelize.org/master/manual/eager-loading.html#complex-where-clauses-at-the-top-level" target="_blank" rel="noopener noreferrer">$nested.column.syntax$<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a> and allows you to query across tables without having to manually construct <code>params.sequelize.include</code>. The hook scans the <code>params.query</code> for any <code>$nested.column.syntax$</code> and constructs the <code>params.sequelize.include</code> accordingly. The hook supports <code>$deeply.nested.associations$</code> and supports all Sequelize query operators.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">yes</td> <td style="text-align:center;">no</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sequelizeJoinQuery.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">options</td> <td style="text-align:center;">Object</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>An object of options.</td></tr> <tr><td style="text-align:center;">options.makeIncludeOptions</td> <td style="text-align:center;">Function</td> <td style="text-align:center;"></td> <td style="text-align:center;">false</td> <td>A function that is called for each association and returns association options</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> sequelizeJoinQuery <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Given Albums, Artists, and Ratings models</span>
+<span class="token comment">// that have the following associations</span>
+Albums<span class="token punctuation">.</span><span class="token function">belongsTo</span><span class="token punctuation">(</span>Artists<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  foreignKey<span class="token operator">:</span> <span class="token string">'artist_id'</span><span class="token punctuation">,</span>
+  targetKey<span class="token operator">:</span> <span class="token string">'id'</span><span class="token punctuation">,</span>
+  <span class="token keyword">as</span><span class="token operator">:</span> <span class="token string">'artist'</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+Ratings<span class="token punctuation">.</span><span class="token function">belongsTo</span><span class="token punctuation">(</span>Artists<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  foreignKey<span class="token operator">:</span> <span class="token string">'rating_id'</span><span class="token punctuation">,</span>
+  targetKey<span class="token operator">:</span> <span class="token string">'id'</span><span class="token punctuation">,</span>
+  <span class="token keyword">as</span><span class="token operator">:</span> <span class="token string">'rating'</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> sequelizeJoin <span class="token operator">=</span> <span class="token function">sequelizeJoinQuery</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hooks</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  before<span class="token operator">:</span> <span class="token punctuation">{</span>
+    all<span class="token operator">:</span> <span class="token punctuation">[</span>sequelizeJoin<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Find albums where the artist's name is Johnny</span>
+<span class="token comment">// Cash and the artist's rating score is 10</span>
+<span class="token keyword">const</span> albums <span class="token operator">=</span> <span class="token keyword">await</span> app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  query<span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token string">'$artist.name$'</span><span class="token operator">:</span> <span class="token string">'Johnny Cash'</span><span class="token punctuation">,</span>
+    <span class="token string">'$artist.rating.score$'</span><span class="token operator">:</span> <span class="token number">10</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// By default, this hook does not actually append the</span>
+<span class="token comment">// joined records onto the result. In the author's opinion,</span>
+<span class="token comment">// joining documents should be done via the service interface</span>
+<span class="token comment">// with `withResults` (or some other hook). This hook is meant</span>
+<span class="token comment">// to be a query mechanism only, not necessarily a</span>
+<span class="token comment">// joing/populating mechanism.</span>
+
+<span class="token comment">// You can set the option to append records as well as</span>
+<span class="token comment">// all other sequelize options in the makeIncludeOptions</span>
+
+<span class="token keyword">const</span> sequelizeJoin <span class="token operator">=</span> <span class="token function">sequelizeJoinQuery</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token function-variable function">makeIncludeOptions</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">association<span class="token punctuation">,</span> context</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token comment">/*
+      default = {
+        attributes: [], // dont append results
+        required: true // left inner join
+      }
+    */</span>
+
+    <span class="token comment">// Here you can return any standard sequelize options</span>
+    <span class="token comment">// A common option for HasMany relationships is `duplicating`</span>
+    <span class="token keyword">const</span> options <span class="token operator">=</span> <span class="token punctuation">{</span>
+      required<span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token comment">// left outer join</span>
+      attributes<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'name'</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token comment">// append the record's name to result</span>
+      nest<span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token comment">// append as an obj instead of dot syntax</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>association<span class="token punctuation">.</span>associationType <span class="token operator">===</span> <span class="token string">'HasMany'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      options<span class="token punctuation">.</span>duplicating <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> options<span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><blockquote><p>Note that you will need to whitelist all nested query operators. To learn more about whitelisting operators, see the <a href="https://github.com/feathersjs-ecosystem/feathers-sequelize" target="_blank" rel="noopener noreferrer">feathers-sequelize docs<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>. For the example above, the whitelist would be <code>['$artist.name$', '$artist.rating.score$']</code></p></blockquote> <h2 id="contextcache"><a href="#contextcache" class="header-anchor">#</a> contextCache</h2> <p>Cache the results of <code>get()</code> and <code>find()</code> requests. Clear the cache on any other method.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">yes</td> <td style="text-align:center;">yes</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/contextCache.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">cacheMap</td> <td style="text-align:center;">Object</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>A Map like object where each method is passed <code>context</code> as the only argument. Methods can be async.</td></tr> <tr><td style="text-align:center;">cacheMap.get</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>Called before <code>get</code> and <code>find</code></td></tr> <tr><td style="text-align:center;">cacheMap.set</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>Called after <code>get</code> and <code>find</code></td></tr> <tr><td style="text-align:center;">cacheMap.clear</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>Called after <code>create</code>, <code>update</code>, <code>patch</code> and <code>remove</code></td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> contextCache<span class="token punctuation">,</span> ContextCacheMap <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// The `ContextCacheMap` uses `lru-cache` under</span>
+<span class="token comment">// the hood and accepts all `lru-cache` options.</span>
+<span class="token keyword">const</span> contextCacheMap <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ContextCacheMap</span><span class="token punctuation">(</span><span class="token punctuation">{</span> max<span class="token operator">:</span> <span class="token number">100</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> cache <span class="token operator">=</span> <span class="token function">contextCache</span><span class="token punctuation">(</span>contextCacheMap<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// The contextCache hook should be as &quot;close&quot; to the database as possibe.</span>
+<span class="token comment">// This means it should be the last before hook, and the first after hook.</span>
+module<span class="token punctuation">.</span>exports <span class="token operator">=</span> <span class="token punctuation">{</span>
+  before<span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Try to return from the cache before find and get</span>
+    find<span class="token operator">:</span> <span class="token punctuation">[</span>beforeHook1<span class="token punctuation">,</span> cache<span class="token punctuation">]</span><span class="token punctuation">,</span>
+    get<span class="token operator">:</span> <span class="token punctuation">[</span>beforeHook1<span class="token punctuation">,</span> cache<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  after<span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Cache results after find and get</span>
+    find<span class="token operator">:</span> <span class="token punctuation">[</span>cache<span class="token punctuation">,</span> afterHook1<span class="token punctuation">]</span><span class="token punctuation">,</span>
+    get<span class="token operator">:</span> <span class="token punctuation">[</span>cache<span class="token punctuation">,</span> afterHook1<span class="token punctuation">]</span>
+
+    <span class="token comment">// Clear the cache on any mutating method</span>
+    create<span class="token operator">:</span> <span class="token punctuation">[</span>cache<span class="token punctuation">,</span> afterHook1<span class="token punctuation">]</span><span class="token punctuation">,</span>
+    update<span class="token operator">:</span> <span class="token punctuation">[</span>cache<span class="token punctuation">,</span> afterHook1<span class="token punctuation">]</span><span class="token punctuation">,</span>
+    patch<span class="token operator">:</span> <span class="token punctuation">[</span>cache<span class="token punctuation">,</span> afterHook1<span class="token punctuation">]</span><span class="token punctuation">,</span>
+    remove<span class="token operator">:</span> <span class="token punctuation">[</span>cache<span class="token punctuation">,</span> afterHook1<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+service<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// No cache hit</span>
+service<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Cache hit</span>
+
+service<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span> query<span class="token operator">:</span> <span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token string">'Johnny'</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// No cache hit</span>
+service<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">{</span> query<span class="token operator">:</span> <span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token string">'Johnny'</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Cache hit</span>
+
+service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// No cache hit</span>
+service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Cache hit</span>
+
+service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> query<span class="token operator">:</span> <span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token string">'Johnny'</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// No cache hit</span>
+service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> query<span class="token operator">:</span> <span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token string">'Johnny'</span> <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Cache hit</span>
+
+<span class="token comment">// Clears all `find` caches because a new record is created.</span>
+<span class="token comment">// This new record could be a result of any find.</span>
+<span class="token comment">// Does not clear any `get` caches because the new record should</span>
+<span class="token comment">// have a unique id which would not affect `gets` to a different id</span>
+service<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+service<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// No cache hit</span>
+service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Cache hit</span>
+
+<span class="token comment">// Clears all `find` caches because any mutation to a record could</span>
+<span class="token comment">// cause that record to now be a result of some cached find.</span>
+<span class="token comment">// Only clears `get` caches with ID 2 because that is the only `get` affected.</span>
+service<span class="token punctuation">.</span><span class="token function">patch</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token punctuation">{</span> name<span class="token operator">:</span> <span class="token string">'Patsy Cline'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+service<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// No cache hit</span>
+service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// No cache hit</span>
+service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// Cache hit because it was not affected</span>
+</code></pre></div><p><strong>Cache Strategy</strong></p> <ul><li><p>Before <code>get()</code> and <code>find()</code> - If the result exists in the cache it is returned.</p></li> <li><p>After <code>get()</code> and <code>find()</code> -  The results are stored in the cache.</p></li> <li><p>After <code>create()</code> - All cached <code>find()</code> results are cleared. <code>get()</code> results are not cleared.</p></li> <li><p>After <code>update()</code> or <code>patch()</code> - All cached <code>find()</code> results are cleared. Only the cached <code>get()</code> results that correspond to the result ids are cleared.</p></li> <li><p>After <code>remove()</code> - All cached <code>find()</code> results are cleared. Only the cached <code>get()</code> results that correspond to the result ids are cleared.</p></li></ul> <p><strong>Custom Cache Maps</strong></p> <p>The hook must be provided a <code>cacheMap</code> instance to use as its memoization cache. There is a <code>ContextCacheMap</code> exported that handles key serialization, cloning, and eviction policy for you. Any object/class that implements <code>get(context)</code>, <code>set(context)</code>, and <code>clear(context)</code> methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize key generation, cloning, and eviction policy.</p> <p>You can simply extend the <code>ContextCacheMap</code> by adding your own <code>map</code> to it which will keep the key serialization, eviction policy etc but will use a different storage mechanism. Or for more information about how to extend the <code>ContextCacheMap</code> class, checkout the <a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/lib/contextCacheMap.js" target="_blank" rel="noopener noreferrer">Source Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Use a custom cacheMap that uses async methods, such as some</span>
+<span class="token comment">// redis client or other persisted store</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> contextCache<span class="token punctuation">,</span> ContextCacheMap <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> map <span class="token operator">=</span> <span class="token punctuation">{</span>
+  <span class="token function-variable function">get</span><span class="token operator">:</span> <span class="token parameter">key</span> <span class="token operator">=&gt;</span> redisClient<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token function-variable function">set</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">key<span class="token punctuation">,</span> result</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> redisClient<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> result<span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token function-variable function">delete</span><span class="token operator">:</span> <span class="token parameter">key</span> <span class="token operator">=&gt;</span> redisClient<span class="token punctuation">.</span><span class="token function">delete</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token punctuation">,</span>
+  <span class="token function-variable function">keys</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> redisClient<span class="token punctuation">.</span><span class="token function">keys</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> contextCacheMap <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">ContextCacheMap</span><span class="token punctuation">(</span><span class="token punctuation">{</span> map <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> cache <span class="token operator">=</span> <span class="token function">contextCache</span><span class="token punctuation">(</span>contextCacheMap<span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// It is a good practice to setup things like cacheMap, rateLimiters, etc</span>
+<span class="token comment">// on the service options when setting up the service. This ensures you</span>
+<span class="token comment">// can access the cacheMap from anywhere in the app, to clear the cache</span>
+<span class="token comment">// of another service (that may have joined records) for example.</span>
+
+<span class="token comment">// albums.service.js</span>
+<span class="token keyword">const</span> <span class="token punctuation">{</span> ContextCacheMap <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'feathers-fletching'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token punctuation">{</span> Albums <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./albums.class'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> createModel <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'../../models/albums.model'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> hooks <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./albums.hooks'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+module<span class="token punctuation">.</span><span class="token function-variable function">exports</span> <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">app</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> options <span class="token operator">=</span> <span class="token punctuation">{</span>
+    Model<span class="token operator">:</span> <span class="token function">createModel</span><span class="token punctuation">(</span>app<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    paginate<span class="token operator">:</span> app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'paginate'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    cacheMap<span class="token operator">:</span> <span class="token keyword">new</span> <span class="token class-name">ContextCacheMap</span><span class="token punctuation">(</span><span class="token punctuation">{</span> max<span class="token operator">:</span> <span class="token number">100</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Initialize our service with any options it requires</span>
+  app<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token string">'/albums'</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Albums</span><span class="token punctuation">(</span>options<span class="token punctuation">,</span> app<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Get our initialized service so that we can register hooks</span>
+  <span class="token keyword">const</span> service <span class="token operator">=</span> app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'albums'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  service<span class="token punctuation">.</span><span class="token function">hooks</span><span class="token punctuation">(</span>hooks<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">// albums.hooks.js</span>
+<span class="token keyword">const</span> <span class="token punctuation">{</span> contextCache <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'feathers-fletching'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Now you can access the cacheMap from the service options</span>
+<span class="token keyword">const</span> <span class="token function-variable function">cache</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> cacheMap <span class="token punctuation">}</span> <span class="token operator">=</span> context<span class="token punctuation">.</span>service<span class="token punctuation">.</span>options<span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token function">contextCache</span><span class="token punctuation">(</span>cacheMap<span class="token punctuation">)</span><span class="token punctuation">(</span>context<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="ratelimit"><a href="#ratelimit" class="header-anchor">#</a> rateLimit</h2> <p>Rate limit services using <a href="https://github.com/animir/node-rate-limiter-flexible" target="_blank" rel="noopener noreferrer">node-rate-limiter-flexible<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a>.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">yes</td> <td style="text-align:center;">no</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/rateLimit.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">rateLimiter</td> <td style="text-align:center;">Object</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>A <code>RateLimiter</code> instance from <code>node-rate-limiter-flexible</code> or any class that implements <code>consume(key, points)</code>  as a promise</td></tr> <tr><td style="text-align:center;">option.makeKey</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;"><code>(context) =&gt; context.path</code></td> <td style="text-align:center;">false</td> <td>A function/promise that returns a key to rate limit against</td></tr> <tr><td style="text-align:center;">option.makePoints</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;"><code>(context) =&gt; 1</code></td> <td style="text-align:center;">false</td> <td>A function/promise that returns the number of points to consume for this request</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> rateLimit <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> RateLimiterMemory <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'rate-limiter-flexible'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> rateLimiter <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">RateLimiterMemory</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token comment">// 10 requests per second</span>
+  points<span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+  duration<span class="token operator">:</span> <span class="token number">1</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> rateLimitHook <span class="token operator">=</span> <span class="token function">rateLimit</span><span class="token punctuation">(</span>rateLimiter<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hooks</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  before<span class="token operator">:</span> <span class="token punctuation">{</span>
+    all<span class="token operator">:</span> <span class="token punctuation">[</span>rateLimitHook<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Use the `makeKey` option to limit requests by different parameters.</span>
+
+<span class="token comment">// By default, reqs are limited on the service as a whole</span>
+<span class="token keyword">const</span> <span class="token function-variable function">makeKey</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> context<span class="token punctuation">.</span>path<span class="token punctuation">;</span>
+
+<span class="token comment">// Limit reqs by user id</span>
+<span class="token keyword">const</span> <span class="token function-variable function">makeKey</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>id<span class="token punctuation">;</span>
+
+<span class="token comment">// Limit reqs by any combination of context</span>
+<span class="token keyword">const</span> <span class="token function-variable function">makeKey</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    user_id<span class="token operator">:</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+    org_id<span class="token operator">:</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>org<span class="token punctuation">.</span>id<span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> rateLimitHook <span class="token operator">=</span> <span class="token function">rateLimit</span><span class="token punctuation">(</span>rateLimiter<span class="token punctuation">,</span> <span class="token punctuation">{</span> makeKey <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Use the `makePoints` option to dynamically set how many</span>
+<span class="token comment">// points to consume on each request</span>
+
+<span class="token comment">// By default, each request consumes one point</span>
+<span class="token keyword">const</span> <span class="token function-variable function">makePoints</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Dynamically set points by any combination of context</span>
+<span class="token keyword">const</span> <span class="token function-variable function">makePoints</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>user<span class="token punctuation">.</span>admin<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token number">0</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token number">1</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> rateLimitHook <span class="token operator">=</span> <span class="token function">rateLimit</span><span class="token punctuation">(</span>rateLimiter<span class="token punctuation">,</span> <span class="token punctuation">{</span> makePoints <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// It is a good practice to setup things like rateLimiters, cacheMap, etc</span>
+<span class="token comment">// on the service options when setting up the service. This ensures you</span>
+<span class="token comment">// can access the rateLimiter from anywhere in the app.</span>
+
+<span class="token comment">// albums.service.js</span>
+<span class="token keyword">const</span> <span class="token punctuation">{</span> RateLimiterMemory <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'feathers-fletching'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> <span class="token punctuation">{</span> Albums <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./albums.class'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> createModel <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'../../models/albums.model'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> hooks <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'./albums.hooks'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+module<span class="token punctuation">.</span><span class="token function-variable function">exports</span> <span class="token operator">=</span> <span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">app</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> options <span class="token operator">=</span> <span class="token punctuation">{</span>
+    Model<span class="token operator">:</span> <span class="token function">createModel</span><span class="token punctuation">(</span>app<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    paginate<span class="token operator">:</span> app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'paginate'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+    rateLimiter <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">RateLimiterMemory</span><span class="token punctuation">(</span><span class="token punctuation">{</span> points<span class="token operator">:</span> <span class="token number">10</span><span class="token punctuation">,</span> duration<span class="token operator">:</span> <span class="token number">1</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Initialize our service with any options it requires</span>
+  app<span class="token punctuation">.</span><span class="token function">use</span><span class="token punctuation">(</span><span class="token string">'/albums'</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Albums</span><span class="token punctuation">(</span>options<span class="token punctuation">,</span> app<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  <span class="token comment">// Get our initialized service so that we can register hooks</span>
+  <span class="token keyword">const</span> service <span class="token operator">=</span> app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'albums'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+  service<span class="token punctuation">.</span><span class="token function">hooks</span><span class="token punctuation">(</span>hooks<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">// albums.hooks.js</span>
+<span class="token keyword">const</span> <span class="token punctuation">{</span> rateLimit <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'feathers-fletching'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Now you can access the rateLimiter from the service options</span>
+<span class="token keyword">const</span> <span class="token function-variable function">cache</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> rateLimiter <span class="token punctuation">}</span> <span class="token operator">=</span> context<span class="token punctuation">.</span>service<span class="token punctuation">.</span>options<span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token function">rateLimit</span><span class="token punctuation">(</span>rateLimiter<span class="token punctuation">)</span><span class="token punctuation">(</span>context<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="sanitizeerror"><a href="#sanitizeerror" class="header-anchor">#</a> sanitizeError</h2> <p>Replace sensitive items in the <code>context.error</code> according to a schema. It is common for database adapters to throw errors from their underlying libraries like Sequelize, Mongoose, Mongo, etc. Because these errors come straight from those ORM's (and often from one of the many different supported database types within the ORM), there is no way to guarantee that these errors do not contain things like database urls or credentials. This can also happen when working with third party APIs or even by leaking information in our own code to errors. This hook improves security by ensuring sensitive data is &quot;masked&quot; within errors.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">no</td> <td style="text-align:center;">yes</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeError.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">schema</td> <td style="text-align:center;">Object/Function</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>A schema where each key is the sensitive string to replace and the value is either a string to replace it with or a function that returns a string to replace it with</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> sanitizeError <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Replace the string with a default value. This hook will</span>
+<span class="token comment">// recursively traverse every key in the error and will</span>
+<span class="token comment">// replace any occurence of &quot;my.database.com:3030&quot; with &quot;*****&quot;</span>
+<span class="token keyword">const</span> sanitized <span class="token operator">=</span> <span class="token function">sanitizeError</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token string">'my.database.com:3030'</span><span class="token operator">:</span> <span class="token string">'*****'</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Use a function to sanitize the key. This example</span>
+<span class="token comment">// demonstrates making the *'s the same length as the string</span>
+<span class="token comment">// it is masking. You could also use RegEx to do any kind</span>
+<span class="token comment">// of searching and replacing in the string.</span>
+<span class="token keyword">const</span> sanitized <span class="token operator">=</span> <span class="token function">sanitizeError</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token string">'my.database.com:3030'</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">string<span class="token punctuation">,</span> key</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> mask <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> string<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      mask <span class="token operator">=</span> mask <span class="token operator">+</span> <span class="token string">'*'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> string<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> mask<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hooks</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  after<span class="token operator">:</span> <span class="token punctuation">{</span>
+    all<span class="token operator">:</span> <span class="token punctuation">[</span>sanitized<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// This throws some error from the database like</span>
+<span class="token comment">// new Error(&quot;getaddrinfo ENOTFOUND my.database.com:3030&quot;);</span>
+app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment">/*
+  context.error = {
+    message: &quot;getaddrinfo ENOTFOUND *****&quot;
+  }
+*/</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Use a function to create the schema. This example uses the feathers</span>
+<span class="token comment">// configuration to replace sensitive data with their variable names instead.</span>
+<span class="token comment">// You should create this hook and apply ALL of your sensitive data like api</span>
+<span class="token comment">// keys, database urls, auth secrets, etc. Then use it as an app after</span>
+<span class="token comment">// hook. This will protect all of your services in one place.</span>
+<span class="token keyword">const</span> sanitized <span class="token operator">=</span> <span class="token function">sanitizeError</span><span class="token punctuation">(</span><span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> apiKey <span class="token operator">=</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'API_KEY'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> databaseUrl <span class="token operator">=</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'DATABASE_URL'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> stripe_key <span class="token operator">=</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'STRIPE_KEY'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> secret <span class="token operator">=</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'authentication'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>secret<span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    <span class="token punctuation">[</span>apiKey<span class="token punctuation">]</span><span class="token operator">:</span> <span class="token string">'API_KEY'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span>databaseUrl<span class="token punctuation">]</span><span class="token operator">:</span> <span class="token string">'DATABASE_URL'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span>stripe_key<span class="token punctuation">]</span><span class="token operator">:</span> <span class="token string">'STRIPE_KEY'</span>
+    <span class="token punctuation">[</span>secret<span class="token punctuation">]</span><span class="token operator">:</span> <span class="token string">'AUTH_SECRET'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">/*
+  context.error = {
+    message: &quot;getaddrinfo ENOTFOUND DATABASE_URL
+  }
+*/</span>
+</code></pre></div><h2 id="sanitizeresult"><a href="#sanitizeresult" class="header-anchor">#</a> sanitizeResult</h2> <p>Replace sensitive items in the <code>context.result</code> according to a schema. This hook improves security by ensuring sensitive data is &quot;masked&quot; before leaving the server. Unlike <a href="#withoutResult">withoutResult</a> that removes properties totally (and you have to know those property names), this hook is a catch-all that ensures any property on any result does not contain sensitive data.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">yes</td> <td style="text-align:center;">yes</td> <td style="text-align:center;">all</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeResult.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">schema</td> <td style="text-align:center;">Object/Function</td> <td style="text-align:center;"></td> <td style="text-align:center;">true</td> <td>A schema where each key is the sensitive string to replace and the value is either a string to replace it with or a function that returns a string to replace it with</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> sanitizeResult <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Replace the string with a default value. This hook will</span>
+<span class="token comment">// recursively traverse every object in the result and will</span>
+<span class="token comment">// replace any occurence of &quot;Ab123cD&quot; with &quot;*****&quot;</span>
+<span class="token keyword">const</span> sanitized <span class="token operator">=</span> <span class="token function">sanitizeResult</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token string">'Ab123cD'</span><span class="token operator">:</span> <span class="token string">'*****'</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Use a function to sanitize the key. This example</span>
+<span class="token comment">// demonstrates making the *'s the same length as the string</span>
+<span class="token comment">// it is masking. You could also use RegEx to do any kind</span>
+<span class="token comment">// of searching and replacing in the string.</span>
+<span class="token keyword">const</span> sanitized <span class="token operator">=</span> <span class="token function">sanitizeResult</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  <span class="token string">'Ab123cD'</span><span class="token operator">:</span> <span class="token punctuation">(</span><span class="token parameter">string<span class="token punctuation">,</span> key</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> mask <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span>i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> string<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      mask <span class="token operator">=</span> mask <span class="token operator">+</span> <span class="token string">'*'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> string<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span>key<span class="token punctuation">,</span> mask<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hooks</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  after<span class="token operator">:</span> <span class="token punctuation">{</span>
+    all<span class="token operator">:</span> <span class="token punctuation">[</span>sanitized<span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token comment">/*
+  context.result = {
+    title: &quot;Johnny's api key is *****&quot;
+  }
+*/</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Use a function to create the schema. This example uses the feathers</span>
+<span class="token comment">// configuration to replace sensitive data with their variable names instead.</span>
+<span class="token comment">// You should create this hook and apply ALL of your sensitive data like api</span>
+<span class="token comment">// keys, database urls, auth secrets, etc. Then use it as an app after</span>
+<span class="token comment">// hook. This will protect all of your services in one place.</span>
+<span class="token keyword">const</span> sanitized <span class="token operator">=</span> <span class="token function">sanitizeResult</span><span class="token punctuation">(</span><span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> apiKey <span class="token operator">=</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'API_KEY'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> databaseUrl <span class="token operator">=</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'DATABASE_URL'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> stripe_key <span class="token operator">=</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'STRIPE_KEY'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> secret <span class="token operator">=</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'authentication'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>secret<span class="token punctuation">;</span>
+  <span class="token keyword">return</span> <span class="token punctuation">{</span>
+    <span class="token punctuation">[</span>apiKey<span class="token punctuation">]</span><span class="token operator">:</span> <span class="token string">'API_KEY'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span>databaseUrl<span class="token punctuation">]</span><span class="token operator">:</span> <span class="token string">'DATABASE_URL'</span><span class="token punctuation">,</span>
+    <span class="token punctuation">[</span>stripe_key<span class="token punctuation">]</span><span class="token operator">:</span> <span class="token string">'STRIPE_KEY'</span>
+    <span class="token punctuation">[</span>secret<span class="token punctuation">]</span><span class="token operator">:</span> <span class="token string">'AUTH_SECRET'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// I don't get it...how is this helpful? There isn't any &quot;sensitive&quot; data</span>
+<span class="token comment">// in my database because I use good validation, etc.</span>
+
+<span class="token comment">// Let's use an example where we accidently leak some sensitive data into</span>
+<span class="token comment">// the result, not because it is data on the actual result, but because</span>
+<span class="token comment">// we made a mistake in our code and leaked an environment variable.</span>
+<span class="token keyword">const</span> <span class="token function-variable function">attachStripeResult</span> <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> stripe_id <span class="token operator">=</span> context<span class="token punctuation">.</span>result<span class="token punctuation">.</span>stripe_id<span class="token punctuation">;</span>
+  <span class="token keyword">const</span> stripe_key <span class="token operator">=</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'stripeKey'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> stripe_client <span class="token operator">=</span> context<span class="token punctuation">.</span>app<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'stripeClient'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">const</span> result <span class="token operator">=</span> <span class="token keyword">await</span> stripeClient<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span>stripe_id<span class="token punctuation">,</span> stripe_key<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  context<span class="token punctuation">.</span>result<span class="token punctuation">.</span>stripe <span class="token operator">=</span> <span class="token punctuation">{</span>
+    stripe_key<span class="token punctuation">,</span>
+    result
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> context
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Did you catch the error? We meant to return the user's stripe result</span>
+<span class="token comment">// along with the stripe_id...but we accidently returned our own secret</span>
+<span class="token comment">// stripe key. Uh Oh! By using the sanitizeResult hook, we safeguard</span>
+<span class="token comment">// ourselves against this type of mistake.</span>
+</code></pre></div><h2 id="stashable"><a href="#stashable" class="header-anchor">#</a> stashable</h2> <p>Stash the result of an update, patch, or remove before mutating it.</p> <p>Stashing a document in a hook so that it can be compared is a common practice. This is accomplished easily enough and hardly worth a custom hook. But, when working with multiple hooks that may or may not need that stashed record, it becomes difficult keep track of if the document has already been stashed or not. The <code>stashable</code> hook stashes a memoized version of the promise, rather than the result. This allows you to call <code>const stashed = await context.params.stashed()</code> multiple times but only actually call the underlying stash function once.</p> <p><strong>Context</strong></p> <table><thead><tr><th style="text-align:center;">Before</th> <th style="text-align:center;">After</th> <th style="text-align:center;">Methods</th> <th style="text-align:center;">Multi</th> <th style="text-align:center;">Source</th></tr></thead> <tbody><tr><td style="text-align:center;">yes</td> <td style="text-align:center;">no</td> <td style="text-align:center;">update, patch, remove</td> <td style="text-align:center;">yes</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.js" target="_blank" rel="noopener noreferrer">View Code<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td></tr></tbody></table> <p><strong>Arguments</strong></p> <table><thead><tr><th style="text-align:center;">Argument</th> <th style="text-align:center;">Type</th> <th style="text-align:center;">Default</th> <th style="text-align:center;">Required</th> <th>Description</th></tr></thead> <tbody><tr><td style="text-align:center;">option.propName</td> <td style="text-align:center;">String</td> <td style="text-align:center;"><code>stashed</code></td> <td style="text-align:center;">false</td> <td>The name of the property on context.params to place the stashed function</td></tr> <tr><td style="text-align:center;">option.stashFunc</td> <td style="text-align:center;">Function/Promise</td> <td style="text-align:center;"><a href="https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.js" target="_blank" rel="noopener noreferrer">See source<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></a></td> <td style="text-align:center;">false</td> <td>A function/promise that returns the document/documents to be stashed</td></tr></tbody></table> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">import</span> <span class="token punctuation">{</span> stashable <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'feathers-fletching'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> stashed <span class="token operator">=</span> <span class="token function">stashable</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+app<span class="token punctuation">.</span><span class="token function">service</span><span class="token punctuation">(</span><span class="token string">'api/albums'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">hooks</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  before<span class="token operator">:</span> <span class="token punctuation">{</span>
+    update<span class="token operator">:</span> <span class="token punctuation">[</span>stashed<span class="token punctuation">,</span> hook1<span class="token punctuation">,</span> hook2<span class="token punctuation">]</span><span class="token punctuation">,</span>
+    patch<span class="token operator">:</span> <span class="token punctuation">[</span>stashed<span class="token punctuation">,</span> hook1<span class="token punctuation">,</span> hook2<span class="token punctuation">]</span><span class="token punctuation">,</span>
+    remove<span class="token operator">:</span> <span class="token punctuation">[</span>stashed<span class="token punctuation">,</span> hook1<span class="token punctuation">,</span> hook2<span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">hook1</span> <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Calls the stash function for the first time</span>
+  <span class="token keyword">const</span> stashed <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span><span class="token function">stashed</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">hook2</span> <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Returns a memoized promise (does not call DB again)</span>
+  <span class="token keyword">const</span> stashed <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span><span class="token function">stashed</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Example of how this would traditionally be accomplished</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">stash</span> <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token comment">// Assign the document to params so that it can be referenced later</span>
+  context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>stashed <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>context<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">return</span> context<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">hook1</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>someCondition<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> stashed <span class="token operator">=</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>stashed<span class="token punctuation">;</span>
+    <span class="token comment">// Do something with stashed record</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> context<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">hook2</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>someOtherCondition<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> stashed <span class="token operator">=</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>stashed<span class="token punctuation">;</span>
+    <span class="token comment">// Use the stashed record to do somehting else</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> context<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// So what's wrong with this? It seems like it would work well enough.</span>
+<span class="token comment">// And it does! But what happens when neither `someCondition` or</span>
+<span class="token comment">// `someOtherCondition` are met? We have wasted a call to the</span>
+<span class="token comment">// stash function because that stashed record was never used. We</span>
+<span class="token comment">// can make this better...</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">hook1</span> <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>someCondition<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// Move the call to the DB here in the first hook where</span>
+    <span class="token comment">// we first need it</span>
+    context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>stashed <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>context<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// Do something with stashed record</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> context<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">hook2</span> <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>someOtherCondition<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token comment">// Geww...this is gross. The record may or may not be stashed</span>
+    <span class="token comment">// yet so we have to check and stash it if not.</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>stashed<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>stashed <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>context<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// Use the stashed record to do somehting else</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> context<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// This is better for performance because we only stash the record when/if</span>
+<span class="token comment">// we need it. But, the code is bulky and specific. With a long chain of</span>
+<span class="token comment">// hooks this becomes cumbersome and unweildy.</span>
+
+
+<span class="token comment">// Example with the same hooks using the stashable hook. This hook allows</span>
+<span class="token comment">// you to call the stash function as many times as you would like in as</span>
+<span class="token comment">// many hooks as you need, but it only ever actually calls the DB on</span>
+<span class="token comment">// the first invocation of the function. This allows you to create</span>
+<span class="token comment">// much cleaner and more readable code where you call the stash</span>
+<span class="token comment">// function wherever you need it, without the performance penalty</span>
+<span class="token comment">// of calling the DB multiple times</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">hook1</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>someCondition<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// This calls the DB for the first time</span>
+    <span class="token keyword">const</span> stashed <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span><span class="token function">stashed</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// Do something with stashed record</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> context<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">hook2</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span>params<span class="token punctuation">.</span>someOtherCondition<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token comment">// No need to check if the stash function has been called before.</span>
+    <span class="token comment">// If it has already been called via hook1 then the DB is not</span>
+    <span class="token comment">// called again. If it has not already been called, then the DB</span>
+    <span class="token comment">// is called for the first time</span>
+    <span class="token keyword">const</span> stashed <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span><span class="token function">stashed</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// Use the stashed record to do somehting else</span>
+  <span class="token punctuation">}</span>
+  <span class="token keyword">return</span> context<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Use the `propName` option to assign the function to a different property.</span>
+<span class="token keyword">const</span> stashed <span class="token operator">=</span> <span class="token function">stashable</span><span class="token punctuation">(</span><span class="token punctuation">{</span> propName<span class="token operator">:</span> <span class="token string">'myProp'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> <span class="token function-variable function">hook1</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> stashed <span class="token operator">=</span> <span class="token keyword">await</span> context<span class="token punctuation">.</span>params<span class="token punctuation">.</span><span class="token function">myProp</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</code></pre></div><div class="language-js extra-class"><pre class="language-js"><code><span class="token comment">// Use the `stashFunc` to use a different stash function or params.</span>
+
+<span class="token comment">// Default stashFunc. This function uses the same params as the parent.</span>
+<span class="token comment">// It also handles multi:true via the `context.id === null` block</span>
+<span class="token keyword">const</span> <span class="token function-variable function">stashFunc</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>context<span class="token punctuation">.</span>id <span class="token operator">===</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> findParams <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> context<span class="token punctuation">.</span>params<span class="token punctuation">,</span> <span class="token punctuation">{</span> paginate<span class="token operator">:</span> <span class="token boolean">false</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">return</span> context<span class="token punctuation">.</span>service<span class="token punctuation">.</span><span class="token function">find</span><span class="token punctuation">(</span>findParams<span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> context<span class="token punctuation">.</span>service<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span>context<span class="token punctuation">.</span>id<span class="token punctuation">,</span> context<span class="token punctuation">.</span>params<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token comment">// You can also pass in your own function/params to handle the</span>
+<span class="token comment">// stashing of the document how you see fit</span>
+<span class="token keyword">const</span> <span class="token function-variable function">myStashFunc</span> <span class="token operator">=</span> <span class="token parameter">context</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> stashed <span class="token operator">=</span> <span class="token function">stashable</span><span class="token punctuation">(</span><span class="token punctuation">{</span> stashFunc<span class="token operator">:</span> myStashFunc <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre></div></div> <footer class="page-edit"><div class="edit-link"><a href="https://github.com/daddywarbucks/feathers-fletching/edit/master/docs/hooks.md" target="_blank" rel="noopener noreferrer">Edit this page</a> <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9"></polygon></svg></div> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/feathers-fletching/overview.html" class="prev">Overview</a></span> <span class="next"><a href="/feathers-fletching/plugins.html">Plugins</a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/feathers-fletching/assets/js/app.533a6a06.js" defer></script><script src="/feathers-fletching/assets/js/2.64a5bae3.js" defer></script><script src="/feathers-fletching/assets/js/5.571578b5.js" defer></script>
+  </body>
+</html>
