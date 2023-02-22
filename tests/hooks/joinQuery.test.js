@@ -1,6 +1,6 @@
 const assert = require('assert');
 const feathers = require('@feathersjs/feathers');
-const memory = require('feathers-memory');
+const { memory } = require('@feathersjs/memory');
 const joinQuery = require('../../src/hooks/joinQuery');
 
 const joinQueryOptions = {
