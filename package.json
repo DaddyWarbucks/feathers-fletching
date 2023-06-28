@@ -5,6 +5,7 @@
   "main": "src/",
   "repository": "https://github.com/DaddyWarbucks/feathers-fletching.git",
   "author": "DaddyWarbucks <techtbeau@gmail.com>",
+  "homepage": "https://daddywarbucks.github.io/feathers-fletching/",
   "license": "MIT",
   "keywords": [
     "feathers",
@@ -16,31 +17,38 @@
     "docs:dev": "vuepress dev docs",
     "docs:build": "vuepress build docs",
     "docs:deploy": "sh deploy-docs.sh",
+    "build": "unbuild",
     "lint": "eslint src/.",
     "fixcode": "eslint src/. --fix",
-    "mocha": "mocha tests --recursive --exit",
-    "mocha:watch": "mocha tests --recursive --watch",
-    "test": "npm run lint && npm run mocha",
+    "test": "npm run lint && vitest run",
+    "test:run": "vitest run",
+    "vitest": "vitest",
     "release:patch": "npm run test && npm version patch && npm publish",
     "release:minor": "npm run test && npm version minor && npm publish",
     "release:major": "npm run test && npm version major && npm publish"
   },
   "dependencies": {
-    "@feathersjs/errors": "^4.3.4",
-    "lru-cache": "^5.1.1",
-    "qs": "^6.9.1",
-    "unset-value": "^1.0.0"
+    "@feathersjs/errors": "^5.0.6",
+    "lru-cache": "^10.0.0",
+    "qs": "^6.11.2",
+    "unset-value": "^2.0.1"
   },
   "devDependencies": {
-    "@feathersjs/feathers": "^4.5.0",
-    "eslint": "^6.6.0",
-    "eslint-config-prettier": "^6.5.0",
-    "eslint-plugin-prettier": "^3.1.1",
+    "@feathersjs/feathers": "^5.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.60.1",
+    "@typescript-eslint/parser": "^5.60.1",
+    "eslint": "^8.43.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-import-resolver-typescript": "^3.5.5",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
     "feathers-memory": "^4.1.0",
-    "mocha": "^7.0.0",
-    "prettier": "^1.18.2",
-    "rate-limiter-flexible": "^2.0.0",
-    "vuepress": "^1.2.0"
+    "mocha": "^10.2.0",
+    "prettier": "^2.8.8",
+    "rate-limiter-flexible": "^2.4.1",
+    "unbuild": "^1.2.1",
+    "vitest": "^0.32.2",
+    "vuepress": "^1.9.9"
   },
   "eslintConfig": {
     "extends": [
