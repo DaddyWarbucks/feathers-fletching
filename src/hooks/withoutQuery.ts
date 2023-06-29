@@ -3,11 +3,16 @@ import {
   virtualsSerializer,
   filterResolver,
   hasQuery,
-  omit,
-} from "../utils";
+  omit
+} from '../utils';
+import type { Virtuals, PrepFunction } from '../utils';
 
-export const withoutQuery = (virtuals, prepFunc = () => {}) => {
-  return skippable("withoutQuery", async (context) => {
+export const withoutQuery = (
+  virtuals: Virtuals,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  prepFunc: PrepFunction = () => {}
+) => {
+  return skippable('withoutQuery', async (context) => {
     if (!hasQuery(context)) {
       return context;
     }

@@ -1,12 +1,12 @@
 import assert from 'assert';
-import {feathers} from '@feathersjs/feathers';
-import { Service } from 'feathers-memory';
+import { feathers } from '@feathersjs/feathers';
+import { MemoryService } from '@feathersjs/memory';
 import { sequelizeJoinQuery } from '../../src';
 
 describe('sequelizeJoinQuery', () => {
   const app = feathers();
 
-  const service = new Service();
+  const service = new MemoryService();
 
   const rating = {
     target: {}
@@ -314,7 +314,10 @@ describe('sequelizeJoinQuery', () => {
           ]
         }
       ],
-      order: [[artist, rating, 'score', 'ASC'], [label, owner, 'name', 'ASC']]
+      order: [
+        [artist, rating, 'score', 'ASC'],
+        [label, owner, 'name', 'ASC']
+      ]
     });
 
     await assert.deepStrictEqual(newContext.params.query.$sort, undefined);

@@ -1,15 +1,16 @@
-import { GeneralError } from "@feathersjs/errors";
+import { GeneralError } from '@feathersjs/errors';
 import {
   omit,
   skippable,
   checkContext,
   virtualsSerializer,
-  filterResolver,
-} from "../utils";
+  filterResolver
+} from '../utils';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 export const preventChange = (virtuals, prepFunc = () => {}) => {
-  return skippable("preventChange", async (context) => {
-    checkContext(context, "before", ["update", "patch"], "preventChange");
+  return skippable('preventChange', async (context) => {
+    checkContext(context, 'before', ['update', 'patch'], 'preventChange');
 
     if (!context.data) {
       return context;
@@ -29,10 +30,10 @@ export const preventChange = (virtuals, prepFunc = () => {}) => {
       );
     }
 
-    if (context.method === "update") {
+    if (context.method === 'update') {
       if (!context.service._patch) {
         throw new GeneralError(
-          "Cannot call `preventChange` hook on `update` method if the service does not have a `_patch` method"
+          'Cannot call `preventChange` hook on `update` method if the service does not have a `_patch` method'
         );
       }
       context.result = await context.service._patch(

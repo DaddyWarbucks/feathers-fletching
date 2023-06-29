@@ -1,6 +1,6 @@
-import type { HookContext } from "@feathersjs/feathers";
-import type { Promisable } from "./utils";
-import { isPromise } from "./utils";
+import type { HookContext } from '@feathersjs/feathers';
+import type { MaybeArray, Promisable } from './utils';
+import { isPromise } from './utils';
 
 // Note we try to avoid adding promises to the event loop when not
 // neccessary by using `typeof result.then` instead of just
@@ -24,24 +24,26 @@ import { isPromise } from "./utils";
   }
 */
 
+type ResolverFn = typeof resolver;
+
 // Mutate the data at updated[key] in place according to its virtual.
 export const resolver = (
-  virtual: any,
+  virtual: VirtualFn,
   key: string,
   updated: any,
   context: HookContext,
   prepResult: any
 ) => {
-  if (typeof virtual === "function") {
+  if (typeof virtual === 'function') {
     const result = virtual(updated, context, prepResult);
     if (isPromise(result)) {
       return result.then((result) => {
-        if (typeof result !== "undefined") {
+        if (typeof result !== 'undefined') {
           updated[key] = result;
         }
       });
     }
-    if (typeof result !== "undefined") {
+    if (typeof result !== 'undefined') {
       updated[key] = result;
       return result;
     }
@@ -65,7 +67,7 @@ export const filterResolver = (
   context: HookContext,
   prepResult: any
 ) => {
-  if (typeof virtual === "function") {
+  if (typeof virtual === 'function') {
     const result = virtual(updated, context, prepResult);
     if (isPromise(result)) {
       return result.then((shouldKeep) => {
@@ -87,13 +89,19 @@ export const filterResolver = (
   }
 };
 
-const serializer = async (item, virtuals, context, prepResult, resolver) => {
+const serializer = async (
+  item: Record<string, any>,
+  virtuals: Virtuals,
+  context: HookContext,
+  prepResult: PrepFunction,
+  resolver: ResolverFn
+) => {
   const updated = Object.assign({}, item);
 
   const syncKeys = [];
   const asyncKeys = [];
   Object.keys(virtuals).forEach((key) => {
-    (key.startsWith("@") ? syncKeys : asyncKeys).push(key);
+    (key.startsWith('@') ? syncKeys : asyncKeys).push(key);
   });
 
   if (syncKeys.length) {
@@ -124,11 +132,12 @@ const serializer = async (item, virtuals, context, prepResult, resolver) => {
 };
 
 export const virtualsSerializer = async (
-  resolver,
-  data,
-  virtuals,
+  resolver: ResolverFn,
+  data: MaybeArray<Record<string, any>>,
+  virtuals: Virtuals,
   context: HookContext,
-  prepFunc: (context?: HookContext) => Promisable<any> = () => {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  prepFunc: PrepFunction = () => {}
 ) => {
   let prepResult = prepFunc(context);
   if (isPromise(prepResult)) {
@@ -145,3 +154,13 @@ export const virtualsSerializer = async (
 
   return serializer(data, virtuals, context, prepResult, resolver);
 };
+
+export type VirtualFn = (
+  data: Record<string, any>,
+  context: HookContext,
+  prepResult: Record<string, any>
+) => any;
+
+export type Virtuals = Record<string, VirtualFn>;
+
+export type PrepFunction = (context: HookContext) => Promisable<any>;

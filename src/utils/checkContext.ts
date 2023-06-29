@@ -1,14 +1,14 @@
 // https://github.com/feathersjs-ecosystem/feathers-hooks-common/blob/master/lib/services/check-context.js
-import { GeneralError } from "@feathersjs/errors";
-import type { HookContext } from "@feathersjs/feathers";
+import { GeneralError } from '@feathersjs/errors';
+import type { HookContext } from '@feathersjs/feathers';
 
-const stndMethods = ["find", "get", "create", "update", "patch", "remove"];
+const stndMethods = ['find', 'get', 'create', 'update', 'patch', 'remove'];
 
 export const checkContext = (
   context: HookContext,
   type: string | null = null,
   methods: string[] | string = [],
-  label = "anonymous"
+  label = 'anonymous'
 ) => {
   if (type && context.type !== type) {
     throw new GeneralError(

@@ -1,20 +1,20 @@
-import type { ContextCacheMap } from "../utils";
-import { skippable } from "../utils";
-import type { HookContext } from "@feathersjs/feathers";
+import type { ContextCacheMap } from '../utils';
+import { skippable } from '../utils';
+import type { HookContext } from '@feathersjs/feathers';
 
 export const contextCache = <H extends HookContext = HookContext>(
   cacheMap: ContextCacheMap
 ) =>
-  skippable("contextCache", async (context: H) => {
-    if (context.type === "before") {
-      if (context.method === "get" || context.method === "find") {
+  skippable('contextCache', async (context: H) => {
+    if (context.type === 'before') {
+      if (context.method === 'get' || context.method === 'find') {
         const value = await cacheMap.get(context);
         if (value) {
           context.result = value;
         }
       }
     } else {
-      if (context.method === "get" || context.method === "find") {
+      if (context.method === 'get' || context.method === 'find') {
         await cacheMap.set(context);
       } else {
         await cacheMap.clear(context);

@@ -1,1 +1,1 @@
-export * from "./strictRestQuery";
+export * from './strictRestQuery';

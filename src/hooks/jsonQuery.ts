@@ -1,14 +1,14 @@
-import type { HookContext } from "@feathersjs/feathers";
-import { skippable, checkContext } from "../utils";
+import type { HookContext } from '@feathersjs/feathers';
+import { skippable, checkContext } from '../utils';
 
 export const jsonQueryStringify = (
   options = {
     overwrite: true,
-    propName: "json",
+    propName: 'json'
   }
 ) => {
-  return skippable("jsonQueryStringify", (context: HookContext) => {
-    checkContext(context, "before", null, "jsonQueryStringify");
+  return skippable('jsonQueryStringify', (context: HookContext) => {
+    checkContext(context, 'before', null, 'jsonQueryStringify');
     const { query } = context.params;
     if (!query) {
       return context;
@@ -30,11 +30,11 @@ export const jsonQueryStringify = (
 export const jsonQueryParse = (
   options = {
     overwrite: true,
-    propName: "json",
+    propName: 'json'
   }
 ) => {
-  return skippable("jsonQueryParse", (context: HookContext) => {
-    checkContext(context, "before", null, "jsonQueryParse");
+  return skippable('jsonQueryParse', (context: HookContext) => {
+    checkContext(context, 'before', null, 'jsonQueryParse');
     const { query } = context.params;
     if (!query) {
       return context;
@@ -68,8 +68,8 @@ export const jsonQueryClient = (app) => {
         create: [jsonQueryStringify()],
         update: [jsonQueryStringify()],
         patch: [jsonQueryStringify()],
-        remove: [jsonQueryStringify()],
-      },
+        remove: [jsonQueryStringify()]
+      }
     });
   });
 };

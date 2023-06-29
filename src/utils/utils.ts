@@ -1,4 +1,4 @@
-import unset from "unset-value";
+import unset from 'unset-value';
 
 export const omit = <
   O extends Record<string, any>,
@@ -8,7 +8,7 @@ export const omit = <
   keys: Keys
 ): Omit<O, Keys[number]> => {
   const result = Object.assign({}, obj);
-  keys.forEach((key) => unset(result, key));
+  keys.forEach((key: string) => unset(result, key));
   return result;
 };
 
@@ -17,7 +17,7 @@ export const pick = <
   Keys extends (keyof O)[] = (keyof O)[]
 >(
   obj: O,
-  ...keys: Keys
+  keys: Keys
 ): Pick<O, Keys[number]> =>
   keys.reduce((result, key) => {
     if (obj[key] !== undefined) {
@@ -27,13 +27,15 @@ export const pick = <
     return result;
   }, {} as Pick<O, Keys[number]>);
 
-export const isPromise = <P>(maybePromise: P): maybePromise is Promise<any> => {
-  const isPromise = maybePromise && typeof maybePromise.then === "function";
+export const isPromise = <T = any>(
+  maybePromise: any
+): maybePromise is Promise<T> => {
+  const isPromise = maybePromise && typeof maybePromise.then === 'function';
   return !!isPromise;
 };
 
 export const isObject = (obj): obj is Record<string, any> => {
-  return obj && typeof obj === "object" && !Array.isArray(obj);
+  return obj && typeof obj === 'object' && !Array.isArray(obj);
 };
 
 export const isEmpty = (obj) => {
@@ -55,13 +57,13 @@ export const hasQuery = (context) => {
 };
 
 export const getResults = (context) => {
-  return context.method === "find"
+  return context.method === 'find'
     ? context.result.data || context.result
     : context.result;
 };
 
 export const replaceResults = (context, results) => {
-  if (context.method === "find") {
+  if (context.method === 'find') {
     if (context.result && context.result.data) {
       context.result.data = Array.isArray(results) ? results : [results];
     } else {
@@ -74,8 +76,8 @@ export const replaceResults = (context, results) => {
 
 export const stableStringify = (obj) => {
   return JSON.stringify(obj, (key, value) => {
-    if (typeof value === "function") {
-      throw new Error("Cannot stringify non JSON value");
+    if (typeof value === 'function') {
+      throw new Error('Cannot stringify non JSON value');
     }
 
     if (isObject(value)) {
@@ -137,7 +139,7 @@ export const asyncTraverse = async (obj, callback) => {
 
 // https://github.com/angus-c/just/blob/master/packages/collection-clone/index.js
 export const clone = (obj) => {
-  if (typeof obj == "function") {
+  if (typeof obj == 'function') {
     return obj;
   }
   const result = Array.isArray(obj) ? [] : {};
@@ -145,11 +147,11 @@ export const clone = (obj) => {
     // include prototype properties
     const value = obj[key];
     const type = {}.toString.call(value).slice(8, -1);
-    if (type == "Array" || type == "Object") {
+    if (type == 'Array' || type == 'Object') {
       result[key] = clone(value);
-    } else if (type == "Date") {
+    } else if (type == 'Date') {
       result[key] = new Date(value.getTime());
-    } else if (type == "RegExp") {
+    } else if (type == 'RegExp') {
       result[key] = RegExp(value.source, getRegExpFlags(value));
     } else {
       result[key] = value;
@@ -159,17 +161,22 @@ export const clone = (obj) => {
 };
 
 export const getRegExpFlags = (regExp) => {
-  if (typeof regExp.source.flags == "string") {
+  if (typeof regExp.source.flags == 'string') {
     return regExp.source.flags;
   } else {
     const flags = [];
-    regExp.global && flags.push("g");
-    regExp.ignoreCase && flags.push("i");
-    regExp.multiline && flags.push("m");
-    regExp.sticky && flags.push("y");
-    regExp.unicode && flags.push("u");
-    return flags.join("");
+    regExp.global && flags.push('g');
+    regExp.ignoreCase && flags.push('i');
+    regExp.multiline && flags.push('m');
+    regExp.sticky && flags.push('y');
+    regExp.unicode && flags.push('u');
+    return flags.join('');
   }
 };
 
 export type Promisable<T> = T | Promise<T>;
+
+export type SetPartial<T, K extends keyof T = keyof T> = Partial<Pick<T, K>> &
+  Omit<T, K>;
+
+export type MaybeArray<T> = T | T[];

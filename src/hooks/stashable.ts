@@ -1,4 +1,5 @@
-import { skippable, checkContext } from "../utils";
+import type { HookContext } from '@feathersjs/feathers';
+import { skippable, checkContext } from '../utils';
 
 const stash = (stashFunc, context) => {
   let stashed = null;
@@ -10,7 +11,7 @@ const stash = (stashFunc, context) => {
   };
 };
 
-const stashFunc = (context) => {
+const stashFunc = (context: HookContext) => {
   if (context.id === null) {
     const findParams = Object.assign({}, context.params, { paginate: false });
     return context.service.find(findParams);
@@ -21,14 +22,14 @@ const stashFunc = (context) => {
 
 export type StashableOptions = {
   propName?: string;
-  stashFunc?: (context) => Promise<any>;
+  stashFunc?: (context: HookContext) => Promise<any>;
 };
 
-export const stashable = (_options: StashableOptions) => {
-  const options = Object.assign({ propName: "stashed", stashFunc }, _options);
+export const stashable = (_options?: StashableOptions) => {
+  const options = Object.assign({ propName: 'stashed', stashFunc }, _options);
 
-  return skippable("stashable", (context) => {
-    checkContext(context, "before", ["update", "patch", "remove"], "stashable");
+  return skippable('stashable', (context) => {
+    checkContext(context, 'before', ['update', 'patch', 'remove'], 'stashable');
     context.params[options.propName] = stash(options.stashFunc, context);
     return context;
   });

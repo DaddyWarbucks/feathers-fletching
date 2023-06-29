@@ -1,4 +1,5 @@
-import { skippable, virtualsSerializer, resolver } from "../utils";
+import type { Virtuals, PrepFunction } from '../utils';
+import { skippable, virtualsSerializer, resolver } from '../utils';
 
 /**
  * Add data, such as defaults to context.data in a before hook.
@@ -14,8 +15,13 @@ import { skippable, virtualsSerializer, resolver } from "../utils";
  * virtual should return the value to be attached to the key and should
  * not mutate context directly.
  */
-export const withData = (virtuals, prepFunc = () => {}) => {
-  return skippable("withData", async (context) => {
+
+export const withData = (
+  virtuals: Virtuals,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  prepFunc: PrepFunction = () => {}
+) => {
+  return skippable('withData', async (context) => {
     context.data = await virtualsSerializer(
       resolver,
       context.data,

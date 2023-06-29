@@ -1,5 +1,5 @@
-import { LRUCache } from "lru-cache";
-import { stableStringify } from "./utils";
+import { LRUCache } from 'lru-cache';
+import { stableStringify } from './utils';
 
 export type ContextCacheMapOptions =
   | {
@@ -12,14 +12,14 @@ export class ContextCacheMap {
 
   constructor(options?: ContextCacheMapOptions) {
     options ??= { max: 100 };
-    this.map = "map" in options ? options?.map : new LRUCache(options);
+    this.map = 'map' in options ? options?.map : new LRUCache(options);
   }
 
   makeCacheKey(context) {
     return stableStringify({
       method: context.method,
       id: context.id,
-      query: context.params && context.params.query,
+      query: context.params && context.params.query
     });
   }
 
@@ -56,13 +56,13 @@ export class ContextCacheMap {
     results.forEach((result) => {
       Array.from(this.map.keys()).forEach((key) => {
         const keyObj = JSON.parse(key);
-        if (keyObj.method === "find") {
+        if (keyObj.method === 'find') {
           // This is a cached `find` request. Any create/patch/update/del
           // could affect the results of this query so it should be deleted
           return this.map.delete(key);
         } else {
           // This is a cached `get` request
-          if (context.method !== "create") {
+          if (context.method !== 'create') {
             // If not creating, there may be a cached get for this id
             const id = this.makeId(keyObj.id);
             const recordId = this.makeResultId(result);

@@ -1,14 +1,14 @@
 import assert from 'assert';
-import {feathers} from '@feathersjs/feathers';
-import {Service } from 'feathers-memory';
-import {stashable} from '../../src';
+import { feathers } from '@feathersjs/feathers';
+import { MemoryService } from '@feathersjs/memory';
+import { stashable } from '../../src';
 
 describe('stashable', () => {
   const app = feathers();
 
   app.use(
     'api/albums',
-    new Service({
+    new MemoryService({
       store: {
         1: { id: 1, title: 'Man in Black', artist_id: 1 },
         2: { id: 2, title: 'Man in Black', artist_id: 1 }
@@ -78,7 +78,7 @@ describe('stashable', () => {
       params: {}
     };
 
-    const stashFunc = async context => ({ stashed: true });
+    const stashFunc = async (context) => ({ stashed: true });
 
     const newContext = await stashable({ stashFunc })(context);
 

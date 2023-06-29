@@ -4,11 +4,16 @@ import {
   filterResolver,
   getResults,
   replaceResults,
-  omit,
-} from "../utils";
+  omit
+} from '../utils';
+import type { Virtuals, PrepFunction } from '../utils';
 
-export const withoutResult = (virtuals, prepFunc = () => {}) => {
-  return skippable("withoutResult", async (context) => {
+export const withoutResult = (
+  virtuals: Virtuals,
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  prepFunc: PrepFunction = () => {}
+) => {
+  return skippable('withoutResult', async (context) => {
     const results = getResults(context);
 
     if (!results) {

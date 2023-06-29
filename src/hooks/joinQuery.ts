@@ -1,4 +1,5 @@
-import type { HookContext } from "@feathersjs/feathers";
+import type { HookContext, Query } from '@feathersjs/feathers';
+import type { SetPartial } from '../utils';
 import {
   hasQuery,
   skippable,
@@ -8,36 +9,51 @@ import {
   omit,
   pick,
   isEmpty,
-  hasKey,
-} from "../utils";
+  hasKey
+} from '../utils';
+
+export type JoinQueryEntry = {
+  overwrite: boolean;
+  makeKey: (key: any) => any;
+  makeParams: (
+    defaultParams: any,
+    context: HookContext,
+    option: JoinQueryEntry
+  ) => any;
+  service: string;
+  targetKey: string;
+  foreignKey: string;
+};
 
 export type JoinQueryOptions = {
-  [key: string]: {
-    overwrite: boolean;
-    makeKey: (key: any) => any;
-    makeParams: (defaultParams: any) => any;
-    service: string;
-    targetKey: string;
-    foreignKey: string;
-  };
+  [key: string]: SetPartial<
+    JoinQueryEntry,
+    'overwrite' | 'makeKey' | 'makeParams'
+  >;
 };
+
+type JoinQueryOptionsRequired = Record<string, JoinQueryEntry>;
+
+function makeOptionsWithDefaults(options: JoinQueryOptions) {
+  return Object.keys(options).reduce((result, key) => {
+    const option = options[key];
+    result[key] = {
+      overwrite: false,
+      makeKey: (key) => key,
+      makeParams: (defaultParams) => defaultParams,
+      ...option
+    };
+    return result;
+  }, {} as JoinQueryOptionsRequired);
+}
 
 export const joinQuery = <H extends HookContext>(
   _options: JoinQueryOptions
 ) => {
-  const options = { ..._options };
+  const options = makeOptionsWithDefaults(_options);
 
-  Object.keys(options).forEach((key) => {
-    options[key] = {
-      overwrite: false,
-      makeKey: (key) => key,
-      makeParams: (defaultParams) => defaultParams,
-      ...options[key],
-    };
-  });
-
-  return skippable("joinQuery", async (context: H) => {
-    if (context.type === "before") {
+  return skippable('joinQuery', async (context: H) => {
+    if (context.type === 'before') {
       if (!hasJoinQuery(context, options)) {
         return context;
       }
@@ -47,10 +63,10 @@ export const joinQuery = <H extends HookContext>(
         options
       );
 
-      // @ts-ignore
+      // @ts-expect-error joinSort is not defined on context
       context.joinSort = joinSort;
 
-      if (!isEmpty(joinSort) && context.method === "find") {
+      if (!isEmpty(joinSort) && context.method === 'find') {
         context.result = await findJoinQuerySort(
           query,
           joinSort,
@@ -72,13 +88,13 @@ export const joinQuery = <H extends HookContext>(
     const { joinSort } = context;
     delete context.joinSort;
 
-    if (context.method === "find") {
+    if (context.method === 'find') {
       return context;
     }
 
     if (
-      context.method === "get" ||
-      context.method === "update" ||
+      context.method === 'get' ||
+      context.method === 'update' ||
       context.id !== null
     ) {
       return context;
@@ -90,7 +106,10 @@ export const joinQuery = <H extends HookContext>(
   });
 };
 
-const hasJoinQuery = (context, options) => {
+const hasJoinQuery = (
+  context: HookContext,
+  options: JoinQueryOptionsRequired
+) => {
   if (!hasQuery(context)) {
     return false;
   }
@@ -106,7 +125,10 @@ const hasJoinQuery = (context, options) => {
   return has;
 };
 
-const cleanJoinQuerySort = (query, options) => {
+const cleanJoinQuerySort = (
+  query: Query,
+  options: JoinQueryOptionsRequired
+): [Query, Query] => {
   if (!query.$sort) {
     return [query, {}];
   }
@@ -117,7 +139,7 @@ const cleanJoinQuerySort = (query, options) => {
 
   const joinSort = pick(query.$sort, joinKeys);
   const cleanSort = omit(query.$sort, joinKeys);
-  const cleanQuery = omit(query, ["$sort"]);
+  const cleanQuery = omit(query, ['$sort']);
 
   if (!isEmpty(cleanSort)) {
     cleanQuery.$sort = cleanSort;
@@ -126,18 +148,21 @@ const cleanJoinQuerySort = (query, options) => {
   return [cleanQuery, joinSort];
 };
 
-const isJoinQuery = (key, options) => {
-  const optionKey = key.split(".")[0];
+const isJoinQuery = (key: string, options: JoinQueryOptionsRequired) => {
+  const optionKey = key.split('.')[0];
   return !!options[optionKey];
 };
 
-const parseJoinQuery = (key) => {
-  const [optionKey, ...rest] = key.split(".");
-  const optionQuery = rest.join(".");
+const parseJoinQuery = (key: string) => {
+  const [optionKey, ...rest] = key.split('.');
+  const optionQuery = rest.join('.');
   return [optionKey, optionQuery];
 };
 
-const normalizeJoinQuery = (query, options) => {
+const normalizeJoinQuery = (
+  query: Query,
+  options: JoinQueryOptionsRequired
+) => {
   traverse(query, (parent, [key, value]) => {
     if (!isJoinQuery(key, options)) {
       return;
@@ -150,13 +175,13 @@ const normalizeJoinQuery = (query, options) => {
       delete parent[key];
       parent[optionKey] = {
         ...parent[optionKey],
-        [optionQuery]: value,
+        [optionQuery]: value
       };
     } else {
       // Is object query
       parent[optionKey] = {
         ...parent[optionKey],
-        ...value,
+        ...value
       };
     }
   });
@@ -179,7 +204,11 @@ const normalizeJoinQuery = (query, options) => {
   return query;
 };
 
-const transformJoinQuery = async (query, context, options) => {
+const transformJoinQuery = async (
+  query: Query,
+  context: HookContext,
+  options: JoinQueryOptionsRequired
+) => {
   const normalizedQuery = normalizeJoinQuery(query, options);
 
   await asyncTraverse(normalizedQuery, async (parent, [key, value]) => {
@@ -193,7 +222,7 @@ const transformJoinQuery = async (query, context, options) => {
 
     const defaultParams = {
       paginate: false,
-      query: { $select: [option.targetKey], ...value },
+      query: { $select: [option.targetKey], ...value }
     };
 
     const params = await option.makeParams(defaultParams, context, option);
@@ -201,7 +230,7 @@ const transformJoinQuery = async (query, context, options) => {
     const result = await context.app.service(option.service).find(params);
 
     parent[option.foreignKey] = {
-      $in: makeForeignKeys(result.data || result, option),
+      $in: makeForeignKeys(result.data || result, option)
     };
 
     return parent;
@@ -210,7 +239,12 @@ const transformJoinQuery = async (query, context, options) => {
   return query;
 };
 
-const findJoinQuerySort = async (query, joinSort, context, options) => {
+const findJoinQuerySort = async (
+  query: Query,
+  joinSort: Query,
+  context: HookContext,
+  options: JoinQueryOptionsRequired
+) => {
   const transformedJoinQuery = await transformJoinQuery(
     query,
     context,
@@ -219,12 +253,12 @@ const findJoinQuerySort = async (query, joinSort, context, options) => {
 
   const findResults = context.service.find({
     paginate: false,
-    query: transformedJoinQuery,
+    query: transformedJoinQuery
   });
 
   const [allResults, ...foreignKeyGroups] = await Promise.all([
     findResults,
-    ...forignKeyPromises(joinSort, context, options),
+    ...forignKeyPromises(joinSort, context, options)
   ]);
 
   const sortedResults = sortResults(
@@ -239,7 +273,11 @@ const findJoinQuerySort = async (query, joinSort, context, options) => {
   return paginatedResults;
 };
 
-const mutateJoinQuerySort = async (joinSort, context, options) => {
+const mutateJoinQuerySort = async (
+  joinSort: Query,
+  context: HookContext,
+  options: JoinQueryOptionsRequired
+) => {
   const foreignKeyGroups = await Promise.all(
     forignKeyPromises(joinSort, context, options)
   );
@@ -254,22 +292,31 @@ const mutateJoinQuerySort = async (joinSort, context, options) => {
   return sortedResults;
 };
 
-const forignKeyPromises = (joinSort, context, options) => {
+const forignKeyPromises = (
+  joinSort: Query,
+  context: HookContext,
+  options: JoinQueryOptionsRequired
+) => {
   return Object.entries(joinSort).map(async ([key, value]) => {
-    const [optionKey, optionQuery] = parseJoinQuery(key, options);
+    const [optionKey, optionQuery] = parseJoinQuery(key);
     const { service, targetKey } = options[optionKey];
-    return context.app.service(service).find({
+    return await context.app.service(service).find({
       paginate: false,
-      query: { $select: [targetKey], $sort: { [optionQuery]: value } },
+      query: { $select: [targetKey], $sort: { [optionQuery]: value } }
     });
   });
 };
 
-const sortResults = (joinSort, options, foreignKeyGroups, results) => {
+const sortResults = (
+  joinSort: Query,
+  options: JoinQueryOptionsRequired,
+  foreignKeyGroups,
+  results
+) => {
   const sortedResults = [...results];
 
   foreignKeyGroups.forEach((foreignKeys, index) => {
-    const [optionKey] = parseJoinQuery(Object.keys(joinSort)[index], options);
+    const [optionKey] = parseJoinQuery(Object.keys(joinSort)[index]);
     const { makeKey, foreignKey, targetKey } = options[optionKey];
     const fKeys = foreignKeys.map((item) => makeKey(item[targetKey]));
     sortedResults.sort((a, b) => {
@@ -283,19 +330,19 @@ const sortResults = (joinSort, options, foreignKeyGroups, results) => {
   return sortedResults;
 };
 
-const paginateResults = (context, results) => {
+const paginateResults = (context: HookContext, results: any[]) => {
   const ctx = { ...context };
   const pagination = ctx.service.options && ctx.service.options.paginate;
   const paginate = ctx.params && ctx.params.paginate;
   const query = ctx.params && ctx.params.query;
-  const hasLimit = query && hasKey(query, "$limit");
+  const hasLimit = query && hasKey(query, '$limit');
   const limit = query && query.$limit;
   const skip = (query && query.$skip) || 0;
   const total = results.length;
   const result = {
     skip,
     limit,
-    total,
+    total
   };
 
   if (!pagination || paginate === false) {
@@ -313,27 +360,27 @@ const paginateResults = (context, results) => {
   if (!hasLimit) {
     return {
       ...result,
-      data: results.slice(skip, pagination.default + 1),
+      data: results.slice(skip, pagination.default + 1)
     };
   }
 
   if (limit === -1) {
     return {
       ...result,
-      data: [],
+      data: []
     };
   }
 
   if (query.$limit > pagination.max) {
     return {
       ...result,
-      data: results.slice(skip, pagination.max + 1),
+      data: results.slice(skip, pagination.max + 1)
     };
   }
 
   return {
     ...result,
-    data: results.slice(skip, limit + 1),
+    data: results.slice(skip, limit + 1)
   };
 };
 

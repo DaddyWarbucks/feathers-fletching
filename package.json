@@ -2,8 +2,10 @@
   "name": "feathers-fletching",
   "version": "1.20.5",
   "description": "Hooks, services, and plugins for feathers.js",
-  "main": "src/",
-  "repository": "https://github.com/DaddyWarbucks/feathers-fletching.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DaddyWarbucks/feathers-fletching.git"
+  },
   "author": "DaddyWarbucks <techtbeau@gmail.com>",
   "homepage": "https://daddywarbucks.github.io/feathers-fletching/",
   "license": "MIT",
@@ -12,6 +14,16 @@
     "feathersjs",
     "hooks"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "private": false,
   "scripts": {
     "docs:dev": "vuepress dev docs",
@@ -23,6 +35,7 @@
     "test": "npm run lint && vitest run",
     "test:run": "vitest run",
     "vitest": "vitest",
+    "prepublishOnly": "npm run build",
     "release:patch": "npm run test && npm version patch && npm publish",
     "release:minor": "npm run test && npm version minor && npm publish",
     "release:major": "npm run test && npm version major && npm publish"
@@ -35,6 +48,7 @@
   },
   "devDependencies": {
     "@feathersjs/feathers": "^5.0.6",
+    "@feathersjs/memory": "^5.0.6",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
     "eslint": "^8.43.0",
@@ -42,33 +56,15 @@
     "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-prettier": "^4.2.1",
-    "feathers-memory": "^4.1.0",
     "mocha": "^10.2.0",
     "prettier": "^2.8.8",
     "rate-limiter-flexible": "^2.4.1",
+    "typescript": "^5.1.6",
     "unbuild": "^1.2.1",
     "vitest": "^0.32.2",
     "vuepress": "^1.9.9"
   },
-  "eslintConfig": {
-    "extends": [
-      "plugin:prettier/recommended"
-    ],
-    "rules": {
-      "prettier/prettier": [
-        "warn",
-        {
-          "trailingComma": "none",
-          "singleQuote": true,
-          "printWidth": 80
-        }
-      ]
-    },
-    "parserOptions": {
-      "ecmaVersion": 2018
-    },
-    "env": {
-      "es6": true
-    }
+  "peerDependencies": {
+    "@feathersjs/feathers": "^5.0.0"
   }
 }

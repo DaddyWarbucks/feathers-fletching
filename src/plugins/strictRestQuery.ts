@@ -1,11 +1,12 @@
-import qs from "qs";
+import type { Application } from '@feathersjs/feathers';
+import qs from 'qs';
 
 // Parse string numbers and booleans into proper types
 // See: https://github.com/ljharb/qs/issues/91
-const decoder = (str, decoder, charset) => {
-  const strWithoutPlus = str.replace(/\+/g, " ");
+const decoder = (str: string, decoder, charset) => {
+  const strWithoutPlus = str.replace(/\+/g, ' ');
 
-  if (charset === "iso-8859-1") {
+  if (charset === 'iso-8859-1') {
     // unescape never throws, no try...catch needed:
     return strWithoutPlus.replace(/%[0-9a-f]{2}/gi, unescape);
   }
@@ -16,7 +17,7 @@ const decoder = (str, decoder, charset) => {
 
   const keywords = {
     true: true,
-    false: false,
+    false: false
   };
 
   if (str in keywords) {
@@ -31,21 +32,28 @@ const decoder = (str, decoder, charset) => {
   }
 };
 
+export type StrictRestQueryOptions = {
+  arrayLimit?: number;
+  depth?: number;
+  parameterLimit?: number;
+  strictNullHandling?: boolean;
+};
+
 export const strictRestQuery =
-  (opts = {}) =>
-  (app) => {
+  (opts: StrictRestQueryOptions = {}) =>
+  (app: Application) => {
     const options = Object.assign(
       {
         arrayLimit: 100,
         depth: 20,
         parameterLimit: 2000,
         strictNullHandling: true,
-        decoder,
+        decoder
       },
       opts
     );
 
-    app.set("query parser", (str) => qs.parse(str, options));
+    app.set('query parser', (str) => qs.parse(str, options));
 
     return app;
   };

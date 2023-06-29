@@ -1,7 +1,7 @@
 import assert from 'assert';
-import {feathers} from '@feathersjs/feathers';
-import { Service } from 'feathers-memory';
-import {joinQuery} from '../../src';
+import { feathers } from '@feathersjs/feathers';
+import { MemoryService } from '@feathersjs/memory';
+import { joinQuery } from '../../src';
 
 const joinQueryOptions = {
   artist: {
@@ -16,7 +16,7 @@ describe('joinQuery', () => {
 
   app.use(
     'api/albums',
-    new Service({
+    new MemoryService({
       whitelist: ['$and'],
       multi: true,
       paginate: {
@@ -33,7 +33,7 @@ describe('joinQuery', () => {
 
   app.use(
     'api/artists',
-    new Service({
+    new MemoryService({
       whitelist: ['$and'],
       multi: true,
       paginate: {
@@ -50,7 +50,7 @@ describe('joinQuery', () => {
 
   app.use(
     'api/ratings',
-    new Service({
+    new MemoryService({
       whitelist: ['$and'],
       multi: true,
       paginate: {
@@ -272,7 +272,7 @@ describe('joinQuery', () => {
         service: 'api/artists',
         targetKey: 'id',
         foreignKey: 'artist_id',
-        makeKey: id => id.toString()
+        makeKey: (id) => id.toString()
       }
     })(context);
 
@@ -330,7 +330,7 @@ describe('joinQuery', () => {
         service: 'api/artists',
         targetKey: 'id',
         foreignKey: 'artist_id',
-        makeParams: async defaultParams => {
+        makeParams: async (defaultParams) => {
           makeParamsCalled = true;
           return defaultParams;
         }

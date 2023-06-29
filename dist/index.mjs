@@ -28,7 +28,7 @@ const omit = (obj, keys) => {
   keys.forEach((key) => unset(result, key));
   return result;
 };
-const pick = (obj, ...keys) => keys.reduce((result, key) => {
+const pick = (obj, keys) => keys.reduce((result, key) => {
   if (obj[key] !== void 0) {
     result[key] = obj[key];
   }
@@ -120,10 +120,10 @@ const clone = (obj) => {
   if (typeof obj == "function") {
     return obj;
   }
-  var result = Array.isArray(obj) ? [] : {};
-  for (var key in obj) {
-    var value = obj[key];
-    var type = {}.toString.call(value).slice(8, -1);
+  const result = Array.isArray(obj) ? [] : {};
+  for (const key in obj) {
+    const value = obj[key];
+    const type = {}.toString.call(value).slice(8, -1);
     if (type == "Array" || type == "Object") {
       result[key] = clone(value);
     } else if (type == "Date") {
@@ -140,7 +140,7 @@ const getRegExpFlags = (regExp) => {
   if (typeof regExp.source.flags == "string") {
     return regExp.source.flags;
   } else {
-    var flags = [];
+    const flags = [];
     regExp.global && flags.push("g");
     regExp.ignoreCase && flags.push("i");
     regExp.multiline && flags.push("m");
@@ -185,7 +185,7 @@ class ContextCacheMap {
   }
   // Called after create(), update(), patch(), and remove()
   async clear(context) {
-    const result = context.result;
+    const { result } = context;
     const results = Array.isArray(result) ? result : [result];
     results.forEach((result2) => {
       Array.from(this.map.keys()).forEach((key) => {
@@ -228,7 +228,7 @@ const sanitize = (result, schema) => {
   }
   if (result instanceof Error) {
     if ("hook" in result) {
-      const hook = result.hook;
+      const { hook } = result;
       delete result.hook;
       const error = Object.getOwnPropertyNames(result).reduce(
         (sanitized, key) => {
@@ -289,7 +289,7 @@ const checkContext = (context, type = null, methods = [], label = "anonymous") =
 
 const resolver = (virtual, key, updated, context, prepResult) => {
   if (typeof virtual === "function") {
-    let result = virtual(updated, context, prepResult);
+    const result = virtual(updated, context, prepResult);
     if (isPromise(result)) {
       return result.then((result2) => {
         if (typeof result2 !== "undefined") {
@@ -394,16 +394,20 @@ const contextCache = (cacheMap) => skippable("contextCache", async (context) => 
   return context;
 });
 
-const joinQuery = (_options) => {
-  const options = { ..._options };
-  Object.keys(options).forEach((key) => {
-    options[key] = {
+function makeOptionsWithDefaults(options) {
+  return Object.keys(options).reduce((result, key) => {
+    const option = options[key];
+    result[key] = {
       overwrite: false,
       makeKey: (key2) => key2,
       makeParams: (defaultParams) => defaultParams,
-      ...options[key]
+      ...option
     };
-  });
+    return result;
+  }, {});
+}
+const joinQuery = (_options) => {
+  const options = makeOptionsWithDefaults(_options);
   return skippable("joinQuery", async (context) => {
     if (context.type === "before") {
       if (!hasJoinQuery(context, options)) {
@@ -429,7 +433,7 @@ const joinQuery = (_options) => {
     if (!context.joinSort || isEmpty(context.joinSort)) {
       return context;
     }
-    const joinSort = context.joinSort;
+    const { joinSort } = context;
     delete context.joinSort;
     if (context.method === "find") {
       return context;
@@ -570,7 +574,7 @@ const forignKeyPromises = (joinSort, context, options) => {
   return Object.entries(joinSort).map(async ([key, value]) => {
     const [optionKey, optionQuery] = parseJoinQuery(key);
     const { service, targetKey } = options[optionKey];
-    return context.app.service(service).find({
+    return await context.app.service(service).find({
       paginate: false,
       query: { $select: [targetKey], $sort: { [optionQuery]: value } }
     });
@@ -782,18 +786,18 @@ const filterColumnQueries = (arrOrObj = []) => {
   const props = Array.isArray(arrOrObj) ? arrOrObj : Object.keys(arrOrObj);
   return props.filter(isColumnQuery).map(getColumnPath);
 };
-const isColumnQuery = (string) => {
-  return string.startsWith("$") && string.includes(".") && string.endsWith("$");
+const isColumnQuery = (str) => {
+  return str.startsWith("$") && str.includes(".") && str.endsWith("$");
 };
-const removeColumnSyntax = (string) => {
-  return string.substring(1, string.length - 1);
+const removeColumnSyntax = (str) => {
+  return str.substring(1, str.length - 1);
 };
-const getColumnPath = (string) => {
-  const path = removeColumnSyntax(string);
+const getColumnPath = (str) => {
+  const path = removeColumnSyntax(str);
   return path.substring(0, path.lastIndexOf("."));
 };
-const getColumnProp = (string) => {
-  const path = removeColumnSyntax(string);
+const getColumnProp = (str) => {
+  const path = removeColumnSyntax(str);
   return path.substring(path.lastIndexOf(".") + 1);
 };
 const getColumnPaths = (query) => {
@@ -807,7 +811,7 @@ const getColumnPaths = (query) => {
 const getOrder = (key, value) => {
   return [key, parseInt(value, 10) === 1 ? "ASC" : "DESC"];
 };
-const defaultIncludeOptions = (association, context) => {
+const defaultIncludeOptions = () => {
   return {
     required: true,
     attributes: []
@@ -892,7 +896,7 @@ const sequelizeJoinQuery = (options = {}) => {
       return context;
     }
     const { query } = context.params;
-    const associations = context.service.getModel().associations;
+    const { associations } = context.service.getModel();
     if (!associations || !Object.keys(associations).length) {
       throw new GeneralError(
         "The sequelizeJoinQuery hook cannot be used on a service where the model does not have associations."
