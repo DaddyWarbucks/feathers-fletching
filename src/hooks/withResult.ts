@@ -1,5 +1,4 @@
 import {
-  skippable,
   virtualsSerializer,
   resolver,
   getResults,
@@ -10,9 +9,9 @@ import type { Virtuals, PrepFunction } from '../utils';
 export const withResult = (
   virtuals: Virtuals,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  prepFunc: PrepFunction = () => {}
+  prepFunc: PrepFunction = () => { }
 ) => {
-  return skippable('withResult', async (context) => {
+  return async (context) => {
     const results = getResults(context);
     const updated = await virtualsSerializer(
       resolver,
@@ -23,5 +22,5 @@ export const withResult = (
     );
     replaceResults(context, updated);
     return context;
-  });
+  };
 };

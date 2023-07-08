@@ -1,6 +1,6 @@
 import { GeneralError, BadRequest } from '@feathersjs/errors';
 import type { MaybeArray } from '../utils';
-import { hasQuery, skippable } from '../utils';
+import { hasQuery } from '../utils';
 import type { HookContext, Query } from '@feathersjs/feathers';
 
 const unique = (arr: any[]) => {
@@ -157,7 +157,7 @@ export const sequelizeJoinQuery = (options: SequelizeJoinQueryOptions = {}) => {
   const makeIncludeOptions =
     options.makeIncludeOptions || defaultIncludeOptions;
 
-  return skippable('sequelizeJoinQuery', (context) => {
+  return (context) => {
     if (!hasQuery(context)) {
       return context;
     }
@@ -199,5 +199,5 @@ export const sequelizeJoinQuery = (options: SequelizeJoinQueryOptions = {}) => {
     context.params.query = getCleanQuery(query);
 
     return context;
-  });
+  };
 };

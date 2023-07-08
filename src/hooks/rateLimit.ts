@@ -1,5 +1,5 @@
 import { TooManyRequests } from '@feathersjs/errors';
-import { skippable, checkContext } from '../utils';
+import { checkContext } from '../utils';
 import type { RateLimiterMemory } from 'rate-limiter-flexible';
 
 const defaultOptions = {
@@ -17,7 +17,7 @@ export const rateLimit = (
   _options?: RateLimitOptions
 ) => {
   const options = Object.assign({}, defaultOptions, _options);
-  return skippable('rateLimit', async (context) => {
+  return async (context) => {
     checkContext(context, 'before', null, 'rateLimit');
     const key = await options.makeKey(context);
     const points = await options.makePoints(context);
@@ -30,5 +30,5 @@ export const rateLimit = (
       context.params.rateLimit = rateLimit;
       throw new TooManyRequests(rateLimit);
     }
-  });
+  };
 };

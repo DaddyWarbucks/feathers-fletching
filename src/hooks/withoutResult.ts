@@ -1,5 +1,4 @@
 import {
-  skippable,
   virtualsSerializer,
   filterResolver,
   getResults,
@@ -11,9 +10,9 @@ import type { Virtuals, PrepFunction } from '../utils';
 export const withoutResult = (
   virtuals: Virtuals,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  prepFunc: PrepFunction = () => {}
+  prepFunc: PrepFunction = () => { }
 ) => {
-  return skippable('withoutResult', async (context) => {
+  return async (context) => {
     const results = getResults(context);
 
     if (!results) {
@@ -37,5 +36,5 @@ export const withoutResult = (
     );
     replaceResults(context, filtered);
     return context;
-  });
+  };
 };

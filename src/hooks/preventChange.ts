@@ -1,15 +1,14 @@
 import { GeneralError } from '@feathersjs/errors';
 import {
   omit,
-  skippable,
   checkContext,
   virtualsSerializer,
   filterResolver
 } from '../utils';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const preventChange = (virtuals, prepFunc = () => {}) => {
-  return skippable('preventChange', async (context) => {
+export const preventChange = (virtuals, prepFunc = () => { }) => {
+  return async (context) => {
     checkContext(context, 'before', ['update', 'patch'], 'preventChange');
 
     if (!context.data) {
@@ -44,5 +43,5 @@ export const preventChange = (virtuals, prepFunc = () => {}) => {
     }
 
     return context;
-  });
+  );
 };

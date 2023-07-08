@@ -1,5 +1,4 @@
 import {
-  skippable,
   virtualsSerializer,
   filterResolver,
   hasQuery,
@@ -10,9 +9,9 @@ import type { Virtuals, PrepFunction } from '../utils';
 export const withoutQuery = (
   virtuals: Virtuals,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  prepFunc: PrepFunction = () => {}
+  prepFunc: PrepFunction = () => { }
 ) => {
-  return skippable('withoutQuery', async (context) => {
+  return async (context) => {
     if (!hasQuery(context)) {
       return context;
     }
@@ -31,5 +30,5 @@ export const withoutQuery = (
     );
 
     return context;
-  });
+  };
 };

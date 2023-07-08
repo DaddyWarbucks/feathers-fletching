@@ -2,7 +2,6 @@ import type { HookContext, Query } from '@feathersjs/feathers';
 import type { SetPartial } from '../utils';
 import {
   hasQuery,
-  skippable,
   clone,
   traverse,
   asyncTraverse,
@@ -52,7 +51,7 @@ export const joinQuery = <H extends HookContext>(
 ) => {
   const options = makeOptionsWithDefaults(_options);
 
-  return skippable('joinQuery', async (context: H) => {
+  return async (context: H) => {
     if (context.type === 'before') {
       if (!hasJoinQuery(context, options)) {
         return context;
@@ -103,7 +102,7 @@ export const joinQuery = <H extends HookContext>(
     context.result = await mutateJoinQuerySort(joinSort, context, options);
 
     return context;
-  });
+  };
 };
 
 const hasJoinQuery = (

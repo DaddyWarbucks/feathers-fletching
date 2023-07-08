@@ -1,12 +1,12 @@
-import { skippable, virtualsSerializer, filterResolver, omit } from '../utils';
+import { virtualsSerializer, filterResolver, omit } from '../utils';
 import type { Virtuals, PrepFunction } from '../utils';
 
 export const withoutData = (
   virtuals: Virtuals,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  prepFunc: PrepFunction = () => {}
+  prepFunc: PrepFunction = () => { }
 ) => {
-  return skippable('withoutData', async (context) => {
+  return async (context) => {
     if (!context.data) {
       return context;
     }
@@ -26,5 +26,5 @@ export const withoutData = (
       prepFunc
     );
     return context;
-  });
+  };
 };

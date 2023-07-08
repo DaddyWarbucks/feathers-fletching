@@ -1,5 +1,5 @@
 import type { HookContext } from '@feathersjs/feathers';
-import { skippable, checkContext } from '../utils';
+import { checkContext } from '../utils';
 
 export const jsonQueryStringify = (
   options = {
@@ -7,7 +7,7 @@ export const jsonQueryStringify = (
     propName: 'json'
   }
 ) => {
-  return skippable('jsonQueryStringify', (context: HookContext) => {
+  return (context: HookContext) => {
     checkContext(context, 'before', null, 'jsonQueryStringify');
     const { query } = context.params;
     if (!query) {
@@ -24,7 +24,7 @@ export const jsonQueryStringify = (
       context.params.query[propName] = JSON.stringify(query);
     }
     return context;
-  });
+  };
 };
 
 export const jsonQueryParse = (
@@ -33,7 +33,7 @@ export const jsonQueryParse = (
     propName: 'json'
   }
 ) => {
-  return skippable('jsonQueryParse', (context: HookContext) => {
+  return (context: HookContext) => {
     checkContext(context, 'before', null, 'jsonQueryParse');
     const { query } = context.params;
     if (!query) {
@@ -50,7 +50,7 @@ export const jsonQueryParse = (
       context.params.query[propName] = JSON.parse(query[propName]);
     }
     return context;
-  });
+  );
 };
 
 // A convenience to add the client side hook to all service

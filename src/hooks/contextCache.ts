@@ -1,11 +1,10 @@
 import type { ContextCacheMap } from '../utils';
-import { skippable } from '../utils';
 import type { HookContext } from '@feathersjs/feathers';
 
 export const contextCache = <H extends HookContext = HookContext>(
   cacheMap: ContextCacheMap
-) =>
-  skippable('contextCache', async (context: H) => {
+) => {
+  return async (context: H) => {
     if (context.type === 'before') {
       if (context.method === 'get' || context.method === 'find') {
         const value = await cacheMap.get(context);
@@ -21,4 +20,5 @@ export const contextCache = <H extends HookContext = HookContext>(
       }
     }
     return context;
-  });
+  };
+}

@@ -1,4 +1,4 @@
-import { skippable, virtualsSerializer, resolver } from '../utils';
+import { virtualsSerializer, resolver } from '../utils';
 import type { Virtuals, PrepFunction } from '../utils';
 
 /*
@@ -9,9 +9,9 @@ import type { Virtuals, PrepFunction } from '../utils';
 export const withQuery = (
   virtuals: Virtuals,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  prepFunc: PrepFunction = () => {}
+  prepFunc: PrepFunction = () => { }
 ) => {
-  return skippable('withQuery', async (context) => {
+  return async (context) => {
     context.params = context.params || {};
     context.params.query = await virtualsSerializer(
       resolver,
@@ -21,5 +21,5 @@ export const withQuery = (
       prepFunc
     );
     return context;
-  });
+  };
 };

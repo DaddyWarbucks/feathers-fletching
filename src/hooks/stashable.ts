@@ -1,5 +1,5 @@
 import type { HookContext } from '@feathersjs/feathers';
-import { skippable, checkContext } from '../utils';
+import { checkContext } from '../utils';
 
 const stash = (stashFunc, context) => {
   let stashed = null;
@@ -28,9 +28,9 @@ export type StashableOptions = {
 export const stashable = (_options?: StashableOptions) => {
   const options = Object.assign({ propName: 'stashed', stashFunc }, _options);
 
-  return skippable('stashable', (context) => {
+  (context) => {
     checkContext(context, 'before', ['update', 'patch', 'remove'], 'stashable');
     context.params[options.propName] = stash(options.stashFunc, context);
     return context;
-  });
+  };
 };
