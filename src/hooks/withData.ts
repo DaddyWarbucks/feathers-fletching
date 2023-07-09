@@ -19,7 +19,7 @@ import { virtualsSerializer, resolver } from '../utils';
 export const withData = (
   virtuals: Virtuals,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  prepFunc: PrepFunction = () => { }
+  prepFunc: PrepFunction = () => {}
 ) => {
   return async (context) => {
     context.data = await virtualsSerializer(

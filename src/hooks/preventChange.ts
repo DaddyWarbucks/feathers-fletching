@@ -7,7 +7,7 @@ import {
 } from '../utils';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const preventChange = (virtuals, prepFunc = () => { }) => {
+export const preventChange = (virtuals, prepFunc = () => {}) => {
   return async (context) => {
     checkContext(context, 'before', ['update', 'patch'], 'preventChange');
 
@@ -43,5 +43,5 @@ export const preventChange = (virtuals, prepFunc = () => { }) => {
     }
 
     return context;
-  );
+  };
 };

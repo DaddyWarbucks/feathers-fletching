@@ -6,7 +6,7 @@ export type SanitizeErrorOptions =
   | ((context: any) => SanitizeSchema);
 
 export const sanitizeError = (options: SanitizeErrorOptions) => {
-  async (context) => {
+  return async (context) => {
     const schema =
       typeof options === 'function' ? await options(context) : options;
     context.error = sanitize(context.error, schema);

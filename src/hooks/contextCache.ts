@@ -21,4 +21,4 @@ export const contextCache = <H extends HookContext = HookContext>(
     }
     return context;
   };
-}
+};

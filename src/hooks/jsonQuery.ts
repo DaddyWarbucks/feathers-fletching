@@ -50,7 +50,7 @@ export const jsonQueryParse = (
       context.params.query[propName] = JSON.parse(query[propName]);
     }
     return context;
-  );
+  };
 };
 
 // A convenience to add the client side hook to all service

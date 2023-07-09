@@ -28,7 +28,7 @@ export type StashableOptions = {
 export const stashable = (_options?: StashableOptions) => {
   const options = Object.assign({ propName: 'stashed', stashFunc }, _options);
 
-  (context) => {
+  return (context) => {
     checkContext(context, 'before', ['update', 'patch', 'remove'], 'stashable');
     context.params[options.propName] = stash(options.stashFunc, context);
     return context;
