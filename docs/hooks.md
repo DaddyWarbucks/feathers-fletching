@@ -28,7 +28,7 @@ Add or overwrite properties onto the `context.result` or `context.result.data`. 
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withResult.js) |
+| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withResult.ts) |
 
 **Arguments**
 
@@ -185,7 +185,7 @@ For each virtual in the virtual object, if the value returns a truthy value it w
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutResult.js) |
+| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutResult.ts) |
 
 **Arguments**
 
@@ -253,7 +253,7 @@ Add or overwrite properties to the `context.data` of a method call. Useful for a
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withData.js) |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withData.ts) |
 
 **Arguments**
 
@@ -336,7 +336,7 @@ For each virtual in the virtual object, if the value returns a truthy value it w
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutData.js) |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutData.ts) |
 
 **Arguments**
 
@@ -405,7 +405,7 @@ This hook is also useful for offering the client a simple query interface that y
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withQuery.js) |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withQuery.ts) |
 
 **Arguments**
 
@@ -470,7 +470,7 @@ Remove properties from the `context.params.query` of a method call.  See the [wi
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutQuery.js) |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutQuery.ts) |
 
 **Arguments**
 
@@ -532,7 +532,7 @@ Query across services for "joined" records on any database type. This hook relie
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js) |
+| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.ts) |
 
 **Arguments**
 
@@ -766,7 +766,7 @@ The sequelizeJoinQuery hook leverages Sequelize's [$nested.column.syntax$](https
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sequelizeJoinQuery.js) |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sequelizeJoinQuery.ts) |
 
 **Arguments**
 
@@ -855,7 +855,7 @@ Cache the results of `get()` and `find()` requests. Clear the cache on any other
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/contextCache.js) |
+| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/contextCache.ts) |
 
 **Arguments**
 
@@ -944,7 +944,7 @@ service.get(1); // Cache hit because it was not affected
 
 The hook must be provided a `cacheMap` instance to use as its memoization cache. There is a `ContextCacheMap` exported that handles key serialization, cloning, and eviction policy for you. Any object/class that implements `get(context)`, `set(context)`, and `clear(context)` methods can be provided and async methods are supported. This means that the cache can even be backed by redis, etc. This is also how you can customize key generation, cloning, and eviction policy.
 
-You can simply extend the `ContextCacheMap` by adding your own `map` to it which will keep the key serialization, eviction policy etc but will use a different storage mechanism. Or for more information about how to extend the `ContextCacheMap` class, checkout the [Source Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/lib/contextCacheMap.js)
+You can simply extend the `ContextCacheMap` by adding your own `map` to it which will keep the key serialization, eviction policy etc but will use a different storage mechanism. Or for more information about how to extend the `ContextCacheMap` class, checkout the [Source Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/lib/contextCacheMap.ts)
 
 ```js
 // Use a custom cacheMap that uses async methods, such as some
@@ -1009,7 +1009,7 @@ Rate limit services using [node-rate-limiter-flexible](https://github.com/animir
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/rateLimit.js) |
+| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/rateLimit.ts) |
 
 **Arguments**
 
@@ -1123,7 +1123,7 @@ Replace sensitive items in the `context.error` according to a schema. It is comm
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeError.js) |
+| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeError.ts) |
 
 **Arguments**
 
@@ -1207,7 +1207,7 @@ Replace sensitive items in the `context.result` according to a schema. This hook
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeResult.js) |
+| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeResult.ts) |
 
 **Arguments**
 
@@ -1310,14 +1310,14 @@ Stashing a document in a hook so that it can be compared is a common practice. T
 
 | Before | After | Methods | Multi | Source |
 | :-: | :-: | :-:  | :-: | :-: |
-| yes | no | update, patch, remove | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.js) |
+| yes | no | update, patch, remove | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.ts) |
 
 **Arguments**
 
 | Argument | Type | Default | Required | Description |
 | :-: | :-: | :-:  | :-: | - |
 | option.propName | String | `stashed` | false | The name of the property on context.params to place the stashed function |
-| option.stashFunc | Function/Promise | [See source](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.js)  | false | A function/promise that returns the document/documents to be stashed |
+| option.stashFunc | Function/Promise | [See source](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.ts)  | false | A function/promise that returns the document/documents to be stashed |
 
 
 ```js
