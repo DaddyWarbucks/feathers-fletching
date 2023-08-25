@@ -4,6 +4,7 @@
 
 General:
 
+- Update to Feathers V5.
 - Rewrite to Typescript and updated test framework.
 - Fix error in `sequelizeJoinQuery` where similar join names like `org_user` and `user` could collide.
 
