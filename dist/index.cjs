@@ -10,6 +10,26 @@ function _interopDefaultCompat (e) { return e && typeof e === 'object' && 'defau
 const unset__default = /*#__PURE__*/_interopDefaultCompat(unset);
 const qs__default = /*#__PURE__*/_interopDefaultCompat(qs);
 
+const contextCache = (cacheMap) => {
+  return async (context) => {
+    if (context.type === "before") {
+      if (context.method === "get" || context.method === "find") {
+        const value = await cacheMap.get(context);
+        if (value) {
+          context.result = value;
+        }
+      }
+    } else {
+      if (context.method === "get" || context.method === "find") {
+        await cacheMap.set(context);
+      } else {
+        await cacheMap.clear(context);
+      }
+    }
+    return context;
+  };
+};
+
 const skippable = (hookName, hookFunc) => {
   return (context) => {
     if (context.params && context.params.skipHooks) {
@@ -383,24 +403,6 @@ const virtualsSerializer = async (resolver2, data, virtuals, context, prepFunc =
   return serializer(data, virtuals, context, prepResult, resolver2);
 };
 
-const contextCache = (cacheMap) => skippable("contextCache", async (context) => {
-  if (context.type === "before") {
-    if (context.method === "get" || context.method === "find") {
-      const value = await cacheMap.get(context);
-      if (value) {
-        context.result = value;
-      }
-    }
-  } else {
-    if (context.method === "get" || context.method === "find") {
-      await cacheMap.set(context);
-    } else {
-      await cacheMap.clear(context);
-    }
-  }
-  return context;
-});
-
 function makeOptionsWithDefaults(options) {
   return Object.keys(options).reduce((result, key) => {
     const option = options[key];
@@ -415,7 +417,7 @@ function makeOptionsWithDefaults(options) {
 }
 const joinQuery = (_options) => {
   const options = makeOptionsWithDefaults(_options);
-  return skippable("joinQuery", async (context) => {
+  return async (context) => {
     if (context.type === "before") {
       if (!hasJoinQuery(context, options)) {
         return context;
@@ -450,14 +452,14 @@ const joinQuery = (_options) => {
     }
     context.result = await mutateJoinQuerySort(joinSort, context, options);
     return context;
-  });
+  };
 };
 const hasJoinQuery = (context, options) => {
   if (!hasQuery(context)) {
     return false;
   }
   let has = false;
-  traverse(context.params.query, (parent, [key, value]) => {
+  traverse(context.params.query, (parent, [key]) => {
     if (isJoinQuery(key, options)) {
       has = true;
     }
@@ -480,7 +482,7 @@ const cleanJoinQuerySort = (query, options) => {
   return [cleanQuery, joinSort];
 };
 const isJoinQuery = (key, options) => {
-  const optionKey = key.split(".")[0];
+  const [optionKey] = key.split(".");
   return !!options[optionKey];
 };
 const parseJoinQuery = (key) => {
@@ -655,7 +657,7 @@ const jsonQueryStringify = (options = {
   overwrite: true,
   propName: "json"
 }) => {
-  return skippable("jsonQueryStringify", (context) => {
+  return (context) => {
     checkContext(context, "before", null, "jsonQueryStringify");
     const { query } = context.params;
     if (!query) {
@@ -672,13 +674,13 @@ const jsonQueryStringify = (options = {
       context.params.query[propName] = JSON.stringify(query);
     }
     return context;
-  });
+  };
 };
 const jsonQueryParse = (options = {
   overwrite: true,
   propName: "json"
 }) => {
-  return skippable("jsonQueryParse", (context) => {
+  return (context) => {
     checkContext(context, "before", null, "jsonQueryParse");
     const { query } = context.params;
     if (!query) {
@@ -695,7 +697,7 @@ const jsonQueryParse = (options = {
       context.params.query[propName] = JSON.parse(query[propName]);
     }
     return context;
-  });
+  };
 };
 const jsonQueryClient = (app) => {
   Object.values(app.services).forEach((service) => {
@@ -717,7 +719,7 @@ const jsonQueryServer = (app) => {
 
 const preventChange = (virtuals, prepFunc = () => {
 }) => {
-  return skippable("preventChange", async (context) => {
+  return async (context) => {
     checkContext(context, "before", ["update", "patch"], "preventChange");
     if (!context.data) {
       return context;
@@ -746,16 +748,16 @@ const preventChange = (virtuals, prepFunc = () => {
       );
     }
     return context;
-  });
+  };
 };
 
 const defaultOptions = {
   makeKey: (context) => context.path,
-  makePoints: (context) => 1
+  makePoints: () => 1
 };
 const rateLimit = (rateLimiter, _options) => {
   const options = Object.assign({}, defaultOptions, _options);
-  return skippable("rateLimit", async (context) => {
+  return async (context) => {
     checkContext(context, "before", null, "rateLimit");
     const key = await options.makeKey(context);
     const points = await options.makePoints(context);
@@ -767,23 +769,23 @@ const rateLimit = (rateLimiter, _options) => {
       context.params.rateLimit = rateLimit2;
       throw new errors.TooManyRequests(rateLimit2);
     }
-  });
+  };
 };
 
 const sanitizeError = (options) => {
-  return skippable("sanitizeError", async (context) => {
+  return async (context) => {
     const schema = typeof options === "function" ? await options(context) : options;
     context.error = sanitize(context.error, schema);
     return context;
-  });
+  };
 };
 
 const sanitizeResult = (options) => {
-  return skippable("sanitizeResult", async (context) => {
+  return async (context) => {
     const schema = typeof options === "function" ? await options(context) : options;
     context.result = sanitize(context.result, schema);
     return context;
-  });
+  };
 };
 
 const unique = (arr) => {
@@ -867,9 +869,9 @@ const getJoinInclude = (columnPaths, associations, getIncludeOptions, context) =
     const association = associations[rootPath];
     const includeOptions = getIncludeOptions(association, context);
     const include = Object.assign({ association }, includeOptions);
-    const targetPaths = columnPaths.filter((name) => name !== rootPath && name.startsWith(rootPath)).map((name) => name.slice(rootPath.length + 1));
+    const targetPaths = columnPaths.filter((path) => path !== rootPath && path.split(".")[0] === rootPath).map((path) => path.slice(rootPath.length + 1));
     const targetAssociations = association.target.associations;
-    if (targetPaths && targetAssociations) {
+    if (targetPaths.length && targetAssociations) {
       const targetIncludes = getJoinInclude(
         targetPaths,
         targetAssociations,
@@ -898,7 +900,7 @@ const getCleanQuery = (_query) => {
 };
 const sequelizeJoinQuery = (options = {}) => {
   const makeIncludeOptions = options.makeIncludeOptions || defaultIncludeOptions;
-  return skippable("sequelizeJoinQuery", (context) => {
+  return (context) => {
     if (!hasQuery(context)) {
       return context;
     }
@@ -931,7 +933,7 @@ const sequelizeJoinQuery = (options = {}) => {
     );
     context.params.query = getCleanQuery(query);
     return context;
-  });
+  };
 };
 
 const stash = (stashFunc2, context) => {
@@ -952,16 +954,16 @@ const stashFunc = (context) => {
 };
 const stashable = (_options) => {
   const options = Object.assign({ propName: "stashed", stashFunc }, _options);
-  return skippable("stashable", (context) => {
+  return (context) => {
     checkContext(context, "before", ["update", "patch", "remove"], "stashable");
     context.params[options.propName] = stash(options.stashFunc, context);
     return context;
-  });
+  };
 };
 
 const withData = (virtuals, prepFunc = () => {
 }) => {
-  return skippable("withData", async (context) => {
+  return async (context) => {
     context.data = await virtualsSerializer(
       resolver,
       context.data,
@@ -970,12 +972,12 @@ const withData = (virtuals, prepFunc = () => {
       prepFunc
     );
     return context;
-  });
+  };
 };
 
 const withQuery = (virtuals, prepFunc = () => {
 }) => {
-  return skippable("withQuery", async (context) => {
+  return async (context) => {
     context.params = context.params || {};
     context.params.query = await virtualsSerializer(
       resolver,
@@ -985,12 +987,12 @@ const withQuery = (virtuals, prepFunc = () => {
       prepFunc
     );
     return context;
-  });
+  };
 };
 
 const withResult = (virtuals, prepFunc = () => {
 }) => {
-  return skippable("withResult", async (context) => {
+  return async (context) => {
     const results = getResults(context);
     const updated = await virtualsSerializer(
       resolver,
@@ -1001,12 +1003,12 @@ const withResult = (virtuals, prepFunc = () => {
     );
     replaceResults(context, updated);
     return context;
-  });
+  };
 };
 
 const withoutData = (virtuals, prepFunc = () => {
 }) => {
-  return skippable("withoutData", async (context) => {
+  return async (context) => {
     if (!context.data) {
       return context;
     }
@@ -1022,12 +1024,12 @@ const withoutData = (virtuals, prepFunc = () => {
       prepFunc
     );
     return context;
-  });
+  };
 };
 
 const withoutQuery = (virtuals, prepFunc = () => {
 }) => {
-  return skippable("withoutQuery", async (context) => {
+  return async (context) => {
     if (!hasQuery(context)) {
       return context;
     }
@@ -1043,12 +1045,12 @@ const withoutQuery = (virtuals, prepFunc = () => {
       prepFunc
     );
     return context;
-  });
+  };
 };
 
 const withoutResult = (virtuals, prepFunc = () => {
 }) => {
-  return skippable("withoutResult", async (context) => {
+  return async (context) => {
     const results = getResults(context);
     if (!results) {
       return context;
@@ -1067,7 +1069,7 @@ const withoutResult = (virtuals, prepFunc = () => {
     );
     replaceResults(context, filtered);
     return context;
-  });
+  };
 };
 
 const decoder = (str, decoder2, charset) => {
