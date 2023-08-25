@@ -9,7 +9,7 @@ import type { Virtuals, PrepFunction } from '../utils';
 export const withResult = (
   virtuals: Virtuals,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  prepFunc: PrepFunction = () => { }
+  prepFunc: PrepFunction = () => {}
 ) => {
   return async (context) => {
     const results = getResults(context);
