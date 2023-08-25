@@ -26,9 +26,7 @@
   "types": "./dist/index.d.ts",
   "private": false,
   "scripts": {
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs",
-    "docs:deploy": "sh deploy-docs.sh",
+    "docs:dev": "docsify serve ./docs",
     "build": "unbuild",
     "lint": "eslint src/.",
     "fixcode": "eslint src/. --fix",
@@ -42,7 +40,7 @@
   },
   "dependencies": {
     "@feathersjs/errors": "^5.0.6",
-    "lru-cache": "^10.0.0",
+    "lru-cache": "^10.0.1",
     "qs": "^6.11.2",
     "unset-value": "^2.0.1"
   },
@@ -51,6 +49,7 @@
     "@feathersjs/memory": "^5.0.6",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
+    "docsify-cli": "^4.4.4",
     "eslint": "^8.43.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-import-resolver-typescript": "^3.5.5",
@@ -61,8 +60,7 @@
     "rate-limiter-flexible": "^2.4.1",
     "typescript": "^5.1.6",
     "unbuild": "^1.2.1",
-    "vitest": "^0.32.2",
-    "vuepress": "^1.9.9"
+    "vitest": "^0.32.2"
   },
   "peerDependencies": {
     "@feathersjs/feathers": "^5.0.0"
