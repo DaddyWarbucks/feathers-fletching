@@ -18,10 +18,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // This will result in a query like
 query = {
-  'boolean': 'true',
-  'number': '123',
-  'null': ''
-  'emptyString': ''
+  boolean: 'true',
+  number: '123',
+  null: ''
+  emptyString: ''
 }
 ```
 
@@ -33,11 +33,11 @@ app.configure(strictRestQuery());
 
 // This will result in a query like
 query = {
-  'boolean': true,
-  'number': 123,
-  'null': null,
-  'emptyString': ''
-}
+  boolean: true,
+  number: 123,
+  null: null,
+  emptyString: ''
+};
 ```
 
 > Note this plugin MUST be configured early in the Express chain and before any other middleware. See [this issue](https://github.com/expressjs/express/issues/3454) for more details
@@ -46,16 +46,16 @@ query = {
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| options | Object | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/plugins/strictRestQuery.js) | false | `qs` options, See [qs options](https://github.com/ljharb/qs#parsing-objects) |
+| Argument |  Type  |                                                   Default                                                   | Required | Description                                                                  |
+| :------: | :----: | :---------------------------------------------------------------------------------------------------------: | :------: | ---------------------------------------------------------------------------- |
+| options  | Object | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/plugins/strictRestQuery.js) |  false   | `qs` options, See [qs options](https://github.com/ljharb/qs#parsing-objects) |
 
 ```js
- defaultOptions = {
+defaultOptions = {
   arrayLimit: 100,
   depth: 20,
   parameterLimit: 2000,
   strictNullHandling: true,
   decoder // See source code
-}
+};
 ```

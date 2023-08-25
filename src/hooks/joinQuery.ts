@@ -115,7 +115,7 @@ const hasJoinQuery = (
 
   let has = false;
 
-  traverse(context.params.query, (parent, [key, value]) => {
+  traverse(context.params.query, (parent, [key]) => {
     if (isJoinQuery(key, options)) {
       has = true;
     }
@@ -148,7 +148,7 @@ const cleanJoinQuerySort = (
 };
 
 const isJoinQuery = (key: string, options: JoinQueryOptionsRequired) => {
-  const optionKey = key.split('.')[0];
+  const [optionKey] = key.split('.');
   return !!options[optionKey];
 };
 

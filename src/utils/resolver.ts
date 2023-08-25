@@ -1,15 +1,22 @@
 import toposort from 'toposort';
 import { isPromise } from './utils';
+import type { HookContext } from '@feathersjs/feathers';
+
+export type ResolverCallback = (
+  data: Record<string, any>,
+  context: HookContext,
+  prepResult: Record<string, any>
+) => any;
 
 export class Resolver {
-  resolvers: Record<string, Promise<any>>;
+  resolvers: Record<string, ResolverCallback>;
 
-  constructor(resolvers: Record<string, Promise<any>>) {
+  constructor(resolvers: Record<string, ResolverCallback>) {
     this.resolvers = { ...resolvers };
   }
 
-  _resolve(values, context, next) {
-    const resolverCache: Record<string, Promise<any>> = {};
+  _resolve(values: any, context?: HookContext, next) {
+    const resolverCache: Record<string, ResolverCallback> = {};
     const resolverEdges: Array<[string, string]> = [];
     const result = { ...values };
     const { resolvers } = this;
@@ -98,7 +105,7 @@ export class Resolver {
     }
   }
 
-  _resolveMany(valuesArray: any[], context?: any, next) {
+  _resolveMany(valuesArray: any[], context?: HookContext, next) {
     let count = valuesArray.length;
     const resultArray = [];
 
@@ -126,7 +133,7 @@ export class Resolver {
     }
   }
 
-  resolve(values: any | any[], context?: any) {
+  resolve(values: any | any[], context?: HookContext) {
     return new Promise((resolve, reject) => {
       if (Array.isArray(values)) {
         this._resolveMany(values, context, (error, result) => {

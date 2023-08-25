@@ -1,4 +1,5 @@
 # Hooks
+
 <!--
 **Context**
 
@@ -14,8 +15,6 @@
 
 -->
 
-## Notes
-All feathers-fletching hooks are skippable by default. This means that each hook can be skipped by calling a service with the param `skipHooks` as an array of the names of the feathers-fletching hooks that you want to skip. See also the `skippable` utils function docs on how to make your own hooks, or other library hooks, skippable as well.
 ```js
 app.service('albums').find({ skipHooks: ['withResult'] });
 ```
@@ -26,16 +25,16 @@ Add or overwrite properties onto the `context.result` or `context.result.data`. 
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withResult.js) |
+| Before | After | Methods | Multi |                                                Source                                                |
+| :----: | :---: | :-----: | :---: | :--------------------------------------------------------------------------------------------------: |
+|   no   |  yes  |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withResult.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| virtuals | Object |  | true | An object where each key will be the name of a property to be added to the `context.result` and each value is either a primitive, function, or promise. |
-| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
+| Argument |       Type       | Default  | Required | Description                                                                                                                                             |
+| :------: | :--------------: | :------: | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| virtuals |      Object      |          |   true   | An object where each key will be the name of a property to be added to the `context.result` and each value is either a primitive, function, or promise. |
+| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.   |
 
 ```js
 import { withResult } from 'feathers-fletching';
@@ -49,7 +48,6 @@ import { withResult } from 'feathers-fletching';
 */
 
 const withResults = withResult({
-
   status: 'platinum', // return some primitive: number, bool, obj, string, etc
 
   summary: (result, context, prepResult) => {
@@ -69,7 +67,6 @@ const withResults = withResult({
     // from the object totally.
     return undefined;
   }
-
 });
 
 /*
@@ -93,16 +90,17 @@ const withResults = withResult({
     artist_id: 123
   }
 */
-const withResults = withResult({
-  artist: (result, context, loaders) => {
-    return loaders.artists.load(result.artist_id);
+const withResults = withResult(
+  {
+    artist: (result, context, loaders) => {
+      return loaders.artists.load(result.artist_id);
+    },
+    rating: (result, context, loaders) => {
+      return loaders.ratings.load(result.rating_id);
+    }
   },
-  rating: (result, context, loaders) => {
-    return loaders.ratings.load(result.rating_id);
-  }
-},
 
-  async context => {
+  async (context) => {
     // This function is run before iterating over the virtuals object and its
     // result is passed to each virtuals function. This is a great place
     // to setup batchLoaders, which are a very powerful and performant
@@ -110,10 +108,9 @@ const withResults = withResult({
     // see the feathers-plus/batch-loader docs
     return {
       artists: new BatchLoader('artists'),
-      ratings: new BatchLoader('ratings'),
-    }
+      ratings: new BatchLoader('ratings')
+    };
   }
-
 );
 
 /*
@@ -162,7 +159,7 @@ const withResults = withResult({
   }
 });
 
-  /*
+/*
   context.result = {
     first: 'I ran FIRST!',
     second: 'I ran SECOND!',
@@ -183,16 +180,16 @@ For each virtual in the virtual object, if the value returns a truthy value it w
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutResult.js) |
+| Before | After | Methods | Multi |                                                 Source                                                  |
+| :----: | :---: | :-----: | :---: | :-----------------------------------------------------------------------------------------------------: |
+|   no   |  yes  |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutResult.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| virtuals | Object/Array |  | true | An object where each key will be the name of a property to be potentially filtered from result. **Return a truthy value to keep the value and return a falsey value to remove it**. |
-| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
+| Argument |       Type       | Default  | Required | Description                                                                                                                                                                         |
+| :------: | :--------------: | :------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| virtuals |   Object/Array   |          |   true   | An object where each key will be the name of a property to be potentially filtered from result. **Return a truthy value to keep the value and return a falsey value to remove it**. |
+| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.                               |
 
 ```js
 import { withoutResult } from 'feathers-fletching';
@@ -206,7 +203,6 @@ import { withoutResult } from 'feathers-fletching';
 */
 
 const withoutResults = withoutResult({
-
   // simply pass false if you don't need to do any logic
   // and this property will be filtered
   ssn: false,
@@ -216,7 +212,6 @@ const withoutResults = withoutResult({
   email: (result, context, prepResult) => {
     return context.params.user.role === 'admin';
   }
-
 });
 
 /*
@@ -251,16 +246,16 @@ Add or overwrite properties to the `context.data` of a method call. Useful for a
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withData.js) |
+| Before | After | Methods | Multi |                                               Source                                               |
+| :----: | :---: | :-----: | :---: | :------------------------------------------------------------------------------------------------: |
+|  yes   |  no   |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withData.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| virtuals | Object |  | true | An object where each key will be the name of a property to be added to the `context.data` and each value is either a primitive, function, or promise. |
-| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
+| Argument |       Type       | Default  | Required | Description                                                                                                                                           |
+| :------: | :--------------: | :------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| virtuals |      Object      |          |   true   | An object where each key will be the name of a property to be added to the `context.data` and each value is either a primitive, function, or promise. |
+| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
 
 ```js
 import { withData } from 'feathers-fletching';
@@ -275,7 +270,6 @@ import { withData } from 'feathers-fletching';
 */
 
 const withDatas = withData({
-
   // This hook is useful for forcing properties onto data that
   // the client should not have control of. For example, you
   // may always force the `user_id` onto a record from the
@@ -298,17 +292,16 @@ const withDatas = withData({
   // an array, and you can handle updating them.
   category_ids: async (data, context, prepResult) => {
     if (data.catgories) {
-
-      const promises = data.categories.map(newCat => {
+      const promises = data.categories.map((newCat) => {
         return context.app.service('categories').create(newCat);
       });
 
       const newCategories = await Promise.all(promises);
-      const newCategoryIds = newCategories.map(newCat => newCat.id);
+      const newCategoryIds = newCategories.map((newCat) => newCat.id);
 
       delete data.categories;
 
-      return [...data.category_ids, ...newCategoryIds]
+      return [...data.category_ids, ...newCategoryIds];
     }
 
     return data.category_ids;
@@ -334,16 +327,16 @@ For each virtual in the virtual object, if the value returns a truthy value it w
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutData.js) |
+| Before | After | Methods | Multi |                                                Source                                                 |
+| :----: | :---: | :-----: | :---: | :---------------------------------------------------------------------------------------------------: |
+|  yes   |  no   |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutData.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| virtuals | Object/Array |  | true | An object where each key will be the name of a property to be potentially filtered from data. **Return a truthy value to keep the value and return a falsey value to remove it**. |
-| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
+| Argument |       Type       | Default  | Required | Description                                                                                                                                                                       |
+| :------: | :--------------: | :------: | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| virtuals |   Object/Array   |          |   true   | An object where each key will be the name of a property to be potentially filtered from data. **Return a truthy value to keep the value and return a falsey value to remove it**. |
+| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.                             |
 
 ```js
 import { withoutData } from 'feathers-fletching';
@@ -357,7 +350,6 @@ import { withoutData } from 'feathers-fletching';
 */
 
 const withoutDatas = withoutData({
-
   // Simply pass false if you don't need to do any logic
   // and this property will be filtered
   ssn: false,
@@ -381,8 +373,8 @@ const withoutDatas = withoutData({
     name: 'Johnny Cash'
   }
 */
-
 ```
+
 ```js
 // `withoutData` also accepts an array of strings as the first
 // argument as a conveniece syntax. When you use this syntaxt, `prepFunc`
@@ -403,16 +395,16 @@ This hook is also useful for offering the client a simple query interface that y
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withQuery.js) |
+| Before | After | Methods | Multi |                                               Source                                                |
+| :----: | :---: | :-----: | :---: | :-------------------------------------------------------------------------------------------------: |
+|  yes   |  no   |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withQuery.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| virtuals | Object |  | true | An object where each key will be the name of a property to be added to the `context.params.query` and each value is either a primitive, function, or promise. |
-| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
+| Argument |       Type       | Default  | Required | Description                                                                                                                                                   |
+| :------: | :--------------: | :------: | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| virtuals |      Object      |          |   true   | An object where each key will be the name of a property to be added to the `context.params.query` and each value is either a primitive, function, or promise. |
+| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.         |
 
 ```js
 import { withQuery } from 'feathers-fletching';
@@ -426,7 +418,6 @@ import { startOf, endOf } from 'some-date-lib';
 */
 
 const withQueries = withQuery({
-
   // This hook is useful for forcing properties onto query that
   // the client should not have control of. For example, you
   // may always force the `user_id` onto a query from the
@@ -449,7 +440,7 @@ const withQueries = withQuery({
       // Delete the "fake" parameter
       delete context.params.query.$period;
       // Return some actual query
-      return { $gte: startOf($period), $lte: endOf($period) }
+      return { $gte: startOf($period), $lte: endOf($period) };
     }
   }
 });
@@ -464,20 +455,20 @@ const withQueries = withQuery({
 
 ## withoutQuery
 
-Remove properties from the `context.params.query` of a method call.  See the [withoutResult](#withoutResult) docs for more detailed info about how virtuals and prepFunc work in the `without*` hooks.
+Remove properties from the `context.params.query` of a method call. See the [withoutResult](#withoutResult) docs for more detailed info about how virtuals and prepFunc work in the `without*` hooks.
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutQuery.js) |
+| Before | After | Methods | Multi |                                                 Source                                                 |
+| :----: | :---: | :-----: | :---: | :----------------------------------------------------------------------------------------------------: |
+|  yes   |  no   |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutQuery.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| virtuals | Object/Array |  | true | An object where each key will be the name of a property to be potentially filtered from `context.params.query`. **Return a truthy value to keep the value and return a falsey value to remove it**. |
-| prepFunc | Function/Promise | () => {} | false | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object. |
+| Argument |       Type       | Default  | Required | Description                                                                                                                                                                                         |
+| :------: | :--------------: | :------: | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| virtuals |   Object/Array   |          |   true   | An object where each key will be the name of a property to be potentially filtered from `context.params.query`. **Return a truthy value to keep the value and return a falsey value to remove it**. |
+| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the virtuals object.                                               |
 
 ```js
 import { withoutQuery } from 'feathers-fletching';
@@ -509,7 +500,6 @@ const withoutQueries = withoutQuery({
     name: 'Johnny Cash'
   }
 */
-
 ```
 
 ```js
@@ -530,22 +520,21 @@ Query across services for "joined" records on any database type. This hook relie
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js) |
+| Before | After | Methods | Multi |                                               Source                                                |
+| :----: | :---: | :-----: | :---: | :-------------------------------------------------------------------------------------------------: |
+|  yes   |  yes  |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/joinQuery.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| options | Object |  | true | An object where each key will be the name of a  query prop the client can use and each value defines the service and ids  |
-| option.service | String |  | true | The string name of the service to query against |
-| option.targetKey | String |  | true | The name of the key that exists on the collection this service is querying |
-| option.foreignKey | String |  | true | The name of the key on the foreign record. Generally this will be `id` or `_id` |
-| option.makeParams | Function/Promise | `(defaultParams, context, option) => defaultParams` | false | A function/promise that returns params to be sent to the `option.service` find method. |
-| option.makeKey | Function | `(key) => key`  | false | A function that parses the `option.targetKey` and `option.foreignKey` |
-| option.overwrite | Bool | false | false | Overwrite the query or put sub queries in $and |
-
+|     Argument      |       Type       |                       Default                       | Required | Description                                                                                                             |
+| :---------------: | :--------------: | :-------------------------------------------------: | :------: | ----------------------------------------------------------------------------------------------------------------------- |
+|      options      |      Object      |                                                     |   true   | An object where each key will be the name of a query prop the client can use and each value defines the service and ids |
+|  option.service   |      String      |                                                     |   true   | The string name of the service to query against                                                                         |
+| option.targetKey  |      String      |                                                     |   true   | The name of the key that exists on the collection this service is querying                                              |
+| option.foreignKey |      String      |                                                     |   true   | The name of the key on the foreign record. Generally this will be `id` or `_id`                                         |
+| option.makeParams | Function/Promise | `(defaultParams, context, option) => defaultParams` |  false   | A function/promise that returns params to be sent to the `option.service` find method.                                  |
+|  option.makeKey   |     Function     |                   `(key) => key`                    |  false   | A function that parses the `option.targetKey` and `option.foreignKey`                                                   |
+| option.overwrite  |       Bool       |                        false                        |  false   | Overwrite the query or put sub queries in $and                                                                          |
 
 ```js
 import { joinQuery } from 'feathers-fletching';
@@ -620,12 +609,14 @@ const albums = await app.service('api/albums').find({
 // You can also use nested $and/$or queries
 const albums = await app.service('api/albums').find({
   query: {
-    $and: [{
-      $or: [
-        { 'artist.name': 'Johnny Cash' },
-        { 'artist.name': 'Johnny Paycheck' },
-      ]
-    }]
+    $and: [
+      {
+        $or: [
+          { 'artist.name': 'Johnny Cash' },
+          { 'artist.name': 'Johnny Paycheck' }
+        ]
+      }
+    ]
   }
 });
 ```
@@ -676,20 +667,22 @@ const joinQueries = joinQuery({
 const query = {
   artist_id: 2,
   'artist.name': 'Johnny Cash'
-}
+};
 
 // overwrite: false (default)
 const joinQuery = {
   artist_id: 2,
-  $and: [{
-    artist_id: { $in: [1] }
-  }]
-}
+  $and: [
+    {
+      artist_id: { $in: [1] }
+    }
+  ]
+};
 
 // overwrite: true
 const joinQuery = {
   artist_id: { $in: [1] }
-}
+};
 ```
 
 ```js
@@ -733,7 +726,6 @@ const albums = await app.service('api/albums').find({
     { title: 'I Wont Back Down', artist_id: 123 }
   ]
 */
-
 ```
 
 ```js
@@ -751,10 +743,9 @@ const idList = await context.app.service('api/artists').find({
 
 // Furthermore, when sorting with a join query, the main service
 // also must disable pagination. This can be an extremel
-
 ```
 
-> This technique of searching across services has some known performance limitations. Join queries fetch a list of  unpaginated IDs from their services, and this list of ids may be very long. These IDs are then used within an `$in` query, which is generally not a performant query operator. When sorting with a join query, the main service also disables pagination, meaning all results are returned from the database and sorted in memory. While this hook works great when querying across multiple types of feathers database adapters, most applications use one type of database adapter. It is recommended to use one of the database adapter specific hooks like `sequelizeJoinQuery`. These database specific hooks are able to handle the filtering and sorting at the database level and are much more performant.
+> This technique of searching across services has some known performance limitations. Join queries fetch a list of unpaginated IDs from their services, and this list of ids may be very long. These IDs are then used within an `$in` query, which is generally not a performant query operator. When sorting with a join query, the main service also disables pagination, meaning all results are returned from the database and sorted in memory. While this hook works great when querying across multiple types of feathers database adapters, most applications use one type of database adapter. It is recommended to use one of the database adapter specific hooks like `sequelizeJoinQuery`. These database specific hooks are able to handle the filtering and sorting at the database level and are much more performant.
 
 > When using this hook on the client, use the [disablePagination](https://hooks-common.feathersjs.com/hooks.html#disablepagination) hook on the server to ensure proper results. Then be sure to include `$limit: -1` with your join query like `artist: { name: 'Johnny Cash', $limit: -1 }`. Otherwise, the query passed to the join service will not return all joined records and your result set will be incomplete.
 
@@ -764,16 +755,16 @@ The sequelizeJoinQuery hook leverages Sequelize's [$nested.column.syntax$](https
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sequelizeJoinQuery.js) |
+| Before | After | Methods | Multi |                                                    Source                                                    |
+| :----: | :---: | :-----: | :---: | :----------------------------------------------------------------------------------------------------------: |
+|  yes   |  no   |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sequelizeJoinQuery.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| options | Object |  | true | An object of options. |
-| options.makeIncludeOptions | Function |  | false | A function that is called for each association and returns association options |
+|          Argument          |   Type   | Default | Required | Description                                                                    |
+| :------------------------: | :------: | :-----: | :------: | ------------------------------------------------------------------------------ |
+|          options           |  Object  |         |   true   | An object of options.                                                          |
+| options.makeIncludeOptions | Function |         |  false   | A function that is called for each association and returns association options |
 
 ```js
 import { sequelizeJoinQuery } from 'feathers-fletching';
@@ -835,7 +826,7 @@ const sequelizeJoin = sequelizeJoinQuery({
     const options = {
       required: false, // left outer join
       attributes: ['name'], // append the record's name to result
-      nest: true, // append as an obj instead of dot syntax
+      nest: true // append as an obj instead of dot syntax
     };
     if (association.associationType === 'HasMany') {
       options.duplicating = false;
@@ -853,19 +844,18 @@ Cache the results of `get()` and `find()` requests. Clear the cache on any other
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/contextCache.js) |
+| Before | After | Methods | Multi |                                                 Source                                                 |
+| :----: | :---: | :-----: | :---: | :----------------------------------------------------------------------------------------------------: |
+|  yes   |  yes  |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/contextCache.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| cacheMap | Object |  | true | A Map like object where each method is passed `context` as the only argument. Methods can be async. |
-| cacheMap.get | Function/Promise |  | true | Called before `get` and `find` |
-| cacheMap.set | Function/Promise |  | true | Called after `get` and `find` |
-| cacheMap.clear | Function/Promise |  | true | Called after `create`, `update`, `patch` and `remove` |
-
+|    Argument    |       Type       | Default | Required | Description                                                                                         |
+| :------------: | :--------------: | :-----: | :------: | --------------------------------------------------------------------------------------------------- |
+|    cacheMap    |      Object      |         |   true   | A Map like object where each method is passed `context` as the only argument. Methods can be async. |
+|  cacheMap.get  | Function/Promise |         |   true   | Called before `get` and `find`                                                                      |
+|  cacheMap.set  | Function/Promise |         |   true   | Called after `get` and `find`                                                                       |
+| cacheMap.clear | Function/Promise |         |   true   | Called after `create`, `update`, `patch` and `remove`                                               |
 
 ```js
 import { contextCache, ContextCacheMap } from 'feathers-fletching';
@@ -932,7 +922,7 @@ service.get(1); // Cache hit because it was not affected
 
 - Before `get()` and `find()` - If the result exists in the cache it is returned.
 
-- After `get()` and `find()` -  The results are stored in the cache.
+- After `get()` and `find()` - The results are stored in the cache.
 
 - After `create()` - All cached `find()` results are cleared. `get()` results are not cleared.
 
@@ -952,11 +942,11 @@ You can simply extend the `ContextCacheMap` by adding your own `map` to it which
 import { contextCache, ContextCacheMap } from 'feathers-fletching';
 
 const map = {
-  get: key => redisClient.get(key),
+  get: (key) => redisClient.get(key),
   set: (key, result) => redisClient.set(key, result),
-  delete: key => redisClient.delete(key),
+  delete: (key) => redisClient.delete(key),
   keys: () => redisClient.keys()
-}
+};
 
 const contextCacheMap = new ContextCacheMap({ map });
 
@@ -1007,18 +997,17 @@ Rate limit services using [node-rate-limiter-flexible](https://github.com/animir
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | no | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/rateLimit.js) |
+| Before | After | Methods | Multi |                                               Source                                                |
+| :----: | :---: | :-----: | :---: | :-------------------------------------------------------------------------------------------------: |
+|  yes   |  no   |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/rateLimit.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| rateLimiter | Object |  | true | A `RateLimiter` instance from `node-rate-limiter-flexible` or any class that implements `consume(key, points)`  as a promise |
-| option.makeKey | Function/Promise | `(context) => context.path` | false | A function/promise that returns a key to rate limit against |
-| option.makePoints | Function/Promise | `(context) => 1`  | false | A function/promise that returns the number of points to consume for this request |
-
+|     Argument      |       Type       |           Default           | Required | Description                                                                                                                 |
+| :---------------: | :--------------: | :-------------------------: | :------: | --------------------------------------------------------------------------------------------------------------------------- |
+|    rateLimiter    |      Object      |                             |   true   | A `RateLimiter` instance from `node-rate-limiter-flexible` or any class that implements `consume(key, points)` as a promise |
+|  option.makeKey   | Function/Promise | `(context) => context.path` |  false   | A function/promise that returns a key to rate limit against                                                                 |
+| option.makePoints | Function/Promise |      `(context) => 1`       |  false   | A function/promise that returns the number of points to consume for this request                                            |
 
 ```js
 import { rateLimit } from 'feathers-fletching';
@@ -1043,16 +1032,16 @@ app.service('api/albums').hooks({
 // Use the `makeKey` option to limit requests by different parameters.
 
 // By default, reqs are limited on the service as a whole
-const makeKey = context => context.path;
+const makeKey = (context) => context.path;
 
 // Limit reqs by user id
-const makeKey = context => context.params.user.id;
+const makeKey = (context) => context.params.user.id;
 
 // Limit reqs by any combination of context
-const makeKey = context => {
+const makeKey = (context) => {
   return JSON.stringify({
     user_id: context.params.user.id,
-    org_id: context.params.org.id,
+    org_id: context.params.org.id
   });
 };
 
@@ -1064,10 +1053,10 @@ const rateLimitHook = rateLimit(rateLimiter, { makeKey });
 // points to consume on each request
 
 // By default, each request consumes one point
-const makePoints = context => 1;
+const makePoints = (context) => 1;
 
 // Dynamically set points by any combination of context
-const makePoints = context => {
+const makePoints = (context) => {
   if (context.params.user.admin) {
     return 0;
   } else {
@@ -1121,16 +1110,15 @@ Replace sensitive items in the `context.error` according to a schema. It is comm
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| no | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeError.js) |
+| Before | After | Methods | Multi |                                                 Source                                                  |
+| :----: | :---: | :-----: | :---: | :-----------------------------------------------------------------------------------------------------: |
+|   no   |  yes  |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeError.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| schema | Object/Function |  | true | A schema where each key is the sensitive string to replace and the value is either a string to replace it with or a function that returns a string to replace it with |
-
+| Argument |      Type       | Default | Required | Description                                                                                                                                                           |
+| :------: | :-------------: | :-----: | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  schema  | Object/Function |         |   true   | A schema where each key is the sensitive string to replace and the value is either a string to replace it with or a function that returns a string to replace it with |
 
 ```js
 import { sanitizeError } from 'feathers-fletching';
@@ -1152,7 +1140,7 @@ const sanitized = sanitizeError({
     for (i = 0; i < string.length; i++) {
       mask = mask + '*';
     }
-    return string.replace(key, mask)
+    return string.replace(key, mask);
   }
 });
 
@@ -1164,7 +1152,7 @@ app.service('api/albums').hooks({
 
 // This throws some error from the database like
 // new Error("getaddrinfo ENOTFOUND my.database.com:3030");
-app.service('api/albums').find()
+app.service('api/albums').find();
 
 /*
   context.error = {
@@ -1205,16 +1193,15 @@ Replace sensitive items in the `context.result` according to a schema. This hook
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | yes | all | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeResult.js) |
+| Before | After | Methods | Multi |                                                  Source                                                  |
+| :----: | :---: | :-----: | :---: | :------------------------------------------------------------------------------------------------------: |
+|  yes   |  yes  |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/sanitizeResult.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| schema | Object/Function |  | true | A schema where each key is the sensitive string to replace and the value is either a string to replace it with or a function that returns a string to replace it with |
-
+| Argument |      Type       | Default | Required | Description                                                                                                                                                           |
+| :------: | :-------------: | :-----: | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  schema  | Object/Function |         |   true   | A schema where each key is the sensitive string to replace and the value is either a string to replace it with or a function that returns a string to replace it with |
 
 ```js
 import { sanitizeResult } from 'feathers-fletching';
@@ -1223,7 +1210,7 @@ import { sanitizeResult } from 'feathers-fletching';
 // recursively traverse every object in the result and will
 // replace any occurence of "Ab123cD" with "*****"
 const sanitized = sanitizeResult({
-  'Ab123cD': '*****'
+  Ab123cD: '*****'
 });
 
 // Use a function to sanitize the key. This example
@@ -1231,12 +1218,12 @@ const sanitized = sanitizeResult({
 // it is masking. You could also use RegEx to do any kind
 // of searching and replacing in the string.
 const sanitized = sanitizeResult({
-  'Ab123cD': (string, key) => {
+  Ab123cD: (string, key) => {
     let mask = '';
     for (i = 0; i < string.length; i++) {
       mask = mask + '*';
     }
-    return string.replace(key, mask)
+    return string.replace(key, mask);
   }
 });
 
@@ -1246,7 +1233,7 @@ app.service('api/albums').hooks({
   }
 });
 
-app.service('api/albums').find()
+app.service('api/albums').find();
 
 /*
   context.result = {
@@ -1282,7 +1269,7 @@ const sanitized = sanitizeResult(context => {
 // Let's use an example where we accidently leak some sensitive data into
 // the result, not because it is data on the actual result, but because
 // we made a mistake in our code and leaked an environment variable.
-const attachStripeResult = async context => {
+const attachStripeResult = async (context) => {
   const stripe_id = context.result.stripe_id;
   const stripe_key = context.app.get('stripeKey');
   const stripe_client = context.app.get('stripeClient');
@@ -1290,9 +1277,9 @@ const attachStripeResult = async context => {
   context.result.stripe = {
     stripe_key,
     result
-  }
-  return context
-}
+  };
+  return context;
+};
 
 // Did you catch the error? We meant to return the user's stripe result
 // along with the stripe_id...but we accidently returned our own secret
@@ -1308,17 +1295,16 @@ Stashing a document in a hook so that it can be compared is a common practice. T
 
 **Context**
 
-| Before | After | Methods | Multi | Source |
-| :-: | :-: | :-:  | :-: | :-: |
-| yes | no | update, patch, remove | yes | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.js) |
+| Before | After |        Methods        | Multi |                                               Source                                                |
+| :----: | :---: | :-------------------: | :---: | :-------------------------------------------------------------------------------------------------: |
+|  yes   |  no   | update, patch, remove |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.js) |
 
 **Arguments**
 
-| Argument | Type | Default | Required | Description |
-| :-: | :-: | :-:  | :-: | - |
-| option.propName | String | `stashed` | false | The name of the property on context.params to place the stashed function |
-| option.stashFunc | Function/Promise | [See source](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.js)  | false | A function/promise that returns the document/documents to be stashed |
-
+|     Argument     |       Type       |                                               Default                                                | Required | Description                                                              |
+| :--------------: | :--------------: | :--------------------------------------------------------------------------------------------------: | :------: | ------------------------------------------------------------------------ |
+| option.propName  |      String      |                                              `stashed`                                               |  false   | The name of the property on context.params to place the stashed function |
+| option.stashFunc | Function/Promise | [See source](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/stashable.js) |  false   | A function/promise that returns the document/documents to be stashed     |
 
 ```js
 import { stashable } from 'feathers-fletching';
@@ -1329,21 +1315,20 @@ app.service('api/albums').hooks({
   before: {
     update: [stashed, hook1, hook2],
     patch: [stashed, hook1, hook2],
-    remove: [stashed, hook1, hook2],
+    remove: [stashed, hook1, hook2]
   }
 });
 
-const hook1 = async context => {
+const hook1 = async (context) => {
   // Calls the stash function for the first time
   const stashed = await context.params.stashed();
-}
+};
 
-const hook2 = async context => {
+const hook2 = async (context) => {
   // Returns a memoized promise (does not call DB again)
   const stashed = await context.params.stashed();
-}
+};
 ```
-
 
 ```js
 // Example of how this would traditionally be accomplished
@@ -1450,7 +1435,7 @@ const hook1 = context => {
 
 // Default stashFunc. This function uses the same params as the parent.
 // It also handles multi:true via the `context.id === null` block
-const stashFunc = context => {
+const stashFunc = (context) => {
   if (context.id === null) {
     const findParams = Object.assign({}, context.params, { paginate: false });
     return context.service.find(findParams);
@@ -1461,7 +1446,7 @@ const stashFunc = context => {
 
 // You can also pass in your own function/params to handle the
 // stashing of the document how you see fit
-const myStashFunc = context => {};
+const myStashFunc = (context) => {};
 
 const stashed = stashable({ stashFunc: myStashFunc });
 ```

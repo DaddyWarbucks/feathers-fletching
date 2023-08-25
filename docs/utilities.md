@@ -9,7 +9,7 @@ Wrap a hook function to make it skippable by passing `{ skipHooks: ['hookName'] 
 ```js
 import { skippable } from 'feathers-fletching';
 
-const myHook = skippable('myHook', context => {
+const myHook = skippable('myHook', (context) => {
   console.log('Hello from "myHook"');
   return context;
 });
@@ -29,13 +29,12 @@ app.service('albums').find({ skipHooks: ['after'] });
 // Skip all skippable before hooks, and just "myHook" if after
 app.service('albums').find({ skipHooks: ['before', 'myHook'] });
 
-
 // You can also modify the skipHooks property within other hooks
-const someHook = context => {
+const someHook = (context) => {
   if (context.id === 1) {
     const skipHooks = context.params.skipHooks || [];
     context.params.skipHooks = [...skipHooks, 'myHook'];
   }
   return context;
-}
+};
 ```

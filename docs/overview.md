@@ -1,6 +1,7 @@
 # Overview
 
 To get started
+
 ```
 yarn add feathers-fletching
 ```
@@ -8,7 +9,6 @@ yarn add feathers-fletching
 - [Hooks API](./hooks.md) - The API for the available hooks
 - [Plugins API](./plugins.md) - The API for the available plugins
 - [Utilities API](./utilities.md) - The API for the available utility methods
-
 
 `feathers-fletching` is a collection of useful [Feathers hooks](https://docs.feathersjs.com/api/hooks.html).
 
@@ -23,6 +23,7 @@ Some of core building blocks of any feathers application are the `context.data`,
 With that in mind, feathers-fletching has a core set of hooks often called the `with*` and `without*` hooks used for modifying these three properties. These hooks offer a common, powerful way to interact with these three properties. They are inspired by the resolver pattern that allows you to manipulate data within these properties via async functions. This means that with the `with*` and `without*` hooks, you can accomplish the same tasks as the hooks mentioned above.
 
 For example
+
 - if you want a `protect` hook that ensures passwords are not returned, use `withoutResult(['password'])`
 
 - if you want a `preventChange` hook that ensures emails are not changed, use `withoutData(['email'])`

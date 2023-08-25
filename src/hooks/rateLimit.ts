@@ -1,15 +1,16 @@
 import { TooManyRequests } from '@feathersjs/errors';
 import { checkContext } from '../utils';
 import type { RateLimiterMemory } from 'rate-limiter-flexible';
+import type { HookContext } from '@feathersjs/feathers';
 
 const defaultOptions = {
   makeKey: (context) => context.path,
-  makePoints: (context) => 1
+  makePoints: () => 1
 } satisfies RateLimitOptions;
 
 export type RateLimitOptions = {
-  makeKey?: (context) => string;
-  makePoints?: (context) => number;
+  makeKey?: (context: HookContext) => string;
+  makePoints?: (context: HookContext) => number;
 };
 
 export const rateLimit = (
