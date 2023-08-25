@@ -22,6 +22,12 @@ describe('sequelizeJoinQuery', () => {
     }
   };
 
+  const artist_type = {
+    target: {
+      associations: { rating }
+    }
+  };
+
   const label = {
     target: {
       associations: { owner }
@@ -30,7 +36,7 @@ describe('sequelizeJoinQuery', () => {
 
   service.getModel = () => {
     return {
-      associations: { artist, label }
+      associations: { artist, artist_type, label }
     };
   };
 
@@ -71,6 +77,7 @@ describe('sequelizeJoinQuery', () => {
       params: {
         query: {
           '$artist.name$': 'Johnny Cash',
+          '$artist_type.name$': 'Country',
           '$label.name$': 'Sun Studios'
         }
       }
@@ -82,6 +89,11 @@ describe('sequelizeJoinQuery', () => {
       include: [
         {
           association: artist,
+          attributes: [],
+          required: true
+        },
+        {
+          association: artist_type,
           attributes: [],
           required: true
         },

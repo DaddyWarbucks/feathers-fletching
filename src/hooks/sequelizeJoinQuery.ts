@@ -110,10 +110,10 @@ const getJoinInclude = (
     const includeOptions = getIncludeOptions(association, context);
     const include = Object.assign({ association }, includeOptions);
     const targetPaths = columnPaths
-      .filter((name) => name !== rootPath && name.startsWith(rootPath))
-      .map((name) => name.slice(rootPath.length + 1));
+      .filter((path) => path !== rootPath && path.split('.')[0] === rootPath)
+      .map((path) => path.slice(rootPath.length + 1));
     const targetAssociations = association.target.associations;
-    if (targetPaths && targetAssociations) {
+    if (targetPaths.length && targetAssociations) {
       const targetIncludes = getJoinInclude(
         targetPaths,
         targetAssociations,
