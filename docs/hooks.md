@@ -15,10 +15,6 @@
 
 -->
 
-```js
-app.service('albums').find({ skipHooks: ['withResult'] });
-```
-
 ## withResult
 
 Add or overwrite properties onto the `context.result` or `context.result.data`. Useful for joining/populating records and creating virtual properties.
