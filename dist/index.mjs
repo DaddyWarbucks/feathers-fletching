@@ -598,7 +598,7 @@ const sortResults = (joinSort, options, foreignKeyGroups, results) => {
 };
 const paginateResults = (context, results) => {
   const ctx = { ...context };
-  const pagination = ctx.service.options && ctx.service.options.paginate;
+  const pagination = ctx.service && ctx.service.options && ctx.service.options.paginate;
   const paginate = ctx.params && ctx.params.paginate;
   const query = ctx.params && ctx.params.query;
   const hasLimit = query && hasKey(query, "$limit");
