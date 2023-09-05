@@ -48,7 +48,7 @@ query = {
 
 | Argument |  Type  |                                                   Default                                                   | Required | Description                                                                  |
 | :------: | :----: | :---------------------------------------------------------------------------------------------------------: | :------: | ---------------------------------------------------------------------------- |
-| options  | Object | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/plugins/strictRestQuery.js) |  false   | `qs` options, See [qs options](https://github.com/ljharb/qs#parsing-objects) |
+| options  | Object | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/plugins/strictRestQuery.ts) |  false   | `qs` options, See [qs options](https://github.com/ljharb/qs#parsing-objects) |
 
 ```js
 defaultOptions = {

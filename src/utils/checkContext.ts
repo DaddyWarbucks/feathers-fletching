@@ -1,4 +1,4 @@
-// https://github.com/feathersjs-ecosystem/feathers-hooks-common/blob/master/lib/services/check-context.js
+// https://github.com/feathersjs-ecosystem/feathers-hooks-common/blob/master/lib/services/check-context.ts
 import { GeneralError } from '@feathersjs/errors';
 import type { HookContext } from '@feathersjs/feathers';
 
