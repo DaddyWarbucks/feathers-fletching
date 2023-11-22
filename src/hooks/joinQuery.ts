@@ -330,11 +330,12 @@ const sortResults = (
 };
 
 const paginateResults = (context: HookContext, results: any[]) => {
-  const ctx = { ...context };
   const pagination =
-    ctx.service && ctx.service.options && ctx.service.options.paginate;
-  const paginate = ctx.params && ctx.params.paginate;
-  const query = ctx.params && ctx.params.query;
+    context.service &&
+    context.service.options &&
+    context.service.options.paginate;
+  const paginate = context.params && context.params.paginate;
+  const query = context.params && context.params.query;
   const hasLimit = query && hasKey(query, '$limit');
   const limit = query && query.$limit;
   const skip = (query && query.$skip) || 0;
