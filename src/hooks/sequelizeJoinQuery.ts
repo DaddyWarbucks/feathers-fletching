@@ -32,7 +32,7 @@ const getColumnProp = (str: string) => {
   return path.substring(path.lastIndexOf('.') + 1);
 };
 
-// TODO: This currenlty only supports the feathers common query
+// TODO: This currently only supports the feathers common query
 // syntax. But it should probably include things like $and and
 // other sequelize specific operators
 const getColumnPaths = (query: Query) => {
