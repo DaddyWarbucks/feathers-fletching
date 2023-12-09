@@ -1,6 +1,7 @@
 export * from './contextCache';
 export * from './joinQuery';
 export * from './jsonQuery';
+export * from './mongoJoinQuery';
 export * from './preventChange';
 export * from './rateLimit';
 export * from './sanitizeError';
