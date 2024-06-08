@@ -96,7 +96,14 @@ describe('mongoJoinQuery', () => {
           from: 'api/artists',
           localField: 'artist_id',
           foreignField: 'id',
-          as: 'artist'
+          as: 'artist',
+          pipeline: [
+            {
+              $project: {
+                name: 1
+              }
+            }
+          ]
         }
       },
       {
@@ -133,7 +140,15 @@ describe('mongoJoinQuery', () => {
           from: 'api/artists',
           localField: 'artist_id',
           foreignField: 'id',
-          as: 'artist'
+          as: 'artist',
+          pipeline: [
+            {
+              $project: {
+                name: 1,
+                id: 1
+              }
+            }
+          ]
         }
       },
       {
@@ -169,11 +184,23 @@ describe('mongoJoinQuery', () => {
           as: 'artist',
           pipeline: [
             {
+              $project: {
+                name: 1
+              }
+            },
+            {
               $lookup: {
                 from: 'api/scores',
                 localField: 'id',
                 foreignField: 'album_id',
-                as: 'scores'
+                as: 'scores',
+                pipeline: [
+                  {
+                    $project: {
+                      rating: 1
+                    }
+                  }
+                ]
               }
             }
           ]

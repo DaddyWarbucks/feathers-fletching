@@ -1,14 +1,12 @@
 import type { HookContext } from '@feathersjs/feathers';
 import { GeneralError } from '@feathersjs/errors';
-import { hasQuery, traverse } from '../utils';
+import { traverse } from '../utils';
 
 export type MongoJoinQueryOptions = {
   service: string;
   localField: string;
   foreignField: string;
 };
-
-/* TODO: Add projection to stages to only project what was queried. Right now the whole document is joined on. But, the aggregation pipeline has a 16MB max, so we could avoid this by limiting the fields on each joined document to only what was queried. */
 
 /* TODO: Remove the joined documents? Even if we do add projection as stated above, the user could still query by and return sensitive data. For example, `"user.password": { $ne: null }` would join on the user's password.  */
 
@@ -27,7 +25,7 @@ export const mongoJoinQuery = async <H extends HookContext>(context: H) => {
     );
   }
 
-  if (!hasLookupQuery(context, associations)) {
+  if (!hasLookupQuery(context.params?.query, associations)) {
     return context;
   }
 
@@ -44,14 +42,18 @@ export const mongoJoinQuery = async <H extends HookContext>(context: H) => {
   return context;
 };
 
-const hasLookupQuery = (context: HookContext, associations: any) => {
-  if (!hasQuery(context)) {
+const hasLookupQuery = (query: any, associations: any) => {
+  if (!query || !Object.keys(query).length) {
+    return false;
+  }
+
+  if (!associations || !Object.keys(associations).length) {
     return false;
   }
 
   let has = false;
 
-  traverse(context.params.query, (parent, [key]) => {
+  traverse(query, (parent, [key]) => {
     if (isLookupQuery(key, associations)) {
       has = true;
     }
@@ -101,18 +103,29 @@ const makePipeline = async (app, params, associations) => {
     }
 
     const lookupService = app.service(association.service);
+    const model = await lookupService.getModel(params);
     const { associations: lookupAssociations } =
       lookupService.getOptions(params);
-    const model = await lookupService.getModel(params);
 
     const stage = {
       from: model.collectionName,
       localField: association.localField,
       foreignField: association.foreignField,
-      as: lookupKey
+      as: lookupKey,
+      pipeline: []
     };
 
-    if (lookupAssociations && Object.keys(lookupAssociations).length) {
+    stage.pipeline.push({
+      $project: Object.keys(lookupQuery).reduce((acc, key) => {
+        if (!lookupAssociations || !isLookupQuery(key, lookupAssociations)) {
+          key = key.replace(/\.\d+/g, '');
+          acc[key] = 1;
+        }
+        return acc;
+      }, {})
+    });
+
+    if (hasLookupQuery(lookupQuery, lookupAssociations)) {
       const lookupParams = {
         ...params,
         query: lookupQuery
@@ -125,11 +138,7 @@ const makePipeline = async (app, params, associations) => {
       );
 
       if (stagePipeline.length) {
-        stage['pipeline'] = await makePipeline(
-          app,
-          lookupParams,
-          lookupAssociations
-        );
+        stage.pipeline.push(...stagePipeline);
       }
     }
 
