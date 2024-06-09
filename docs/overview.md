@@ -18,7 +18,7 @@ This library is heavily inspired by `feathers-hooks-common`, `feathers-plus`, an
 
 # Philosophy
 
-Some of core building blocks of any feathers application are the `context.data`, `context.params.query` and `context.result`. Almost any problem can be overcome by working with these three properties within hooks. There many hooks in the feathers community that do this under very specific names and pretenses. For example, any `protect` hook that you may use is _removing data from the `context.result`_. Any `join`, `populate`, or `fastJoin` hook that you use is _modifying data on the `context.result`_. Any `preventChange` hook is _removing data from the `context.data`_.
+Some of core building blocks of any feathers application are the `context.data`, `context.params.query` and `context.result`. Almost any problem can be overcome by working with these three properties within hooks. There are many hooks in the feathers community that do this under very specific names and pretenses. For example, any `protect` hook that you may use is _removing data from the `context.result`_. Any `join`, `populate`, or `fastJoin` hook that you use is _modifying data on the `context.result`_. Any `preventChange` hook is _removing data from the `context.data`_.
 
 With that in mind, feathers-fletching has a core set of hooks often called the `with*` and `without*` hooks used for modifying these three properties. These hooks offer a common, powerful way to interact with these three properties. They are inspired by the resolver pattern that allows you to manipulate data within these properties via async functions. This means that with the `with*` and `without*` hooks, you can accomplish the same tasks as the hooks mentioned above.
 
