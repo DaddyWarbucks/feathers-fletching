@@ -2,7 +2,7 @@
 import { GeneralError } from '@feathersjs/errors';
 import type { HookContext } from '@feathersjs/feathers';
 
-const stndMethods = ['find', 'get', 'create', 'update', 'patch', 'remove'];
+const standardMethods = ['find', 'get', 'create', 'update', 'patch', 'remove'];
 
 export const checkContext = (
   context: HookContext,
@@ -21,14 +21,14 @@ export const checkContext = (
   }
 
   // allow custom methods
-  if (stndMethods.indexOf(context.method) === -1) {
+  if (standardMethods.indexOf(context.method) === -1) {
     return;
   }
 
-  const myMethods = Array.isArray(methods) ? methods : [methods]; // safe enough for allowed values
+  methods = Array.isArray(methods) ? methods : [methods];
 
-  if (myMethods.length > 0 && myMethods.indexOf(context.method) === -1) {
-    const msg = JSON.stringify(myMethods);
+  if (methods.length > 0 && methods.indexOf(context.method) === -1) {
+    const msg = JSON.stringify(methods);
     throw new GeneralError(
       `The '${label}' hook can only be used on the '${msg}' service method(s).`
     );

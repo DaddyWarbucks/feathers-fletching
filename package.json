@@ -29,7 +29,7 @@
     "docs:dev": "docsify serve ./docs",
     "build": "unbuild",
     "lint": "eslint src/.",
-    "fixcode": "eslint src/. --fix",
+    "fixcode": "eslint src/. --fix && prettier --write docs/*.md",
     "test": "npm run lint && vitest run",
     "test:run": "vitest run",
     "vitest": "vitest",

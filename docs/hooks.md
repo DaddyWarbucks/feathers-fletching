@@ -27,10 +27,10 @@ Add or overwrite properties onto the `context.result` or `context.result.data`. 
 
 **Arguments**
 
-| Argument |       Type       | Default  | Required | Description                                                                                                                                             |
-| :------: | :--------------: | :------: | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Argument  |       Type       | Default  | Required | Description                                                                                                                                             |
+| :-------: | :--------------: | :------: | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | resolvers |      Object      |          |   true   | An object where each key will be the name of a property to be added to the `context.result` and each value is either a primitive, function, or promise. |
-| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.   |
+| prepFunc  | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.  |
 
 ```js
 import { withResult } from 'feathers-fletching';
@@ -182,10 +182,10 @@ For each resolver in the resolvers object, if the value returns a truthy value i
 
 **Arguments**
 
-| Argument |       Type       | Default  | Required | Description                                                                                                                                                                         |
-| :------: | :--------------: | :------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Argument  |       Type       | Default  | Required | Description                                                                                                                                                                         |
+| :-------: | :--------------: | :------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | resolvers |   Object/Array   |          |   true   | An object where each key will be the name of a property to be potentially filtered from result. **Return a truthy value to keep the value and return a falsey value to remove it**. |
-| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.                               |
+| prepFunc  | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.                              |
 
 ```js
 import { withoutResult } from 'feathers-fletching';
@@ -248,10 +248,10 @@ Add or overwrite properties to the `context.data` of a method call. Useful for a
 
 **Arguments**
 
-| Argument |       Type       | Default  | Required | Description                                                                                                                                           |
-| :------: | :--------------: | :------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| resolvers |      Object      |          |   true   | An object where each key will be the name of a property to be added to the `context.data` and each value is either a primitive, function, or promise. |
-| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object. |
+| Argument  |       Type       | Default  | Required | Description                                                                                                                                            |
+| :-------: | :--------------: | :------: | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| resolvers |      Object      |          |   true   | An object where each key will be the name of a property to be added to the `context.data` and each value is either a primitive, function, or promise.  |
+| prepFunc  | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object. |
 
 ```js
 import { withData } from 'feathers-fletching';
@@ -329,10 +329,10 @@ For each resolver in the resolvers object, if the value returns a truthy value i
 
 **Arguments**
 
-| Argument |       Type       | Default  | Required | Description                                                                                                                                                                       |
-| :------: | :--------------: | :------: | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Argument  |       Type       | Default  | Required | Description                                                                                                                                                                       |
+| :-------: | :--------------: | :------: | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | resolvers |   Object/Array   |          |   true   | An object where each key will be the name of a property to be potentially filtered from data. **Return a truthy value to keep the value and return a falsey value to remove it**. |
-| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.                             |
+| prepFunc  | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.                            |
 
 ```js
 import { withoutData } from 'feathers-fletching';
@@ -397,10 +397,10 @@ This hook is also useful for offering the client a simple query interface that y
 
 **Arguments**
 
-| Argument |       Type       | Default  | Required | Description                                                                                                                                                   |
-| :------: | :--------------: | :------: | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Argument  |       Type       | Default  | Required | Description                                                                                                                                                   |
+| :-------: | :--------------: | :------: | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | resolvers |      Object      |          |   true   | An object where each key will be the name of a property to be added to the `context.params.query` and each value is either a primitive, function, or promise. |
-| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.         |
+| prepFunc  | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.        |
 
 ```js
 import { withQuery } from 'feathers-fletching';
@@ -461,10 +461,10 @@ Remove properties from the `context.params.query` of a method call. See the [wit
 
 **Arguments**
 
-| Argument |       Type       | Default  | Required | Description                                                                                                                                                                                         |
-| :------: | :--------------: | :------: | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Argument  |       Type       | Default  | Required | Description                                                                                                                                                                                         |
+| :-------: | :--------------: | :------: | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | resolvers |   Object/Array   |          |   true   | An object where each key will be the name of a property to be potentially filtered from `context.params.query`. **Return a truthy value to keep the value and return a falsey value to remove it**. |
-| prepFunc | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.                                               |
+| prepFunc  | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.                                              |
 
 ```js
 import { withoutQuery } from 'feathers-fletching';
@@ -522,15 +522,15 @@ Query across services for "joined" records on any database type. This hook relie
 
 **Arguments**
 
-|     Argument      |       Type       |                       Default                       | Required | Description                                                                                                             |
-| :---------------: | :--------------: | :-------------------------------------------------: | :------: | ----------------------------------------------------------------------------------------------------------------------- |
-|      options      |      Object      |                                                     |   true   | An object where each key will be the name of a query prop the client can use and each value defines the service and ids |
-|  option.service   |      String      |                                                     |   true   | The string name of the service to query against                                                                         |
-| option.targetKey  |      String      |                                                     |   true   | The name of the key that exists on the collection this service is querying                                              |
-| option.foreignKey |      String      |                                                     |   true   | The name of the key on the foreign record. Generally this will be `id` or `_id`                                         |
-| option.makeParams | Function/Promise | `(defaultParams, context, option) => defaultParams` |  false   | A function/promise that returns params to be sent to the `option.service` find method.                                  |
-|  option.makeKey   |     Function     |                   `(key) => key`                    |  false   | A function that parses the `option.targetKey` and `option.foreignKey`. When using Mongo/Mongoose you will likely need to parse keys to strings.                                                   |
-| option.overwrite  |       Bool       |                        false                        |  false   | Overwrite the query or put sub queries in $and                                                                          |
+|     Argument      |       Type       |                       Default                       | Required | Description                                                                                                                                     |
+| :---------------: | :--------------: | :-------------------------------------------------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+|      options      |      Object      |                                                     |   true   | An object where each key will be the name of a query prop the client can use and each value defines the service and ids                         |
+|  option.service   |      String      |                                                     |   true   | The string name of the service to query against                                                                                                 |
+| option.targetKey  |      String      |                                                     |   true   | The name of the key that exists on the collection this service is querying                                                                      |
+| option.foreignKey |      String      |                                                     |   true   | The name of the key on the foreign record. Generally this will be `id` or `_id`                                                                 |
+| option.makeParams | Function/Promise | `(defaultParams, context, option) => defaultParams` |  false   | A function/promise that returns params to be sent to the `option.service` find method.                                                          |
+|  option.makeKey   |     Function     |                   `(key) => key`                    |  false   | A function that parses the `option.targetKey` and `option.foreignKey`. When using Mongo/Mongoose you will likely need to parse keys to strings. |
+| option.overwrite  |       Bool       |                        false                        |  false   | Overwrite the query or put sub queries in $and                                                                                                  |
 
 ```js
 import { joinQuery } from 'feathers-fletching';
@@ -782,7 +782,7 @@ const albums = await app.service('api/albums').find({
 });
 ```
 
-By default, this hook does not actually append the joined records onto the result. In the author's opinion, joining documents should be done via the  interface `withResults` (or some other hook). This hook is meant to be a query mechanism only, not necessarily a joining/populating mechanism.
+By default, this hook does not actually append the joined records onto the result. In the author's opinion, joining documents should be done via the interface `withResults` (or some other hook). This hook is meant to be a query mechanism only, not necessarily a joining/populating mechanism.
 
 ```js
 // You can set the option to append records as well as
@@ -1349,7 +1349,7 @@ const hook1 = async context => {
 const hook2 = async context => {
   if (context.params.someOtherCondition) {
 
-    // Geww...this is gross. The record may or may not be stashed
+    // Eww...this is gross. The record may or may not be stashed
     // yet so we have to check and stash it if not.
     if (!context.params.stashed) {
       context.params.stashed = await context.service.get(context.id);

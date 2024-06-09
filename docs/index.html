@@ -12,9 +12,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <style>
-    .cover.show {
-      background-image: linear-gradient(to right top, #7891e3, #869de8, #94a8ee, #a1b4f3, #afc0f8) !important;
+    section.cover.show {
+      background-image: linear-gradient(to right top, #8da4ed, #96abf0, #9eb2f3, #a7b9f5, #afc0f8) !important;
 		}
+    section.cover .cover-main>p:last-child a:last-child {
+      color: #fff !important;
+    }
   </style>
 </head>
 <body>
@@ -31,10 +34,13 @@
       repo: 'daddywarbucks/feathers-fletching',
       coverpage: 'cover.md',
       homepage: 'overview.md',
-      themeColor: '#3451b2'
+      themeColor: '#3451b2',
+      // search: ['#/hooks', '#/plugins', '#/utilities']
+      search: 'auto'
     }
   </script>
   <!-- Docsify v4 -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
 </body>
 </html>
