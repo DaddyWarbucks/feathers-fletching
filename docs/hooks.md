@@ -524,7 +524,7 @@ Query across services for "joined" records on any database type. This hook relie
 
 |     Argument      |       Type       |                       Default                       | Required | Description                                                                                                                                     |
 | :---------------: | :--------------: | :-------------------------------------------------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-|      options      |      Object      |                                                     |   true   | An object where each key will be the name of a query prop the client can use and each value defines the service and ids                         |
+|      options      |      Object      |                                                     |   true   | An object where each key will be the name of a query prop that the client can use and each value defines the service and ids                         |
 |  option.service   |      String      |                                                     |   true   | The string name of the service to query against                                                                                                 |
 | option.targetKey  |      String      |                                                     |   true   | The name of the key that exists on the collection this service is querying                                                                      |
 | option.foreignKey |      String      |                                                     |   true   | The name of the key on the foreign record. Generally this will be `id` or `_id`                                                                 |
@@ -729,6 +729,94 @@ const albums = await app.service('api/albums').find({
 > This technique of searching across services has some known performance limitations. Joined queries fetch a list of unpaginated IDs from their services, and this list of ids may be very long. These IDs are then used within an `$in` query for the main service, which is generally not a performant query operator. When sorting with a join query, the main service also disables pagination. This means all results are returned from the database and sorted in memory. While this hook works great when querying across multiple types of feathers database adapters, most applications use one type of database adapter. It is recommended to use one of the database adapter specific hooks like `sequelizeJoinQuery` or `mongoJoinQuery` for those types of services. These database specific hooks are able to handle the filtering and sorting at the database level and are much more performant.
 
 > When using this hook on the client, use the [disablePagination](https://hooks-common.feathersjs.com/hooks.html#disablepagination) hook on the server to ensure proper results. Then be sure to include `$limit: -1` with your join query like `artist: { name: 'Johnny Cash', $limit: -1 }`. Otherwise, the query passed to the join service will not return all joined records and your result set will be incomplete.
+
+## mongoJoinQuery
+
+Use the [MongoDB Aggregation Pipeline](https://www.mongodb.com/docs/manual/core/aggregation-pipeline/) to join documents across services. This hook is similar to the `joinQuery` hook, but it is specifically designed for MongoDB services. This hook is more performant than the `joinQuery` hook because it uses the MongoDB Aggregation Pipeline to join documents at the database level. This hook requires that you are on the latest versions of `@feathers/mongodb` that support `params.pipeline`.
+
+The hook constructs a `params.pipeline` that uses the aggregation framework's `$lookup` stage to join documents across services. The `$lookup` stage populates the data with an **array of results**. You can then query the array of joined documents just like you would when query a regular array of embedded documents.
+
+**Context**
+
+| Before | After | Methods | Multi |                                               Source                                                |
+| :----: | :---: | :-----: | :---: | :-------------------------------------------------------------------------------------------------: |
+|  yes   |  no  |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/mongoJoinQuery.ts) |
+
+**Arguments**
+
+|     Argument      |       Type       |                       Default                       | Required | Description                                                                                                                                     |
+| :---------------: | :--------------: | :-------------------------------------------------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+|      options      |      Object      |                                                     |   true   | An object where each key will be the name of a query prop that the client can use and each value defines the service and ids                         |
+|  option.service   |      String      |                                                     |   true   | The string name of the service to query against                                                                                                 |
+| option.localField  |      String      |                                                     |   true   | The name of the key that exists on the collection this service is querying                                                                      |
+| option.foreignField |      String      |                                                     |   true   | The name of the key on the foreign record. Generally this will be `id` or `_id`                                                                 |
+| option.makeParams | Function/Promise | `(defaultParams, context, option) => defaultParams` |  false   | A function/promise that returns params to be sent to the `option.service` find method.                                                          |
+
+```js
+import { mongoJoinQuery } from 'feathers-fletching';
+
+/*
+
+  "artists" collection via service `app.service('api/artists')`
+  [
+    { id: 123, name: 'Johnny Cash' },
+    { id: 456, name: 'Johnny PayCheck' },
+  ]
+
+  "albums" collection via `app.service('api/albums')`
+  [
+    { title: 'The Man in Black', artist_id: 123 },
+    { title: 'I Wont Back Down', artist_id: 123 },
+    { title: 'Double Trouble', artist_id: 456 }
+  ]
+
+*/
+
+const joinQueries = mongoJoinQuery({
+  artist: {
+    service: 'api/artists',
+    localField: 'artist_id',
+    foreignField: 'id'
+  }
+});
+
+app.service('api/albums').hooks({
+  before: {
+    all: [joinQueries]
+  }
+});
+
+
+const albums = await app.service('api/albums').find({
+  query: {
+    'artist.name': 'Johnny Cash'
+  }
+});
+
+// You hook supports complex, nested queries
+const albums = await app.service('api/albums').find({
+  query: {
+    'artist.profile.categories': { $in: ['Country', 'Western'] }
+    'label.city': 'Nashville',
+    $and: [
+      {
+        $or: [
+          { 'artist.name': 'Johnny Cash' },
+          { 'artist.name': 'Johnny Paycheck' }
+        ]
+      }
+    ],
+    $sort: { 'artist.name': -1 }
+  }
+});
+```
+
+To query documents nested multiple levels deep, each corresponding service must have `options.associations`. This hook does not actually call the `find` method on the associated services. But, it does need to look at the service's `options.associations` to know how to construct the `$lookup` stage.
+
+> Take caution when using this hook with your own hooks (or others) that also modify the `params.pipeline`. Be sure to understand how the feathers mongo adapter uses the `params.pipeline` and `$feathers` stage. See [more info](https://feathersjs.com/api/databases/mongodb.html#the-feathers-stage).
+
+This hook works by adding a `$lookup` stage for every association, adding the `$feathers` stage so it can query those associations, and then adding a `$project` that remove any associations. The associations are removed to prevent leaking data. For example, if someone queried by `user.name` Mongo joins the whole user onto the record so that you can query it. But, you don't want to leak the user's email or password, so the `$project` stage removes all associations. Similar to other hooks in this library, the `mongoJoinQuery` hook is meant to be a query mechanism only, not necessarily a joining/populating mechanism. When adding your own stages to the pipeline, be sure to keep this in mind. You may have added your own `$lookup` stage to join `artist`, and then also queried by `artist.name`, which would remove the `artist` you purposefully joined. You should use `withResult` or Feathers resolvers to join documents onto the result. Keep in mind that you can use the service's ``
+
 
 ## sequelizeJoinQuery
 

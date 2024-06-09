@@ -5,22 +5,24 @@ const lruCache = require('lru-cache');
 const unset = require('unset-value');
 const qs = require('qs');
 
-function _interopDefaultCompat (e) { return e && typeof e === 'object' && 'default' in e ? e.default : e; }
+function _interopDefaultCompat(e) {
+  return e && typeof e === 'object' && 'default' in e ? e.default : e;
+}
 
-const unset__default = /*#__PURE__*/_interopDefaultCompat(unset);
-const qs__default = /*#__PURE__*/_interopDefaultCompat(qs);
+const unset__default = /*#__PURE__*/ _interopDefaultCompat(unset);
+const qs__default = /*#__PURE__*/ _interopDefaultCompat(qs);
 
 const contextCache = (cacheMap) => {
   return async (context) => {
-    if (context.type === "before") {
-      if (context.method === "get" || context.method === "find") {
+    if (context.type === 'before') {
+      if (context.method === 'get' || context.method === 'find') {
         const value = await cacheMap.get(context);
         if (value) {
           context.result = value;
         }
       }
     } else {
-      if (context.method === "get" || context.method === "find") {
+      if (context.method === 'get' || context.method === 'find') {
         await cacheMap.set(context);
       } else {
         await cacheMap.clear(context);
@@ -36,10 +38,15 @@ const skippable = (hookName, hookFunc) => {
       const { skipHooks } = context.params;
       if (!Array.isArray(skipHooks)) {
         throw new errors.GeneralError(
-          "The `skipHooks` param must be an Array of Strings"
+          'The `skipHooks` param must be an Array of Strings'
         );
       }
-      if (skipHooks.includes(hookName) || skipHooks.includes("all") || skipHooks.includes("before") && context.type === "before" || skipHooks.includes("after") && context.type === "after") {
+      if (
+        skipHooks.includes(hookName) ||
+        skipHooks.includes('all') ||
+        (skipHooks.includes('before') && context.type === 'before') ||
+        (skipHooks.includes('after') && context.type === 'after')
+      ) {
         return context;
       } else {
         return hookFunc(context);
@@ -55,18 +62,19 @@ const omit = (obj, keys) => {
   keys.forEach((key) => unset__default(result, key));
   return result;
 };
-const pick = (obj, keys) => keys.reduce((result, key) => {
-  if (obj[key] !== void 0) {
-    result[key] = obj[key];
-  }
-  return result;
-}, {});
+const pick = (obj, keys) =>
+  keys.reduce((result, key) => {
+    if (obj[key] !== void 0) {
+      result[key] = obj[key];
+    }
+    return result;
+  }, {});
 const isPromise = (maybePromise) => {
-  const isPromise2 = maybePromise && typeof maybePromise.then === "function";
+  const isPromise2 = maybePromise && typeof maybePromise.then === 'function';
   return !!isPromise2;
 };
 const isObject = (obj) => {
-  return obj && typeof obj === "object" && !Array.isArray(obj);
+  return obj && typeof obj === 'object' && !Array.isArray(obj);
 };
 const isEmpty = (obj) => {
   if (Array.isArray(obj)) {
@@ -78,14 +86,17 @@ const hasKey = (obj, key) => {
   return Object.prototype.hasOwnProperty.call(obj, key);
 };
 const hasQuery = (context) => {
-  const hasQuery2 = context.params && context.params.query && !isEmpty(context.params.query);
+  const hasQuery2 =
+    context.params && context.params.query && !isEmpty(context.params.query);
   return !!hasQuery2;
 };
 const getResults = (context) => {
-  return context.method === "find" ? context.result.data || context.result : context.result;
+  return context.method === 'find'
+    ? context.result.data || context.result
+    : context.result;
 };
 const replaceResults = (context, results) => {
-  if (context.method === "find") {
+  if (context.method === 'find') {
     if (context.result && context.result.data) {
       context.result.data = Array.isArray(results) ? results : [results];
     } else {
@@ -97,14 +108,16 @@ const replaceResults = (context, results) => {
 };
 const stableStringify = (obj) => {
   return JSON.stringify(obj, (key, value) => {
-    if (typeof value === "function") {
-      throw new Error("Cannot stringify non JSON value");
+    if (typeof value === 'function') {
+      throw new Error('Cannot stringify non JSON value');
     }
     if (isObject(value)) {
-      return Object.keys(value).sort().reduce((result, key2) => {
-        result[key2] = value[key2];
-        return result;
-      }, {});
+      return Object.keys(value)
+        .sort()
+        .reduce((result, key2) => {
+          result[key2] = value[key2];
+          return result;
+        }, {});
     }
     return value;
   });
@@ -144,18 +157,18 @@ const asyncTraverse = async (obj, callback) => {
   return obj;
 };
 const clone = (obj) => {
-  if (typeof obj == "function") {
+  if (typeof obj == 'function') {
     return obj;
   }
   const result = Array.isArray(obj) ? [] : {};
   for (const key in obj) {
     const value = obj[key];
     const type = {}.toString.call(value).slice(8, -1);
-    if (type == "Array" || type == "Object") {
+    if (type == 'Array' || type == 'Object') {
       result[key] = clone(value);
-    } else if (type == "Date") {
+    } else if (type == 'Date') {
       result[key] = new Date(value.getTime());
-    } else if (type == "RegExp") {
+    } else if (type == 'RegExp') {
       result[key] = RegExp(value.source, getRegExpFlags(value));
     } else {
       result[key] = value;
@@ -164,23 +177,23 @@ const clone = (obj) => {
   return result;
 };
 const getRegExpFlags = (regExp) => {
-  if (typeof regExp.source.flags == "string") {
+  if (typeof regExp.source.flags == 'string') {
     return regExp.source.flags;
   } else {
     const flags = [];
-    regExp.global && flags.push("g");
-    regExp.ignoreCase && flags.push("i");
-    regExp.multiline && flags.push("m");
-    regExp.sticky && flags.push("y");
-    regExp.unicode && flags.push("u");
-    return flags.join("");
+    regExp.global && flags.push('g');
+    regExp.ignoreCase && flags.push('i');
+    regExp.multiline && flags.push('m');
+    regExp.sticky && flags.push('y');
+    regExp.unicode && flags.push('u');
+    return flags.join('');
   }
 };
 
 class ContextCacheMap {
   constructor(options) {
     options ?? (options = { max: 100 });
-    this.map = "map" in options ? options?.map : new lruCache.LRUCache(options);
+    this.map = 'map' in options ? options?.map : new lruCache.LRUCache(options);
   }
   makeCacheKey(context) {
     return stableStringify({
@@ -217,10 +230,10 @@ class ContextCacheMap {
     results.forEach((result2) => {
       Array.from(this.map.keys()).forEach((key) => {
         const keyObj = JSON.parse(key);
-        if (keyObj.method === "find") {
+        if (keyObj.method === 'find') {
           return this.map.delete(key);
         } else {
-          if (context.method !== "create") {
+          if (context.method !== 'create') {
             const id = this.makeId(keyObj.id);
             const recordId = this.makeResultId(result2);
             if (id === recordId) {
@@ -237,10 +250,10 @@ const sanitize = (result, schema) => {
   if (result === null || result === void 0) {
     return result;
   }
-  if (typeof result === "string") {
+  if (typeof result === 'string') {
     return sanitizeString(result, schema);
   }
-  if (typeof result === "number") {
+  if (typeof result === 'number') {
     const string = result.toString();
     const replaced = sanitizeString(string, schema);
     const number = Number(replaced);
@@ -254,7 +267,7 @@ const sanitize = (result, schema) => {
     return result.map((item) => sanitize(item, schema));
   }
   if (result instanceof Error) {
-    if ("hook" in result) {
+    if ('hook' in result) {
       const { hook } = result;
       delete result.hook;
       const error = Object.getOwnPropertyNames(result).reduce(
@@ -273,7 +286,7 @@ const sanitize = (result, schema) => {
       }, result);
     }
   }
-  if (typeof result === "object") {
+  if (typeof result === 'object') {
     return Object.keys(result).reduce((sanitized, key) => {
       sanitized[key] = sanitize(result[key], schema);
       return sanitized;
@@ -284,7 +297,7 @@ const sanitize = (result, schema) => {
 const sanitizeString = (string, schema) => {
   return Object.keys(schema).reduce((sanitized, key) => {
     const val = schema[key];
-    if (typeof val === "function") {
+    if (typeof val === 'function') {
       return val(sanitized, key);
     } else {
       return sanitized.replace(key, val);
@@ -292,8 +305,13 @@ const sanitizeString = (string, schema) => {
   }, string);
 };
 
-const stndMethods = ["find", "get", "create", "update", "patch", "remove"];
-const checkContext = (context, type = null, methods = [], label = "anonymous") => {
+const stndMethods = ['find', 'get', 'create', 'update', 'patch', 'remove'];
+const checkContext = (
+  context,
+  type = null,
+  methods = [],
+  label = 'anonymous'
+) => {
   if (type && context.type !== type) {
     throw new errors.GeneralError(
       `The '${label}' hook can only be used as a '${type}' hook.`
@@ -315,16 +333,16 @@ const checkContext = (context, type = null, methods = [], label = "anonymous") =
 };
 
 const resolver = (virtual, key, updated, context, prepResult) => {
-  if (typeof virtual === "function") {
+  if (typeof virtual === 'function') {
     const result = virtual(updated, context, prepResult);
     if (isPromise(result)) {
       return result.then((result2) => {
-        if (typeof result2 !== "undefined") {
+        if (typeof result2 !== 'undefined') {
           updated[key] = result2;
         }
       });
     }
-    if (typeof result !== "undefined") {
+    if (typeof result !== 'undefined') {
       updated[key] = result;
       return result;
     }
@@ -335,7 +353,7 @@ const resolver = (virtual, key, updated, context, prepResult) => {
   }
 };
 const filterResolver = (virtual, key, updated, context, prepResult) => {
-  if (typeof virtual === "function") {
+  if (typeof virtual === 'function') {
     const result = virtual(updated, context, prepResult);
     if (isPromise(result)) {
       return result.then((shouldKeep) => {
@@ -361,7 +379,7 @@ const serializer = async (item, virtuals, context, prepResult, resolver2) => {
   const syncKeys = [];
   const asyncKeys = [];
   Object.keys(virtuals).forEach((key) => {
-    (key.startsWith("@") ? syncKeys : asyncKeys).push(key);
+    (key.startsWith('@') ? syncKeys : asyncKeys).push(key);
   });
   if (syncKeys.length) {
     for (const key of syncKeys) {
@@ -387,16 +405,21 @@ const serializer = async (item, virtuals, context, prepResult, resolver2) => {
   }
   return updated;
 };
-const virtualsSerializer = async (resolver2, data, virtuals, context, prepFunc = () => {
-}) => {
+const virtualsSerializer = async (
+  resolver2,
+  data,
+  virtuals,
+  context,
+  prepFunc = () => {}
+) => {
   let prepResult = prepFunc(context);
   if (isPromise(prepResult)) {
     prepResult = await prepResult.then((result) => result);
   }
   if (Array.isArray(data)) {
     return Promise.all(
-      data.map(
-        (item) => serializer(item, virtuals, context, prepResult, resolver2)
+      data.map((item) =>
+        serializer(item, virtuals, context, prepResult, resolver2)
       )
     );
   }
@@ -418,7 +441,7 @@ function makeOptionsWithDefaults(options) {
 const joinQuery = (_options) => {
   const options = makeOptionsWithDefaults(_options);
   return async (context) => {
-    if (context.type === "before") {
+    if (context.type === 'before') {
       if (!hasJoinQuery(context, options)) {
         return context;
       }
@@ -427,7 +450,7 @@ const joinQuery = (_options) => {
         options
       );
       context.joinSort = joinSort2;
-      if (!isEmpty(joinSort2) && context.method === "find") {
+      if (!isEmpty(joinSort2) && context.method === 'find') {
         context.result = await findJoinQuerySort(
           query,
           joinSort2,
@@ -444,10 +467,14 @@ const joinQuery = (_options) => {
     }
     const { joinSort } = context;
     delete context.joinSort;
-    if (context.method === "find") {
+    if (context.method === 'find') {
       return context;
     }
-    if (context.method === "get" || context.method === "update" || context.id !== null) {
+    if (
+      context.method === 'get' ||
+      context.method === 'update' ||
+      context.id !== null
+    ) {
       return context;
     }
     context.result = await mutateJoinQuerySort(joinSort, context, options);
@@ -475,19 +502,19 @@ const cleanJoinQuerySort = (query, options) => {
   });
   const joinSort = pick(query.$sort, joinKeys);
   const cleanSort = omit(query.$sort, joinKeys);
-  const cleanQuery = omit(query, ["$sort"]);
+  const cleanQuery = omit(query, ['$sort']);
   if (!isEmpty(cleanSort)) {
     cleanQuery.$sort = cleanSort;
   }
   return [cleanQuery, joinSort];
 };
 const isJoinQuery = (key, options) => {
-  const [optionKey] = key.split(".");
+  const [optionKey] = key.split('.');
   return !!options[optionKey];
 };
 const parseJoinQuery = (key) => {
-  const [optionKey, ...rest] = key.split(".");
-  const optionQuery = rest.join(".");
+  const [optionKey, ...rest] = key.split('.');
+  const optionQuery = rest.join('.');
   return [optionKey, optionQuery];
 };
 const normalizeJoinQuery = (query, options) => {
@@ -604,12 +631,15 @@ const sortResults = (joinSort, options, foreignKeyGroups, results) => {
   return sortedResults;
 };
 const paginateResults = (context, results) => {
-  const pagination = context.service && context.service.options && context.service.options.paginate;
+  const pagination =
+    context.service &&
+    context.service.options &&
+    context.service.options.paginate;
   const paginate = context.params && context.params.paginate;
   const query = context.params && context.params.query;
-  const hasLimit = query && hasKey(query, "$limit");
+  const hasLimit = query && hasKey(query, '$limit');
   const limit = query && query.$limit;
-  const skip = query && query.$skip || 0;
+  const skip = (query && query.$skip) || 0;
   const total = results.length;
   const result = {
     skip,
@@ -649,15 +679,19 @@ const paginateResults = (context, results) => {
   };
 };
 const makeForeignKeys = (result, { makeKey, targetKey }) => {
-  return result.map((result2) => makeKey(result2[targetKey])).filter((key, index, self) => key && self.indexOf(key) === index);
+  return result
+    .map((result2) => makeKey(result2[targetKey]))
+    .filter((key, index, self) => key && self.indexOf(key) === index);
 };
 
-const jsonQueryStringify = (options = {
-  overwrite: true,
-  propName: "json"
-}) => {
+const jsonQueryStringify = (
+  options = {
+    overwrite: true,
+    propName: 'json'
+  }
+) => {
   return (context) => {
-    checkContext(context, "before", null, "jsonQueryStringify");
+    checkContext(context, 'before', null, 'jsonQueryStringify');
     const { query } = context.params;
     if (!query) {
       return context;
@@ -675,12 +709,14 @@ const jsonQueryStringify = (options = {
     return context;
   };
 };
-const jsonQueryParse = (options = {
-  overwrite: true,
-  propName: "json"
-}) => {
+const jsonQueryParse = (
+  options = {
+    overwrite: true,
+    propName: 'json'
+  }
+) => {
   return (context) => {
-    checkContext(context, "before", null, "jsonQueryParse");
+    checkContext(context, 'before', null, 'jsonQueryParse');
     const { query } = context.params;
     if (!query) {
       return context;
@@ -716,15 +752,16 @@ const jsonQueryServer = (app) => {
   app.hooks({ before: { all: [jsonQueryParse()] } });
 };
 
-const preventChange = (virtuals, prepFunc = () => {
-}) => {
+const preventChange = (virtuals, prepFunc = () => {}) => {
   return async (context) => {
-    checkContext(context, "before", ["update", "patch"], "preventChange");
+    checkContext(context, 'before', ['update', 'patch'], 'preventChange');
     if (!context.data) {
       return context;
     }
     if (Array.isArray(virtuals)) {
-      context.data = Array.isArray(context.data) ? context.data.map((d) => omit(d, virtuals)) : omit(context.data, virtuals);
+      context.data = Array.isArray(context.data)
+        ? context.data.map((d) => omit(d, virtuals))
+        : omit(context.data, virtuals);
     } else {
       context.data = await virtualsSerializer(
         filterResolver,
@@ -734,10 +771,10 @@ const preventChange = (virtuals, prepFunc = () => {
         prepFunc
       );
     }
-    if (context.method === "update") {
+    if (context.method === 'update') {
       if (!context.service._patch) {
         throw new errors.GeneralError(
-          "Cannot call `preventChange` hook on `update` method if the service does not have a `_patch` method"
+          'Cannot call `preventChange` hook on `update` method if the service does not have a `_patch` method'
         );
       }
       context.result = await context.service._patch(
@@ -757,7 +794,7 @@ const defaultOptions = {
 const rateLimit = (rateLimiter, _options) => {
   const options = Object.assign({}, defaultOptions, _options);
   return async (context) => {
-    checkContext(context, "before", null, "rateLimit");
+    checkContext(context, 'before', null, 'rateLimit');
     const key = await options.makeKey(context);
     const points = await options.makePoints(context);
     try {
@@ -773,7 +810,8 @@ const rateLimit = (rateLimiter, _options) => {
 
 const sanitizeError = (options) => {
   return async (context) => {
-    const schema = typeof options === "function" ? await options(context) : options;
+    const schema =
+      typeof options === 'function' ? await options(context) : options;
     context.error = sanitize(context.error, schema);
     return context;
   };
@@ -781,7 +819,8 @@ const sanitizeError = (options) => {
 
 const sanitizeResult = (options) => {
   return async (context) => {
-    const schema = typeof options === "function" ? await options(context) : options;
+    const schema =
+      typeof options === 'function' ? await options(context) : options;
     context.result = sanitize(context.result, schema);
     return context;
   };
@@ -795,29 +834,31 @@ const filterColumnQueries = (arrOrObj = []) => {
   return props.filter(isColumnQuery).map(getColumnPath);
 };
 const isColumnQuery = (str) => {
-  return str.startsWith("$") && str.includes(".") && str.endsWith("$");
+  return str.startsWith('$') && str.includes('.') && str.endsWith('$');
 };
 const removeColumnSyntax = (str) => {
   return str.substring(1, str.length - 1);
 };
 const getColumnPath = (str) => {
   const path = removeColumnSyntax(str);
-  return path.substring(0, path.lastIndexOf("."));
+  return path.substring(0, path.lastIndexOf('.'));
 };
 const getColumnProp = (str) => {
   const path = removeColumnSyntax(str);
-  return path.substring(path.lastIndexOf(".") + 1);
+  return path.substring(path.lastIndexOf('.') + 1);
 };
 const getColumnPaths = (query) => {
   const queryPaths = filterColumnQueries(query);
   const sortPaths = filterColumnQueries(query.$sort);
   const selectPaths = filterColumnQueries(query.$select);
-  const orQueries = (query.$or || []).map(Object.keys).reduce((acc, val) => acc.concat(val), []);
+  const orQueries = (query.$or || [])
+    .map(Object.keys)
+    .reduce((acc, val) => acc.concat(val), []);
   const orPaths = filterColumnQueries(orQueries);
   return unique([...queryPaths, ...selectPaths, ...sortPaths, ...orPaths]);
 };
 const getOrder = (key, value) => {
-  return [key, parseInt(value, 10) === 1 ? "ASC" : "DESC"];
+  return [key, parseInt(value, 10) === 1 ? 'ASC' : 'DESC'];
 };
 const defaultIncludeOptions = () => {
   return {
@@ -826,7 +867,7 @@ const defaultIncludeOptions = () => {
   };
 };
 const getAssociationOrder = (joinName, associations) => {
-  const { paths } = joinName.split(".").reduce(
+  const { paths } = joinName.split('.').reduce(
     (accum, path) => {
       const association = accum.associations[path];
       accum.paths.push(association);
@@ -854,11 +895,16 @@ const getJoinOrder = ($sort, associations) => {
   });
   return order;
 };
-const getJoinInclude = (columnPaths, associations, getIncludeOptions, context) => {
+const getJoinInclude = (
+  columnPaths,
+  associations,
+  getIncludeOptions,
+  context
+) => {
   const includes = [];
   const rootPaths = unique(
     columnPaths.map((path) => {
-      return path.split(".")[0];
+      return path.split('.')[0];
     })
   );
   rootPaths.forEach((rootPath) => {
@@ -868,7 +914,9 @@ const getJoinInclude = (columnPaths, associations, getIncludeOptions, context) =
     const association = associations[rootPath];
     const includeOptions = getIncludeOptions(association, context);
     const include = Object.assign({ association }, includeOptions);
-    const targetPaths = columnPaths.filter((path) => path !== rootPath && path.split(".")[0] === rootPath).map((path) => path.slice(rootPath.length + 1));
+    const targetPaths = columnPaths
+      .filter((path) => path !== rootPath && path.split('.')[0] === rootPath)
+      .map((path) => path.slice(rootPath.length + 1));
     const targetAssociations = association.target.associations;
     if (targetPaths.length && targetAssociations) {
       const targetIncludes = getJoinInclude(
@@ -898,7 +946,8 @@ const getCleanQuery = (_query) => {
   return query;
 };
 const sequelizeJoinQuery = (options = {}) => {
-  const makeIncludeOptions = options.makeIncludeOptions || defaultIncludeOptions;
+  const makeIncludeOptions =
+    options.makeIncludeOptions || defaultIncludeOptions;
   return (context) => {
     if (!hasQuery(context)) {
       return context;
@@ -907,7 +956,7 @@ const sequelizeJoinQuery = (options = {}) => {
     const { associations } = context.service.getModel();
     if (!associations || !Object.keys(associations).length) {
       throw new errors.GeneralError(
-        "The sequelizeJoinQuery hook cannot be used on a service where the model does not have associations."
+        'The sequelizeJoinQuery hook cannot be used on a service where the model does not have associations.'
       );
     }
     const columnPaths = getColumnPaths(query);
@@ -952,16 +1001,15 @@ const stashFunc = (context) => {
   return context.service.get(context.id, context.params);
 };
 const stashable = (_options) => {
-  const options = Object.assign({ propName: "stashed", stashFunc }, _options);
+  const options = Object.assign({ propName: 'stashed', stashFunc }, _options);
   return (context) => {
-    checkContext(context, "before", ["update", "patch", "remove"], "stashable");
+    checkContext(context, 'before', ['update', 'patch', 'remove'], 'stashable');
     context.params[options.propName] = stash(options.stashFunc, context);
     return context;
   };
 };
 
-const withData = (virtuals, prepFunc = () => {
-}) => {
+const withData = (virtuals, prepFunc = () => {}) => {
   return async (context) => {
     context.data = await virtualsSerializer(
       resolver,
@@ -974,8 +1022,7 @@ const withData = (virtuals, prepFunc = () => {
   };
 };
 
-const withQuery = (virtuals, prepFunc = () => {
-}) => {
+const withQuery = (virtuals, prepFunc = () => {}) => {
   return async (context) => {
     context.params = context.params || {};
     context.params.query = await virtualsSerializer(
@@ -989,8 +1036,7 @@ const withQuery = (virtuals, prepFunc = () => {
   };
 };
 
-const withResult = (virtuals, prepFunc = () => {
-}) => {
+const withResult = (virtuals, prepFunc = () => {}) => {
   return async (context) => {
     const results = getResults(context);
     const updated = await virtualsSerializer(
@@ -1005,14 +1051,15 @@ const withResult = (virtuals, prepFunc = () => {
   };
 };
 
-const withoutData = (virtuals, prepFunc = () => {
-}) => {
+const withoutData = (virtuals, prepFunc = () => {}) => {
   return async (context) => {
     if (!context.data) {
       return context;
     }
     if (Array.isArray(virtuals)) {
-      context.data = Array.isArray(context.data) ? context.data.map((d) => omit(d, virtuals)) : omit(context.data, virtuals);
+      context.data = Array.isArray(context.data)
+        ? context.data.map((d) => omit(d, virtuals))
+        : omit(context.data, virtuals);
       return context;
     }
     context.data = await virtualsSerializer(
@@ -1026,8 +1073,7 @@ const withoutData = (virtuals, prepFunc = () => {
   };
 };
 
-const withoutQuery = (virtuals, prepFunc = () => {
-}) => {
+const withoutQuery = (virtuals, prepFunc = () => {}) => {
   return async (context) => {
     if (!hasQuery(context)) {
       return context;
@@ -1047,15 +1093,16 @@ const withoutQuery = (virtuals, prepFunc = () => {
   };
 };
 
-const withoutResult = (virtuals, prepFunc = () => {
-}) => {
+const withoutResult = (virtuals, prepFunc = () => {}) => {
   return async (context) => {
     const results = getResults(context);
     if (!results) {
       return context;
     }
     if (Array.isArray(virtuals)) {
-      const filtered2 = Array.isArray(results) ? results.map((result) => omit(result, virtuals)) : omit(results, virtuals);
+      const filtered2 = Array.isArray(results)
+        ? results.map((result) => omit(result, virtuals))
+        : omit(results, virtuals);
       replaceResults(context, filtered2);
       return context;
     }
@@ -1072,8 +1119,8 @@ const withoutResult = (virtuals, prepFunc = () => {
 };
 
 const decoder = (str, decoder2, charset) => {
-  const strWithoutPlus = str.replace(/\+/g, " ");
-  if (charset === "iso-8859-1") {
+  const strWithoutPlus = str.replace(/\+/g, ' ');
+  if (charset === 'iso-8859-1') {
     return strWithoutPlus.replace(/%[0-9a-f]{2}/gi, unescape);
   }
   if (/^(\d+|\d*\.\d+)$/.test(str)) {
@@ -1092,20 +1139,22 @@ const decoder = (str, decoder2, charset) => {
     return strWithoutPlus;
   }
 };
-const strictRestQuery = (opts = {}) => (app) => {
-  const options = Object.assign(
-    {
-      arrayLimit: 100,
-      depth: 20,
-      parameterLimit: 2e3,
-      strictNullHandling: true,
-      decoder
-    },
-    opts
-  );
-  app.set("query parser", (str) => qs__default.parse(str, options));
-  return app;
-};
+const strictRestQuery =
+  (opts = {}) =>
+  (app) => {
+    const options = Object.assign(
+      {
+        arrayLimit: 100,
+        depth: 20,
+        parameterLimit: 2e3,
+        strictNullHandling: true,
+        decoder
+      },
+      opts
+    );
+    app.set('query parser', (str) => qs__default.parse(str, options));
+    return app;
+  };
 
 exports.ContextCacheMap = ContextCacheMap;
 exports.contextCache = contextCache;

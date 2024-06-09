@@ -15,9 +15,9 @@ export type RateLimitOptions = {
 
 export const rateLimit = (
   rateLimiter: RateLimiterMemory,
-  _options?: RateLimitOptions
+  options?: RateLimitOptions
 ) => {
-  const options = Object.assign({}, defaultOptions, _options);
+  options = { ...defaultOptions, ...options };
   return async (context) => {
     checkContext(context, 'before', null, 'rateLimit');
     const key = await options.makeKey(context);

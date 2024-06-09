@@ -1,6 +1,6 @@
 import { GeneralError, BadRequest } from '@feathersjs/errors';
 import type { MaybeArray } from '../utils';
-import { hasQuery } from '../utils';
+import { isEmpty } from '../utils';
 import type { HookContext, Query } from '@feathersjs/feathers';
 
 const unique = (arr: any[]) => {
@@ -158,7 +158,7 @@ export const sequelizeJoinQuery = (options: SequelizeJoinQueryOptions = {}) => {
     options.makeIncludeOptions || defaultIncludeOptions;
 
   return (context) => {
-    if (!hasQuery(context)) {
+    if (isEmpty(context.params.query)) {
       return context;
     }
 

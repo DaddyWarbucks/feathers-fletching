@@ -1,7 +1,6 @@
 import type { HookContext, Query } from '@feathersjs/feathers';
 import type { SetPartial } from '../utils';
 import {
-  hasQuery,
   clone,
   traverse,
   asyncTraverse,
@@ -80,7 +79,7 @@ export const joinQuery = <H extends HookContext>(
       return context;
     }
 
-    if (!context.joinSort || isEmpty(context.joinSort)) {
+    if (isEmpty(context.joinSort)) {
       return context;
     }
 
@@ -109,7 +108,7 @@ const hasJoinQuery = (
   context: HookContext,
   options: JoinQueryOptionsRequired
 ) => {
-  if (!hasQuery(context)) {
+  if (isEmpty(context.params.query)) {
     return false;
   }
 
@@ -257,7 +256,7 @@ const findJoinQuerySort = async (
 
   const [allResults, ...foreignKeyGroups] = await Promise.all([
     findResults,
-    ...forignKeyPromises(joinSort, context, options)
+    ...foreignKeyPromises(joinSort, context, options)
   ]);
 
   const sortedResults = sortResults(
@@ -278,7 +277,7 @@ const mutateJoinQuerySort = async (
   options: JoinQueryOptionsRequired
 ) => {
   const foreignKeyGroups = await Promise.all(
-    forignKeyPromises(joinSort, context, options)
+    foreignKeyPromises(joinSort, context, options)
   );
 
   const sortedResults = sortResults(
@@ -291,7 +290,7 @@ const mutateJoinQuerySort = async (
   return sortedResults;
 };
 
-const forignKeyPromises = (
+const foreignKeyPromises = (
   joinSort: Query,
   context: HookContext,
   options: JoinQueryOptionsRequired

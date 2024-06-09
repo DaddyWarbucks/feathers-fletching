@@ -1,6 +1,6 @@
 import type { HookContext } from '@feathersjs/feathers';
 import { GeneralError } from '@feathersjs/errors';
-import { traverse } from '../utils';
+import { traverse, isEmpty } from '../utils';
 
 export type MongoJoinQueryOptions = {
   service: string;
@@ -8,24 +8,30 @@ export type MongoJoinQueryOptions = {
   foreignField: string;
 };
 
-/* TODO: Remove the joined documents? Even if we do add projection as stated above, the user could still query by and return sensitive data. For example, `"user.password": { $ne: null }` would join on the user's password.  */
+type Stage = {
+  from: string;
+  localField: string;
+  foreignField: string;
+  as: string;
+  pipeline?: any[];
+};
+
+/* TODO: Remove the joined documents? The user could still query by and return sensitive data. For example, `"user.password": { $ne: null }` would join on the user's password.  */
 
 /* TODO: Add object query syntax. It's likely not used much, but it does affect the query differently than dot.path and should be supported...boo
 See: https://www.mongodb.com/docs/manual/tutorial/query-array-of-documents/
 */
 
 export const mongoJoinQuery = async <H extends HookContext>(context: H) => {
-  const { associations } = context.service.getOptions
-    ? context.service.getOptions(context.params)
-    : context.service.options;
+  const { associations } = context.service.getOptions(context.params);
 
-  if (!associations || !Object.keys(associations).length) {
+  if (isEmpty(associations)) {
     throw new GeneralError(
       'The mongoJoinQuery hook cannot be used on a service where the service does not have associations.'
     );
   }
 
-  if (!hasLookupQuery(context.params?.query, associations)) {
+  if (!hasLookupQuery(context.params.query, associations)) {
     return context;
   }
 
@@ -43,11 +49,7 @@ export const mongoJoinQuery = async <H extends HookContext>(context: H) => {
 };
 
 const hasLookupQuery = (query: any, associations: any) => {
-  if (!query || !Object.keys(query).length) {
-    return false;
-  }
-
-  if (!associations || !Object.keys(associations).length) {
+  if (isEmpty(query) || isEmpty(associations)) {
     return false;
   }
 
@@ -107,23 +109,12 @@ const makePipeline = async (app, params, associations) => {
     const { associations: lookupAssociations } =
       lookupService.getOptions(params);
 
-    const stage = {
+    const stage: Stage = {
       from: model.collectionName,
       localField: association.localField,
       foreignField: association.foreignField,
-      as: lookupKey,
-      pipeline: []
+      as: lookupKey
     };
-
-    stage.pipeline.push({
-      $project: Object.keys(lookupQuery).reduce((acc, key) => {
-        if (!lookupAssociations || !isLookupQuery(key, lookupAssociations)) {
-          key = key.replace(/\.\d+/g, '');
-          acc[key] = 1;
-        }
-        return acc;
-      }, {})
-    });
 
     if (hasLookupQuery(lookupQuery, lookupAssociations)) {
       const lookupParams = {
@@ -138,7 +129,7 @@ const makePipeline = async (app, params, associations) => {
       );
 
       if (stagePipeline.length) {
-        stage.pipeline.push(...stagePipeline);
+        stage.pipeline = stagePipeline;
       }
     }
 

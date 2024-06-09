@@ -1,13 +1,13 @@
-import { virtualsSerializer, filterResolver, hasQuery, omit } from '../utils';
+import { virtualsSerializer, filterResolver, isEmpty, omit } from '../utils';
 import type { Virtuals, PrepFunction } from '../utils';
 
 export const withoutQuery = (
   virtuals: Virtuals,
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  prepFunc: PrepFunction = () => {}
+  prepFunc: PrepFunction = () => { }
 ) => {
   return async (context) => {
-    if (!hasQuery(context)) {
+    if (isEmpty(context.params.query)) {
       return context;
     }
 

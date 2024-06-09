@@ -39,6 +39,9 @@ export const isObject = (obj): obj is Record<string, any> => {
 };
 
 export const isEmpty = (obj) => {
+  if (!obj) {
+    return true;
+  }
   if (Array.isArray(obj)) {
     return obj.length === 0;
   }
@@ -47,13 +50,6 @@ export const isEmpty = (obj) => {
 
 export const hasKey = (obj, key) => {
   return Object.prototype.hasOwnProperty.call(obj, key);
-};
-
-export const hasQuery = (context) => {
-  const hasQuery =
-    context.params && context.params.query && !isEmpty(context.params.query);
-
-  return !!hasQuery;
 };
 
 export const getResults = (context) => {
@@ -93,10 +89,7 @@ export const stableStringify = (obj) => {
   });
 };
 
-// This is mainly meant to traverse queries and is not
-// meant to be a feature rich traversal. It calls
-// the callback for any key/value in any nested objects.
-// It does not account for Map, Set, etc.
+/* This is mainly meant to traverse queries and is not meant to be a feature rich traversal. It calls the callback for any key/value in any nested objects.  It does not account for Map, Set, etc. */
 export const traverse = (obj, callback) => {
   if (!isObject(obj)) {
     return obj;

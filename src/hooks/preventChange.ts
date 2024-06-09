@@ -1,13 +1,8 @@
 import { GeneralError } from '@feathersjs/errors';
-import {
-  omit,
-  checkContext,
-  virtualsSerializer,
-  filterResolver
-} from '../utils';
+import { omit, checkContext } from '../utils';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const preventChange = (virtuals, prepFunc = () => {}) => {
+export const preventChange = (properties) => {
   return async (context) => {
     checkContext(context, 'before', ['update', 'patch'], 'preventChange');
 
@@ -15,19 +10,9 @@ export const preventChange = (virtuals, prepFunc = () => {}) => {
       return context;
     }
 
-    if (Array.isArray(virtuals)) {
-      context.data = Array.isArray(context.data)
-        ? context.data.map((d) => omit(d, virtuals))
-        : omit(context.data, virtuals);
-    } else {
-      context.data = await virtualsSerializer(
-        filterResolver,
-        context.data,
-        virtuals,
-        context,
-        prepFunc
-      );
-    }
+    context.data = Array.isArray(context.data)
+      ? context.data.map((data) => omit(data, properties))
+      : omit(context.data, properties);
 
     if (context.method === 'update') {
       if (!context.service._patch) {
