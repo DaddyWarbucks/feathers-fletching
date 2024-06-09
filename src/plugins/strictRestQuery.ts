@@ -39,9 +39,8 @@ export type StrictRestQueryOptions = {
   strictNullHandling?: boolean;
 };
 
-export const strictRestQuery =
-  (opts: StrictRestQueryOptions = {}) =>
-  (app: Application) => {
+export const strictRestQueryPlugin = (opts: StrictRestQueryOptions = {}) => {
+  return (app: Application) => {
     const options = Object.assign(
       {
         arrayLimit: 100,
@@ -57,3 +56,4 @@ export const strictRestQuery =
 
     return app;
   };
+};
