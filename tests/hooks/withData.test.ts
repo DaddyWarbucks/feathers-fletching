@@ -1,5 +1,5 @@
 import assert from 'assert';
-import {withData} from '../../src';
+import { withData } from '../../src';
 
 describe('withData', () => {
   it('Merges the data', async () => {
@@ -9,7 +9,7 @@ describe('withData', () => {
     };
 
     const newContext = await withData({
-      addedProp: 'addedProp'
+      addedProp: () => 'addedProp'
     })(context);
 
     await assert.deepEqual(newContext.data, {
@@ -25,7 +25,7 @@ describe('withData', () => {
     };
 
     const newContext = await withData({
-      addedProp: 'addedProp'
+      addedProp: () => 'addedProp'
     })(context);
 
     await assert.deepEqual(newContext.data, [

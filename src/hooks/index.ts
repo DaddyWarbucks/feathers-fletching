@@ -11,6 +11,3 @@ export * from './stashable';
 export * from './withData';
 export * from './withQuery';
 export * from './withResult';
-export * from './withoutData';
-export * from './withoutQuery';
-export * from './withoutResult';

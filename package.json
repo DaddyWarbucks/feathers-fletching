@@ -41,8 +41,9 @@
   "dependencies": {
     "@feathersjs/errors": "^5.0.6",
     "lru-cache": "^10.0.1",
-    "rate-limiter-flexible": "^2.4.2",
     "qs": "^6.11.2",
+    "rate-limiter-flexible": "^2.4.2",
+    "toposort": "^2.0.2",
     "unset-value": "^2.0.1"
   },
   "devDependencies": {

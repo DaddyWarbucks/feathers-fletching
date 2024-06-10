@@ -17,16 +17,6 @@
     "@typescript-eslint/no-explicit-any": "off",
     "no-console": "warn",
     "require-atomic-updates": "off",
-    "prefer-destructuring": [
-      "warn",
-      {
-        "AssignmentExpression": { "object": false, "array": false },
-        "VariableDeclarator": { "object": true, "array": true }
-      },
-      {
-        "enforceForRenamedProperties": false
-      }
-    ],
     "security/detect-object-injection": "off",
     "object-curly-spacing": ["warn", "always"],
     "prefer-const": ["warn"],

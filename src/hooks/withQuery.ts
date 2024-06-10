@@ -1,24 +1,15 @@
-import { virtualsSerializer, resolver } from '../utils';
-import type { Virtuals, PrepFunction } from '../utils';
+import { Resolver, isEmpty } from '../utils';
+import type { ResolverFunctions } from '../utils';
 
-/*
- * Force properties onto the query.
- * The value of each property in the virtuals object can be a function,
- * a promise, a function that returns a promise, or a simple value
- */
-export const withQuery = (
-  virtuals: Virtuals,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  prepFunc: PrepFunction = () => {}
-) => {
+export const withQuery = (resolvers: ResolverFunctions) => {
   return async (context) => {
-    context.params = context.params || {};
-    context.params.query = await virtualsSerializer(
-      resolver,
-      context.params.query || {},
-      virtuals,
-      context,
-      prepFunc
+    if (isEmpty(context.params.query)) {
+      return context;
+    }
+    const resolver = new Resolver(resolvers);
+    context.params.query = await resolver.resolve(
+      context.params.query,
+      context
     );
     return context;
   };

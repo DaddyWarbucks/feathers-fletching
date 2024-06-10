@@ -166,76 +166,6 @@ const withResults = withResult({
 */
 ```
 
-## withoutResult
-
-Remove properties from the `context.result` or `context.result.data` of a method call. This can be used similar to a "protect" hook.
-
-If you think of `withResult` (or any of the `with*` hooks) similar to `Array.prototype.map`, you can think of the `withoutResult` (or any of the `without*` hooks) as similar to `Array.prototype.filter`.
-
-For each resolver in the resolvers object, if the value returns a truthy value it will be kept and if it returns a falsey value it will be filtered.
-
-**Context**
-
-| Before | After | Methods | Multi |                                                 Source                                                  |
-| :----: | :---: | :-----: | :---: | :-----------------------------------------------------------------------------------------------------: |
-|   no   |  yes  |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutResult.ts) |
-
-**Arguments**
-
-| Argument  |       Type       | Default  | Required | Description                                                                                                                                                                         |
-| :-------: | :--------------: | :------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| resolvers |   Object/Array   |          |   true   | An object where each key will be the name of a property to be potentially filtered from result. **Return a truthy value to keep the value and return a falsey value to remove it**. |
-| prepFunc  | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.                              |
-
-```js
-import { withoutResult } from 'feathers-fletching';
-
-/*
-  context.result = {
-    name: 'Johnny Cash',
-    ssn: 123456789,
-    email: 'jcash@example.com'
-  }
-*/
-
-const withoutResults = withoutResult({
-  // simply pass false if you don't need to do any logic
-  // and this property will be filtered
-  ssn: false,
-
-  // Similar to all of the with* and without* hooks, you
-  // can use a function/promise with `result`, `context`, `prepResult` args
-  email: (result, context, prepResult) => {
-    return context.params.user.role === 'admin';
-  }
-});
-
-/*
-  // if authenticated user is admin
-  context.result = {
-    name: 'Johnny Cash',
-    email: 'jcash@example.com'
-  }
-
-  // if authenticated user is NOT admin
-  context.result = {
-    name: 'Johnny Cash'
-  }
-*/
-```
-
-```js
-// `withoutResult` also accepts an array of strings as the first
-// argument as a convenience syntax. When you use this syntax, `prepFunc`
-// is ignored.
-const withoutResults = withoutResult(['email', 'ssn']);
-// this is equivalent to
-const withoutResults = withoutResult({ email: false, ssn: false });
-
-// This syntax also supports dot notation of object paths
-const withoutResults = withoutResult(['role.role_type']);
-```
-
 ## withData
 
 Add or overwrite properties to the `context.data` of a method call. Useful for adding default data, creating joined data, and adding server side rules to data.
@@ -313,76 +243,6 @@ const withDatas = withData({
 */
 ```
 
-## withoutData
-
-Remove properties from the `context.data` of a method call. This hook can be used similar to a "preventChange" hook.
-
-If you think of `withData` (or any of the `with*` hooks) similar to `Array.prototype.map`, you can think of the `withoutData` (or any of the `without*` hooks) as similar to `Array.prototype.filter`.
-
-For each resolver in the resolvers object, if the value returns a truthy value it will be kept and if it returns a falsey value it will be filtered.
-
-**Context**
-
-| Before | After | Methods | Multi |                                                Source                                                 |
-| :----: | :---: | :-----: | :---: | :---------------------------------------------------------------------------------------------------: |
-|  yes   |  no   |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutData.ts) |
-
-**Arguments**
-
-| Argument  |       Type       | Default  | Required | Description                                                                                                                                                                       |
-| :-------: | :--------------: | :------: | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| resolvers |   Object/Array   |          |   true   | An object where each key will be the name of a property to be potentially filtered from data. **Return a truthy value to keep the value and return a falsey value to remove it**. |
-| prepFunc  | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.                            |
-
-```js
-import { withoutData } from 'feathers-fletching';
-
-/*
-  context.data = {
-    name: 'Johnny Cash',
-    ssn: 123456789,
-    email: 'themaninblack@example.com'
-  }
-*/
-
-const withoutDatas = withoutData({
-  // Simply pass false if you don't need to do any logic
-  // and this property will be filtered
-  ssn: false,
-
-  // Similar to all of the with* and without* hooks, you
-  // can use a function/promise with `result`, `context`, `prepResult` args
-  email: (data, context, prepResult) => {
-    return context.params.user.role === 'admin';
-  }
-});
-
-/*
-  // if authenticated user is admin
-  context.data = {
-    name: 'Johnny Cash',
-    email: 'themaninblack@example.com'
-  }
-
-  // if authenticated user is NOT admin
-  context.data = {
-    name: 'Johnny Cash'
-  }
-*/
-```
-
-```js
-// `withoutData` also accepts an array of strings as the first
-// argument as a convenience syntax. When you use this syntax, `prepFunc`
-// is ignored.
-const withoutDatas = withoutData(['email', 'ssn']);
-// this is equivalent to
-const withoutDatas = withoutData({ email: false, ssn: false });
-
-// This syntax also supports dot notation of object paths
-const withoutResults = withoutResult(['role.role_type']);
-```
-
 ## withQuery
 
 Add or overwrite properties to the `context.params.query` of a method call. This hook is useful for creating "ACL" rules by enforicing some queries are only added via the server.
@@ -449,67 +309,6 @@ const withQueries = withQuery({
 */
 ```
 
-## withoutQuery
-
-Remove properties from the `context.params.query` of a method call. See the [withoutResult](#withoutResult) docs for more detailed info about how resolvers and prepFunc work in the `without*` hooks.
-
-**Context**
-
-| Before | After | Methods | Multi |                                                 Source                                                 |
-| :----: | :---: | :-----: | :---: | :----------------------------------------------------------------------------------------------------: |
-|  yes   |  no   |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/withoutQuery.ts) |
-
-**Arguments**
-
-| Argument  |       Type       | Default  | Required | Description                                                                                                                                                                                         |
-| :-------: | :--------------: | :------: | :------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| resolvers |   Object/Array   |          |   true   | An object where each key will be the name of a property to be potentially filtered from `context.params.query`. **Return a truthy value to keep the value and return a falsey value to remove it**. |
-| prepFunc  | Function/Promise | () => {} |  false   | A function, or promise, that takes argument `context`. The result of this function will be passed to each serializer function in the resolvers object.                                              |
-
-```js
-import { withoutQuery } from 'feathers-fletching';
-
-/*
-  context.params.query = {
-    name: 'Johnny Cash',
-    ssn: 123456789
-  }
-*/
-
-const withoutQueries = withoutQuery({
-  ssn: (data, context, prepResult) => {
-    // If the authenticated user is an admin,
-    // they can query by ssn
-    return context.params.user.role === 'admin';
-  }
-});
-
-/*
-  // if authenticated user is admin
-  context.params.query = {
-    name: 'Johnny Cash',
-    role: 123456789
-  }
-
-  // if authenticated user is NOT admin
-  context.params.query = {
-    name: 'Johnny Cash'
-  }
-*/
-```
-
-```js
-// `withoutQuery` also accepts an array of strings as the first
-// argument as a convenience syntax. When you use this syntax, `prepFunc`
-// is ignored.
-const withoutQueries = withoutQuery(['email', 'ssn']);
-// this is equivalent to
-const withoutQueries = withoutQuery({ email: false, ssn: false });
-
-// This syntax also supports dot notation of object paths
-const withoutResults = withoutResult(['role.role_type']);
-```
-
 ## joinQuery
 
 Query across services for "joined" records on any database type. This hook relies on the service interface, rather than the database, to query across services allowing you to query similar to a relational database even on services that are NoSQL or even those that do not have a database at all.
@@ -524,7 +323,7 @@ Query across services for "joined" records on any database type. This hook relie
 
 |     Argument      |       Type       |                       Default                       | Required | Description                                                                                                                                     |
 | :---------------: | :--------------: | :-------------------------------------------------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-|      options      |      Object      |                                                     |   true   | An object where each key will be the name of a query prop that the client can use and each value defines the service and ids                         |
+|      options      |      Object      |                                                     |   true   | An object where each key will be the name of a query prop that the client can use and each value defines the service and ids                    |
 |  option.service   |      String      |                                                     |   true   | The string name of the service to query against                                                                                                 |
 | option.targetKey  |      String      |                                                     |   true   | The name of the key that exists on the collection this service is querying                                                                      |
 | option.foreignKey |      String      |                                                     |   true   | The name of the key on the foreign record. Generally this will be `id` or `_id`                                                                 |
@@ -738,19 +537,19 @@ The hook constructs a `params.pipeline` that uses the aggregation framework's `$
 
 **Context**
 
-| Before | After | Methods | Multi |                                               Source                                                |
-| :----: | :---: | :-----: | :---: | :-------------------------------------------------------------------------------------------------: |
-|  yes   |  no  |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/mongoJoinQuery.ts) |
+| Before | After | Methods | Multi |                                                  Source                                                  |
+| :----: | :---: | :-----: | :---: | :------------------------------------------------------------------------------------------------------: |
+|  yes   |  no   |   all   |  yes  | [View Code](https://github.com/daddywarbucks/feathers-fletching/blob/master/src/hooks/mongoJoinQuery.ts) |
 
 **Arguments**
 
-|     Argument      |       Type       |                       Default                       | Required | Description                                                                                                                                     |
-| :---------------: | :--------------: | :-------------------------------------------------: | :------: | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-|      options      |      Object      |                                                     |   true   | An object where each key will be the name of a query prop that the client can use and each value defines the service and ids                         |
-|  option.service   |      String      |                                                     |   true   | The string name of the service to query against                                                                                                 |
-| option.localField  |      String      |                                                     |   true   | The name of the key that exists on the collection this service is querying                                                                      |
-| option.foreignField |      String      |                                                     |   true   | The name of the key on the foreign record. Generally this will be `id` or `_id`                                                                 |
-| option.makeParams | Function/Promise | `(defaultParams, context, option) => defaultParams` |  false   | A function/promise that returns params to be sent to the `option.service` find method.                                                          |
+|      Argument       |       Type       |                       Default                       | Required | Description                                                                                                                  |
+| :-----------------: | :--------------: | :-------------------------------------------------: | :------: | ---------------------------------------------------------------------------------------------------------------------------- |
+|       options       |      Object      |                                                     |   true   | An object where each key will be the name of a query prop that the client can use and each value defines the service and ids |
+|   option.service    |      String      |                                                     |   true   | The string name of the service to query against                                                                              |
+|  option.localField  |      String      |                                                     |   true   | The name of the key that exists on the collection this service is querying                                                   |
+| option.foreignField |      String      |                                                     |   true   | The name of the key on the foreign record. Generally this will be `id` or `_id`                                              |
+|  option.makeParams  | Function/Promise | `(defaultParams, context, option) => defaultParams` |  false   | A function/promise that returns params to be sent to the `option.service` find method.                                       |
 
 ```js
 import { mongoJoinQuery } from 'feathers-fletching';
@@ -816,7 +615,6 @@ To query documents nested multiple levels deep, each corresponding service must 
 > Take caution when using this hook with your own hooks (or others) that also modify the `params.pipeline`. Be sure to understand how the feathers mongo adapter uses the `params.pipeline` and `$feathers` stage. See [more info](https://feathersjs.com/api/databases/mongodb.html#the-feathers-stage).
 
 This hook works by adding a `$lookup` stage for every association, adding the `$feathers` stage so it can query those associations, and then adding a `$project` that remove any associations. The associations are removed to prevent leaking data. For example, if someone queried by `user.name` Mongo joins the whole user onto the record so that you can query it. But, you don't want to leak the user's email or password, so the `$project` stage removes all associations. Similar to other hooks in this library, the `mongoJoinQuery` hook is meant to be a query mechanism only, not necessarily a joining/populating mechanism. When adding your own stages to the pipeline, be sure to keep this in mind. You may have added your own `$lookup` stage to join `artist`, and then also queried by `artist.name`, which would remove the `artist` you purposefully joined. You should use `withResult` or Feathers resolvers to join documents onto the result. Keep in mind that you can use the service's ``
-
 
 ## sequelizeJoinQuery
 
@@ -1252,7 +1050,7 @@ const sanitized = sanitizeError(context => {
 
 ## sanitizeResult
 
-Replace sensitive items in the `context.result` according to a schema. This hook improves security by ensuring sensitive data is "masked" before leaving the server. Unlike [withoutResult](#withoutResult) that removes properties totally (and you have to know those property names), this hook is a catch-all that ensures any property on any result does not contain sensitive data.
+Replace sensitive items in the `context.result` according to a schema. This hook improves security by ensuring sensitive data is "masked" before leaving the server.
 
 **Context**
 

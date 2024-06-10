@@ -1,26 +1,18 @@
-import {
-  virtualsSerializer,
-  resolver,
-  getResults,
-  replaceResults
-} from '../utils';
-import type { Virtuals, PrepFunction } from '../utils';
+import { Resolver, getResults, replaceResults } from '../utils';
+import type { ResolverFunctions } from '../utils';
 
-export const withResult = (
-  virtuals: Virtuals,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  prepFunc: PrepFunction = () => {}
-) => {
+export const withResult = (resolvers: ResolverFunctions) => {
   return async (context) => {
-    const results = getResults(context);
-    const updated = await virtualsSerializer(
-      resolver,
-      results,
-      virtuals,
-      context,
-      prepFunc
-    );
-    replaceResults(context, updated);
+    const resolver = new Resolver(resolvers);
+    let results = getResults(context);
+    if (Array.isArray(results)) {
+      results = await Promise.all(
+        results.map((result) => resolver.resolve(result, context))
+      );
+    } else {
+      results = await resolver.resolve(results, context);
+    }
+    replaceResults(context, results);
     return context;
   };
 };

@@ -1,6 +1,6 @@
 import type { HookContext } from '@feathersjs/feathers';
 import { GeneralError } from '@feathersjs/errors';
-import toposort from "toposort";
+import toposort from 'toposort';
 import { isEmpty, isPromise } from './utils';
 
 export type ResolverFunction = (
@@ -20,43 +20,89 @@ export class Resolver {
     this.options = { resolvers };
   }
 
-  resolve(data, context, callback) {
+  resolve(data, context) {
     const { resolvers } = this.options;
 
     if (isEmpty(resolvers)) {
-      return callback(data);
+      return data;
     }
 
+    data = { ...data };
+    const keys = Object.keys(resolvers);
     const propertyResolver = new PropertyResolver({
       data,
       context,
       resolvers
     });
 
-    const result = { ...data };
-    const keys = Object.keys(resolvers);
-    let done = 0
-
-    const handleDone = (key, value) => {
-      done++
-      if (value !== undefined) {
-        result[key] = value;
+    return new Promise((resolve, reject) => {
+      try {
+        keys.forEach((key, index) => {
+          Callback.resolve(
+            () => propertyResolver.resolve(key),
+            (resolved) => {
+              if (resolved === undefined) {
+                delete data[key];
+              } else {
+                data[key] = resolved;
+              }
+              if (index === keys.length - 1) {
+                resolve(data);
+              }
+            },
+            (error) => reject(error)
+          );
+        });
+      } catch (error) {
+        reject(error);
       }
-      if (done === keys.length) {
-        callback(result);
-      }
-    }
-
-    keys.forEach((key) => {
-      const resolved = propertyResolver.resolve(key);
-      if (isPromise(resolved)) {
-        resolved.then((value) => handleDone(key, value));
-        return;
-      }
-      handleDone(key, resolved)
     });
   }
+
+  async resolvePromise(data, context) {
+    const { resolvers } = this.options;
+
+    if (isEmpty(resolvers)) {
+      return data;
+    }
+
+    data = { ...data };
+    const keys = Object.keys(resolvers);
+    const propertyResolver = new PropertyResolver({
+      data,
+      context,
+      resolvers
+    });
+
+    await Promise.all(
+      keys.map(async (key) => {
+        const resolved = await propertyResolver.resolve(key);
+        if (resolved === undefined) {
+          delete data[key];
+        } else {
+          data[key] = resolved;
+        }
+      })
+    );
+
+    return data;
+  }
 }
+
+export const Callback = {
+  resolve: function (callback, resolve, reject) {
+    try {
+      const maybePromise = callback();
+      if (isPromise(maybePromise)) {
+        maybePromise.then(resolve).catch(reject);
+        return;
+      }
+      resolve(maybePromise);
+    } catch (error) {
+      reject(error);
+    }
+  }
+};
 
 class PropertyResolver {
   options: {
@@ -64,9 +110,9 @@ class PropertyResolver {
     context: HookContext;
     resolvers: ResolverFunctions;
     cache: Record<string, Promise<any>>;
-    edges: Array<[string, string]>,
+    edges: Array<[string, string]>;
     key: string | null;
-  }
+  };
 
   constructor(options) {
     this.options = {
@@ -90,7 +136,7 @@ class PropertyResolver {
     const resolver = resolvers[key];
 
     if (!resolver) {
-      return data[key];
+      return undefined;
     }
 
     const cached = cache[key];
@@ -101,14 +147,17 @@ class PropertyResolver {
 
     if (parentKey) {
       edges.push([parentKey, key]);
-      try {
-        toposort(edges);
-      } catch (error) {
-        throw new GeneralError(error.message);
-      }
     }
 
-    const propertyResolver = new PropertyResolver({ ...this.options, key });
+    try {
+      toposort(edges);
+    } catch (error) {
+      throw new GeneralError(error.message);
+    }
+
+    const propertyResolver = parentKey
+      ? this
+      : new PropertyResolver({ ...this.options, key });
 
     const resolved = resolver(data, context, propertyResolver);
 
