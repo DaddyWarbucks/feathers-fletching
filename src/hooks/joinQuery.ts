@@ -135,9 +135,9 @@ const cleanJoinQuerySort = (
     return isJoinQuery(key, options);
   });
 
-  const joinSort = pick(query.$sort, joinKeys);
-  const cleanSort = omit(query.$sort, joinKeys);
-  const cleanQuery = omit(query, ['$sort']);
+  const joinSort = pick(query.$sort, ...joinKeys);
+  const cleanSort = omit(query.$sort, ...joinKeys);
+  const cleanQuery = omit(query, '$sort');
 
   if (!isEmpty(cleanSort)) {
     cleanQuery.$sort = cleanSort;

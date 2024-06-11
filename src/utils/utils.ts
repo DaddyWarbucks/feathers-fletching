@@ -1,31 +1,30 @@
 import unset from 'unset-value';
+import get from 'get-value';
+import has from 'has-value';
+import set from 'set-value';
 
-export const omit = <
-  O extends Record<string, any>,
-  Keys extends (keyof O)[] = (keyof O)[]
->(
-  obj: O,
-  keys: Keys
-): Omit<O, Keys[number]> => {
-  const result = Object.assign({}, obj);
-  keys.forEach((key: string) => unset(result, key));
-  return result;
+export const omit = (
+  obj: Record<string, any>,
+  ...paths: string[]
+): Record<string, any> => {
+  const nested = paths.some((path) => path.includes('.'));
+  const result = nested ? clone(obj) : { ...obj };
+  paths.forEach((path: string) => unset(result, path));
+  return result as Record<string, any>;
 };
 
-export const pick = <
-  O extends Record<string, any>,
-  Keys extends (keyof O)[] = (keyof O)[]
->(
-  obj: O,
-  keys: Keys
-): Pick<O, Keys[number]> =>
-  keys.reduce((result, key) => {
-    if (obj[key] !== undefined) {
-      result[key] = obj[key];
+export const pick = (
+  obj: Record<string, any>,
+  ...paths: string[]
+): Record<string, any> => {
+  const result = {};
+  paths.forEach((key) => {
+    if (has(obj, key)) {
+      set(result, key, get(obj, key));
     }
-
-    return result;
-  }, {} as Pick<O, Keys[number]>);
+  });
+  return result as Record<string, any>;
+};
 
 export const isPromise = <T = any>(
   maybePromise: any

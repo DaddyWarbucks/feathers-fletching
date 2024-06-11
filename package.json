@@ -40,9 +40,13 @@
   },
   "dependencies": {
     "@feathersjs/errors": "^5.0.6",
+    "bson-objectid": "^2.0.4",
+    "get-value": "^3.0.1",
+    "has-value": "^2.0.2",
     "lru-cache": "^10.0.1",
     "qs": "^6.11.2",
     "rate-limiter-flexible": "^2.4.2",
+    "set-value": "^4.1.0",
     "toposort": "^2.0.2",
     "unset-value": "^2.0.1"
   },

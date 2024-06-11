@@ -4,4 +4,3 @@ export * from './resolver';
 export * from './sanitize';
 export * from './skippable';
 export * from './utils';
-export * from './virtualsSerializer';

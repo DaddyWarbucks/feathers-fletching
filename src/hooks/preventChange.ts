@@ -11,8 +11,8 @@ export const preventChange = (properties) => {
     }
 
     context.data = Array.isArray(context.data)
-      ? context.data.map((data) => omit(data, properties))
-      : omit(context.data, properties);
+      ? context.data.map((data) => omit(data, ...properties))
+      : omit(context.data, ...properties);
 
     if (context.method === 'update') {
       if (!context.service._patch) {
