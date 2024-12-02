@@ -538,6 +538,7 @@ const transformJoinQuery = async (query, context, options) => {
   return query;
 };
 const findJoinQuerySort = async (query, joinSort, context, options) => {
+  if (query.$limit) query.$limit = -1;
   const transformedJoinQuery = await transformJoinQuery(
     query,
     context,
