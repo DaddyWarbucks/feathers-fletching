@@ -244,6 +244,7 @@ const findJoinQuerySort = async (
   context: HookContext,
   options: JoinQueryOptionsRequired
 ) => {
+  if (query.$limit) query.$limit = -1;
   const transformedJoinQuery = await transformJoinQuery(
     query,
     context,
