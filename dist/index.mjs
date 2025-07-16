@@ -1,4 +1,4 @@
-import { GeneralError, TooManyRequests, BadRequest } from '@feathersjs/errors';
+import { GeneralError, TooManyRequests } from '@feathersjs/errors';
 import { LRUCache } from 'lru-cache';
 import unset from 'unset-value';
 import qs from 'qs';
@@ -801,13 +801,30 @@ const getColumnProp = (str) => {
   const path = removeColumnSyntax(str);
   return path.substring(path.lastIndexOf(".") + 1);
 };
+const collectColumnPaths = (query, acc = /* @__PURE__ */ new Set()) => {
+  if (Array.isArray(query)) {
+    query.forEach((q) => collectColumnPaths(q, acc));
+    return acc;
+  }
+  if (typeof query !== "object" || !query) {
+    return acc;
+  }
+  Reflect.ownKeys(query).forEach((key) => {
+    const value = query[key];
+    if (typeof key === "string" && isColumnQuery(key)) {
+      acc.add(getColumnPath(key));
+    }
+    if (typeof value === "object" && value !== null) {
+      collectColumnPaths(value, acc);
+    }
+  });
+  return acc;
+};
 const getColumnPaths = (query) => {
-  const queryPaths = filterColumnQueries(query);
+  const queryPaths = collectColumnPaths(query);
   const sortPaths = filterColumnQueries(query.$sort);
   const selectPaths = filterColumnQueries(query.$select);
-  const orQueries = (query.$or || []).map(Object.keys).reduce((acc, val) => acc.concat(val), []);
-  const orPaths = filterColumnQueries(orQueries);
-  return unique([...queryPaths, ...selectPaths, ...sortPaths, ...orPaths]);
+  return unique([...Array.from(queryPaths), ...selectPaths, ...sortPaths]);
 };
 const getOrder = (key, value) => {
   return [key, parseInt(value, 10) === 1 ? "ASC" : "DESC"];
@@ -856,7 +873,7 @@ const getJoinInclude = (columnPaths, associations, getIncludeOptions, context) =
   );
   rootPaths.forEach((rootPath) => {
     if (!associations[rootPath]) {
-      throw new BadRequest(`Invalid join query: ${rootPath}`);
+      return;
     }
     const association = associations[rootPath];
     const includeOptions = getIncludeOptions(association, context);

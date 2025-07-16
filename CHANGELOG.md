@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-## 2.0.6 (2025-07-16)
+## 2.0.7 (2025-07-16)
 
 sequelizeJoinQuery:
 
