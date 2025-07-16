@@ -1,5 +1,12 @@
 # CHANGELOG.md
 
+## 2.0.4 (2025-07-16)
+
+sequelizeJoinQuery:
+
+- Now supports nested $and/$or queries.
+- No longer throws "Invalid joinQuery" error. This allows querying on nested JSONB columns like `$joined.json_column.json_field$`.
+
 ## 2.0.0 (2023-08-25)
 
 General:
@@ -16,7 +23,7 @@ Breaking:
 
 joinQuery:
 
-- Now supports nested $and/$or queries
-- Adds and defaults `overwrite` option to `false`
-- More accurate sorting
-- Does not throw error when no results found on `find` method
+- Now supports nested $and/$or queries.
+- Adds and defaults `overwrite` option to `false`.
+- More accurate sorting.
+- Does not throw error when no results found on `find` method.
