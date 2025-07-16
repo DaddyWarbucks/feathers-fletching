@@ -104,7 +104,7 @@ const getJoinInclude = (
   );
   rootPaths.forEach((rootPath) => {
     if (!associations[rootPath]) {
-      throw new BadRequest(`Invalid join query: ${rootPath}`);
+      return;
     }
     const association = associations[rootPath];
     const includeOptions = getIncludeOptions(association, context);
