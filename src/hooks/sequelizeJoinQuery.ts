@@ -1,4 +1,4 @@
-import { GeneralError, BadRequest } from '@feathersjs/errors';
+import { GeneralError } from '@feathersjs/errors';
 import type { MaybeArray } from '../utils';
 import { hasQuery } from '../utils';
 import type { HookContext, Query } from '@feathersjs/feathers';
