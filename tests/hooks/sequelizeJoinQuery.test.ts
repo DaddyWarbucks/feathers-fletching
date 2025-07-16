@@ -195,8 +195,10 @@ describe('sequelizeJoinQuery', () => {
         query: {
           $or: [
             {
-              '$artist.name$': 'Johnny Cash',
-              '$artist.name$': 'Elvis Presly'
+              '$artist.name$': 'Johnny Cash'
+            },
+            {
+              '$label.name$': 'Sun Studios'
             }
           ]
         }
@@ -209,6 +211,91 @@ describe('sequelizeJoinQuery', () => {
       include: [
         {
           association: artist,
+          attributes: [],
+          required: true
+        },
+        {
+          association: label,
+          attributes: [],
+          required: true
+        }
+      ]
+    });
+  });
+
+  it('Joins the $and association query', async () => {
+    const context = {
+      app,
+      service,
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          $and: [
+            {
+              '$artist.name$': 'Johnny Cash'
+            },
+            {
+              '$label.name$': 'Sun Studios'
+            }
+          ]
+        }
+      }
+    };
+
+    const newContext = await sequelizeJoinQuery()(context);
+
+    await assert.deepStrictEqual(newContext.params.sequelize, {
+      include: [
+        {
+          association: artist,
+          attributes: [],
+          required: true
+        },
+        {
+          association: label,
+          attributes: [],
+          required: true
+        }
+      ]
+    });
+  });
+
+  it('Joins nested $and/$or association query', async () => {
+    const context = {
+      app,
+      service,
+      type: 'before',
+      method: 'find',
+      params: {
+        query: {
+          $and: [
+            {
+              $or: [
+                {
+                  '$artist.name$': 'Johnny Cash'
+                },
+                {
+                  '$label.name$': 'Sun Studios'
+                }
+              ]
+            }
+          ]
+        }
+      }
+    };
+
+    const newContext = await sequelizeJoinQuery()(context);
+
+    await assert.deepStrictEqual(newContext.params.sequelize, {
+      include: [
+        {
+          association: artist,
+          attributes: [],
+          required: true
+        },
+        {
+          association: label,
           attributes: [],
           required: true
         }

@@ -32,18 +32,36 @@ const getColumnProp = (str: string) => {
   return path.substring(path.lastIndexOf('.') + 1);
 };
 
-// TODO: This currenlty only supports the feathers common query
-// syntax. But it should probably include things like $and and
-// other sequelize specific operators
+const collectColumnPaths = (query: any, acc: Set<string> = new Set()) => {
+  if (Array.isArray(query)) {
+    query.forEach((q) => collectColumnPaths(q, acc));
+    return acc;
+  }
+
+  if (typeof query !== 'object' || !query) {
+    return acc;
+  }
+
+  Reflect.ownKeys(query).forEach((key) => {
+    const value = query[key];
+
+    if (typeof key === 'string' && isColumnQuery(key)) {
+      acc.add(getColumnPath(key));
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      collectColumnPaths(value, acc);
+    }
+  });
+
+  return acc;
+};
+
 const getColumnPaths = (query: Query) => {
-  const queryPaths = filterColumnQueries(query);
+  const queryPaths = collectColumnPaths(query);
   const sortPaths = filterColumnQueries(query.$sort);
   const selectPaths = filterColumnQueries(query.$select);
-  const orQueries = (query.$or || [])
-    .map(Object.keys)
-    .reduce((acc, val) => acc.concat(val), []);
-  const orPaths = filterColumnQueries(orQueries);
-  return unique([...queryPaths, ...selectPaths, ...sortPaths, ...orPaths]);
+  return unique([...Array.from(queryPaths), ...selectPaths, ...sortPaths]);
 };
 
 const getOrder = (key: string, value: string) => {
